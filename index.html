@@ -25,7 +25,7 @@
     .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
     .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
 
-    /* AJUSTADO PARA OCUPAR A TELA INTEIRA */
+    /* TELA INTEIRA */
     .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; }
     .tab-content.active { display: flex; }
 
@@ -59,7 +59,6 @@
     main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; }
     .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; min-height: 420px; }
     
-    /* CORES DOS CARDS DOS ATLETAS */
     .athlete-1 { background: #e5e7eb; border-color: #9ca3af; color: #1f2937; }
     .athlete-2 { background: #0b1c3d; border-color: #1d4ed8; color: #f3f4f6; }
 
@@ -159,7 +158,7 @@
     .btn-view-score { width: 100%; background: #475569; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 4px; font-size: 0.7rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 4px; }
     .btn-view-score:hover { background: #334155; }
 
-    /* MODAL DE CONSULTA DE PLACAR */
+    /* MODAL */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); }
     .modal-overlay.active { display: flex; }
     .modal-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 450px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
@@ -175,7 +174,6 @@
     .summary-stats strong { color: var(--text-main); font-size: 1.1rem; }
     .match-meta-info { font-size: 0.75rem; color: var(--text-muted); background: var(--surface-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
 
-    /* RESPONSIVIDADE MOBILE / TABLET */
     @media (max-width: 900px) {
       .scoreboard-header { grid-template-columns: 1fr; gap: 10px; }
       main.scoreboard-main { grid-template-columns: 1fr; }
@@ -394,7 +392,7 @@
 
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
           <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
-          <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
+          <label for="b-shuffle" style="font-size:0.75rem; color:var::text-main; font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
         </div>
 
         <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave</button>
@@ -414,8 +412,7 @@
         <div class="modal-title" id="modalMatchTitle">Detalhes da Luta</div>
         <button class="modal-close" onclick="closeScoreModal()">✕</button>
       </div>
-      <div class="modal-body" id="modalMatchBody">
-        </div>
+      <div class="modal-body" id="modalMatchBody"></div>
     </div>
   </div>
 
@@ -429,18 +426,25 @@
     let activeMatchTracker = null; 
 
     window.onload = function() {
-      const savedTournaments = localStorage.getItem('tatame_tournaments');
-      const savedGroupId = localStorage.getItem('tatame_globalGroupId');
+      try {
+        const savedTournaments = localStorage.getItem('tatame_tournaments');
+        const savedGroupId = localStorage.getItem('tatame_globalGroupId');
 
-      if (savedTournaments) tournaments = JSON.parse(savedTournaments);
-      if (savedGroupId) globalGroupId = parseInt(savedGroupId);
-
+        if (savedTournaments) tournaments = JSON.parse(savedTournaments);
+        if (savedGroupId) globalGroupId = parseInt(savedGroupId);
+      } catch(e) {
+        console.error("Erro ao carregar dados do LocalStorage", e);
+      }
       renderBrackets();
     };
 
     function saveData() {
-      localStorage.setItem('tatame_tournaments', JSON.stringify(tournaments));
-      localStorage.setItem('tatame_globalGroupId', globalGroupId);
+      try {
+        localStorage.setItem('tatame_tournaments', JSON.stringify(tournaments));
+        localStorage.setItem('tatame_globalGroupId', globalGroupId);
+      } catch(e) {
+        console.error("Erro ao salvar dados no LocalStorage", e);
+      }
     }
 
     function switchTab(tabId) {
@@ -469,12 +473,18 @@
     function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
 
     function playBuzzer() {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
-      gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
-      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const audioCtx = new AudioContextClass();
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
+        gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+      } catch(e) {
+        console.log("Áudio bloqueado ou não suportado pelo navegador.");
+      }
     }
 
     function startTimer() {
@@ -630,6 +640,9 @@
           } else if (a2 === "BYE" && a1 !== "BYE") {
             winner = a1;
             matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a1, referee:"Automático", method:"W.O. / BYE" };
+          } else if (a1 === "BYE" && a2 === "BYE") {
+            winner = "BYE";
+            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: "BYE", referee:"Automático", method:"W.O. / BYE" };
           }
 
           matches.push({
@@ -642,6 +655,23 @@
         }
         rounds.push({ roundName: getRoundName(currentRoundAthletes.length), matches: matches });
         currentRoundAthletes = new Array(currentRoundAthletes.length / 2).fill("A definir");
+      }
+
+      // Propagar automaticamente os vencedores dos BYEs para a rodada seguinte logo na criação
+      for (let r = 0; r < rounds.length - 1; r++) {
+        for (let m = 0; m < rounds[r].matches.length; m++) {
+          let match = rounds[r].matches[m];
+          if (match.winner) {
+            let nextMatchIdx = Math.floor(m / 2);
+            let isEven = (m % 2 === 0);
+            let nextMatch = rounds[r + 1].matches[nextMatchIdx];
+            if (isEven) {
+              nextMatch.athlete1 = match.winner;
+            } else {
+              nextMatch.athlete2 = match.winner;
+            }
+          }
+        }
       }
 
       const groupId = 'group_' + (globalGroupId++);
@@ -723,7 +753,11 @@
             html += `</div>`;
 
             // Botões de ação da luta
-            if (!match.winner && match.athlete1 !== "BYE" && match.athlete2 !== "BYE" && match.athlete1 !== "A definir" && match.athlete2 !== "A definir") {
+            let isPlayable = !match.winner && 
+                             match.athlete1 !== "BYE" && match.athlete2 !== "BYE" && 
+                             match.athlete1 !== "A definir" && match.athlete2 !== "A definir";
+
+            if (isPlayable) {
               html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', ${rIdx}, ${mIdx})">▶️ Carregar no Placar</button>`;
             } else if (match.winner && match.matchRecord && match.matchRecord.method !== "W.O. / BYE") {
               html += `<button class="btn-view-score" onclick='openScoreModal(${JSON.stringify(match.matchRecord)})'>📋 Ver Placar</button>`;
