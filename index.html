@@ -392,7 +392,7 @@
 
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
           <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
-          <label for="b-shuffle" style="font-size:0.75rem; color:var::text-main; font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
+          <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
         </div>
 
         <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave</button>
@@ -420,6 +420,7 @@
     let scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
     let defaultSeconds = 300, remainingSeconds = defaultSeconds;
     let timerInterval = null, isRunning = false;
+    let audioCtx = null;
     
     let tournaments = {}; 
     let globalGroupId = 1;
@@ -472,11 +473,21 @@
     }
     function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
 
+    function initAudio() {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch(e) { console.log(e); }
+    }
+
     function playBuzzer() {
       try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        const audioCtx = new AudioContextClass();
+        if (!audioCtx) return;
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
         osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
@@ -488,6 +499,7 @@
     }
 
     function startTimer() {
+      initAudio();
       if (isRunning) return;
       isRunning = true;
       timerInterval = setInterval(() => {
@@ -613,18 +625,31 @@
         alert("Insira pelo menos 2 atletas para gerar a chave."); return;
       }
 
+      // Fisher-Yates Shuffle (Compatível com Safari e Firefox)
       if (document.getElementById('b-shuffle').checked) {
-        athletes.sort(() => Math.random() - 0.5);
+        for (let i = athletes.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [athletes[i], athletes[j]] = [athletes[j], athletes[i]];
+        }
       }
 
       let power = 1;
       while (power < athletes.length) power *= 2;
-      while (athletes.length < power) {
-        athletes.push("BYE");
+      
+      let byesCount = power - athletes.length;
+      let currentRoundAthletes = [];
+      
+      for (let i = 0; i < power / 2; i++) {
+        currentRoundAthletes.push(athletes.shift());
+        if (byesCount > 0) {
+          currentRoundAthletes.push("BYE");
+          byesCount--;
+        } else {
+          currentRoundAthletes.push(athletes.shift());
+        }
       }
 
       let rounds = [];
-      let currentRoundAthletes = athletes;
 
       while (currentRoundAthletes.length >= 2) {
         let matches = [];
@@ -657,7 +682,6 @@
         currentRoundAthletes = new Array(currentRoundAthletes.length / 2).fill("A definir");
       }
 
-      // Propagar automaticamente os vencedores dos BYEs para a rodada seguinte logo na criação
       for (let r = 0; r < rounds.length - 1; r++) {
         for (let m = 0; m < rounds[r].matches.length; m++) {
           let match = rounds[r].matches[m];
@@ -760,7 +784,8 @@
             if (isPlayable) {
               html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', ${rIdx}, ${mIdx})">▶️ Carregar no Placar</button>`;
             } else if (match.winner && match.matchRecord && match.matchRecord.method !== "W.O. / BYE") {
-              html += `<button class="btn-view-score" onclick='openScoreModal(${JSON.stringify(match.matchRecord)})'>📋 Ver Placar</button>`;
+              let encodedData = encodeURIComponent(JSON.stringify(match.matchRecord));
+              html += `<button class="btn-view-score" onclick="openScoreModal('${encodedData}')">📋 Ver Placar</button>`;
             }
 
             html += `</div>`;
@@ -826,7 +851,8 @@
       renderBrackets();
     }
 
-    function openScoreModal(record) {
+    function openScoreModal(encodedRecord) {
+      let record = JSON.parse(decodeURIComponent(encodedRecord));
       document.getElementById('modalMatchTitle').innerText = `Placar: ${record.athlete1} vs ${record.athlete2}`;
       
       let bodyHtml = `
