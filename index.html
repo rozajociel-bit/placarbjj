@@ -25,7 +25,8 @@
     .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
     .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
 
-    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
+    /* AJUSTADO PARA OCUPAR A TELA INTEIRA */
+    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; }
     .tab-content.active { display: flex; }
 
     /* CABEÇALHO DO PLACAR */
@@ -552,47 +553,63 @@
       const age = document.getElementById('b-age').value;
       const belt = document.getElementById('b-belt').value;
       const weight = document.getElementById('b-weight').value;
-      const timeMinutes = parseInt(document.getElementById('b-time').value) || 5;
-      const rawAthletes = document.getElementById('b-athletes').value.split('\n').map(item => item.trim()).filter(Boolean);
-
-      if (rawAthletes.length < 2) {
-        alert("Insira pelo menos 2 atletas para gerar a chave.");
+      const timeMin = parseInt(document.getElementById('b-time').value) || 5;
+      
+      const rawText = document.getElementById('b-athletes').value.trim();
+      if (!rawText) {
+        alert("Insira pelo menos 2 atletas.");
         return;
       }
 
-      let athletes = [...rawAthletes];
+      let athletes = rawText.split('\n').map(a => a.trim()).filter(a => a.length > 0);
+      if (athletes.length < 2) {
+        alert("Insira ao menos 2 atletas para gerar uma chave.");
+        return;
+      }
+
       if (document.getElementById('b-shuffle').checked) {
-        athletes.sort(() => Math.random() - 0.5);
+        for (let i = athletes.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [athletes[i], athletes[j]] = [athletes[j], athletes[i]];
+        }
       }
 
-      const groupId = globalGroupId++;
       let nextPowerOfTwo = 1;
-      while (nextPowerOfTwo < athletes.length) nextPowerOfTwo *= 2;
-
-      let paddedAthletes = [...athletes];
-      while (paddedAthletes.length < nextPowerOfTwo) {
-        paddedAthletes.push("BYE (Folga)");
+      while (nextPowerOfTwo < athletes.length) {
+        nextPowerOfTwo *= 2;
+      }
+      
+      while (athletes.length < nextPowerOfTwo) {
+        athletes.push("BYE (Folga)");
       }
 
-      let rounds = [];
-      let firstRoundMatches = [];
+      const totalRounds = Math.log2(nextPowerOfTwo);
+      let roundsData = [];
       let matchCounter = 1;
 
-      for (let i = 0; i < paddedAthletes.length; i += 2) {
+      let firstRoundMatches = [];
+      for (let i = 0; i < athletes.length; i += 2) {
+        let a1 = athletes[i];
+        let a2 = athletes[i+1];
+        let winner = null;
+        let method = null;
+
+        if (a1 === "BYE (Folga)") { winner = a2; method = "W.O."; }
+        else if (a2 === "BYE (Folga)") { winner = a1; method = "W.O."; }
+
         firstRoundMatches.push({
           id: matchCounter++,
-          athlete1: paddedAthletes[i],
-          athlete2: paddedAthletes[i+1],
-          winner: null,
-          method: null,
-          referee: null,
-          time: timeMinutes
+          athlete1: a1,
+          athlete2: a2,
+          winner: winner,
+          method: method,
+          referee: null
         });
       }
-      rounds.push(firstRoundMatches);
+      roundsData.push(firstRoundMatches);
 
-      while (rounds[rounds.length - 1].length > 1) {
-        let prevRound = rounds[rounds.length - 1];
+      for (let r = 1; r < totalRounds; r++) {
+        let prevRound = roundsData[r - 1];
         let currentRoundMatches = [];
         for (let i = 0; i < prevRound.length; i += 2) {
           currentRoundMatches.push({
@@ -601,190 +618,174 @@
             athlete2: "A definir",
             winner: null,
             method: null,
-            referee: null,
-            time: timeMinutes
+            referee: null
           });
         }
-        rounds.push(currentRoundMatches);
+        roundsData.push(currentRoundMatches);
       }
 
+      const groupId = globalGroupId++;
       tournaments[groupId] = {
         title: `${gender} • ${age} • ${belt} • ${weight}`,
-        rounds: rounds,
-        time: timeMinutes
+        timeSeconds: timeMin * 60,
+        rounds: roundsData
       };
 
-      for(let m of rounds[0]) {
-        if(m.athlete2 === "BYE (Folga)") {
-          m.winner = m.athlete1;
-          m.method = "W.O. / Folga";
-          propagateWinner(groupId, 1, m.id, m.athlete1);
-        }
-      }
-
-      document.getElementById('b-athletes').value = '';
       saveData();
       renderBrackets();
-    }
-
-    function propagateWinner(groupId, roundIdx, matchId, winnerName) {
-      let rounds = tournaments[groupId].rounds;
-      if (roundIdx >= rounds.length) return; 
-
-      let currentRound = rounds[roundIdx - 1];
-      let matchIndex = currentRound.findIndex(m => m.id === matchId);
-      let targetMatchIndex = Math.floor(matchIndex / 2);
-      let isEven = (matchIndex % 2 === 0);
-
-      let nextRoundMatch = rounds[roundIdx][targetMatchIndex];
-      if (isEven) {
-        nextRoundMatch.athlete1 = winnerName;
-      } else {
-        nextRoundMatch.athlete2 = winnerName;
-      }
-    }
-
-    function advanceAthlete(groupId, matchId, winnerName, refereeName, method) {
-      let rounds = tournaments[groupId].rounds;
-      let foundRoundIdx = -1;
-      let targetMatch = null;
-
-      for (let r = 0; r < rounds.length; r++) {
-        let match = rounds[r].find(m => m.id === matchId);
-        if (match) {
-          foundRoundIdx = r;
-          targetMatch = match;
-          break;
-        }
-      }
-
-      if (targetMatch) {
-        targetMatch.winner = winnerName;
-        targetMatch.referee = refereeName;
-        targetMatch.method = method;
-        propagateWinner(groupId, foundRoundIdx + 2, matchId, winnerName);
-        saveData();
-        renderBrackets();
-      }
-    }
-
-    function loadMatchIntoScoreboard(groupId, matchId) {
-      let group = tournaments[groupId];
-      let targetMatch = null;
-      for (let r of group.rounds) {
-        let m = r.find(x => x.id === matchId);
-        if (m) { targetMatch = m; break; }
-      }
-
-      if (!targetMatch) return;
-      if (targetMatch.athlete1 === "A definir" || targetMatch.athlete2 === "A definir" || targetMatch.athlete1.includes("BYE") || targetMatch.athlete2.includes("BYE")) {
-        alert("Esta luta ainda não tem os dois atletas definidos.");
-        return;
-      }
-
-      document.getElementById('athlete1-name').value = targetMatch.athlete1;
-      document.getElementById('athlete2-name').value = targetMatch.athlete2;
-      document.getElementById('category-info').value = group.title;
-
-      defaultSeconds = (targetMatch.time || 5) * 60;
-      remainingSeconds = defaultSeconds;
-      updateTimerDisplay();
-      resetFullMatch();
-
-      activeMatchTracker = { groupId: groupId, matchId: matchId };
-      let badge = document.getElementById('current-match-indicator');
-      badge.style.display = 'block';
-      badge.innerText = `Chave: ${group.title} (Luta #${matchId})`;
-
-      switchTab('tab-scoreboard');
+      document.getElementById('b-athletes').value = '';
     }
 
     function renderBrackets() {
       const container = document.getElementById('matches-container');
-      container.innerHTML = '';
+      const groupKeys = Object.keys(tournaments);
 
-      if (Object.keys(tournaments).length === 0) {
+      if (groupKeys.length === 0) {
         container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p>';
         return;
       }
 
-      for (let gId in tournaments) {
-        let t = tournaments[gId];
-        let groupDiv = document.createElement('div');
-        groupDiv.className = 'bracket-group';
+      container.innerHTML = '';
+      groupKeys.forEach(gId => {
+        const group = tournaments[gId];
+        let groupHtml = `
+          <div class="bracket-group">
+            <div class="bracket-group-header">
+              <span>🏆 ${group.title}</span>
+              <button onclick="deleteGroup(${gId})" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Excluir Categoria</button>
+            </div>
+            <div class="bracket-rounds-container">
+        `;
 
-        let headerDiv = document.createElement('div');
-        headerDiv.className = 'bracket-group-header';
-        headerDiv.innerHTML = `<span>🏆 ${t.title}</span> <button onclick="deleteGroup(${gId})" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.7rem;">Excluir Categoria</button>`;
-        groupDiv.appendChild(headerDiv);
+        group.rounds.forEach((round, rIndex) => {
+          let roundName = `Rodada ${rIndex + 1}`;
+          if (rIndex === group.rounds.length - 1 && group.rounds.length > 1) roundName = "Final";
+          else if (rIndex === group.rounds.length - 2 && group.rounds.length > 2) roundName = "Semifinal";
 
-        let roundsContainer = document.createElement('div');
-        roundsContainer.className = 'bracket-rounds-container';
-
-        t.rounds.forEach((round, rIndex) => {
-          let roundDiv = document.createElement('div');
-          roundDiv.className = 'bracket-round';
-
-          let roundTitle = document.createElement('div');
-          roundTitle.className = 'round-title';
-          roundTitle.innerText = rIndex === t.rounds.length - 1 ? 'Final' : (rIndex === t.rounds.length - 2 ? 'Semifinal' : `Rodada ${rIndex + 1}`);
-          roundDiv.appendChild(roundTitle);
+          groupHtml += `<div class="bracket-round"><div class="round-title">${roundName}</div>`;
 
           round.forEach(match => {
-            let matchCard = document.createElement('div');
-            matchCard.className = 'match-card';
+            let a1Class = match.winner === match.athlete1 ? 'winner-style' : '';
+            let a2Class = match.winner === match.athlete2 ? 'winner-style' : '';
 
-            let isA1Winner = match.winner === match.athlete1;
-            let isA2Winner = match.winner === match.athlete2;
+            groupHtml += `
+              <div class="match-card">
+                <div class="match-header-info">
+                  <span>Luta #${match.id}</span>
+                </div>
+                ${match.referee ? `<div class="match-referee-text">Árbitro: ${match.referee}</div>` : ''}
+                
+                <div class="match-athlete branco">
+                  <span>${match.athlete1}</span>
+                  ${match.winner === match.athlete1 ? `<div class="winner-info-container"><span class="winner-badge">Venceu</span>${match.method ? `<span class="win-method-badge">${match.method}</span>` : ''}</div>` : ''}
+                </div>
+                
+                <div class="match-athlete azul">
+                  <span>${match.athlete2}</span>
+                  ${match.winner === match.athlete2 ? `<div class="winner-info-container"><span class="winner-badge">Venceu</span>${match.method ? `<span class="win-method-badge">${match.method}</span>` : ''}</div>` : ''}
+                </div>
 
-            let a1Display = `<span ${isA1Winner ? 'style="color:#f59e0b; font-weight:900;"' : ''}>${match.athlete1}</span>`;
-            if (isA1Winner) {
-              a1Display += `<div class="winner-info-container"><span class="winner-badge">Vencedor</span><span class="win-method-badge">${match.method || 'Vitória'}</span></div>`;
-            }
-
-            let a2Display = `<span ${isA2Winner ? 'style="color:#f59e0b; font-weight:900;"' : ''}>${match.athlete2}</span>`;
-            if (isA2Winner) {
-              a2Display += `<div class="winner-info-container"><span class="winner-badge">Vencedor</span><span class="win-method-badge">${match.method || 'Vitória'}</span></div>`;
-            }
-
-            matchCard.innerHTML = `
-              <div class="match-header-info">
-                <span>Luta #${match.id.toString().padStart(2, '0')}</span>
-                <span>${match.time || 5} min</span>
+                ${!match.winner && match.athlete1 !== "A definir" && match.athlete2 !== "A definir" ? `
+                  <button class="btn-load-match" onclick="loadMatchToScoreboard(${gId}, ${match.id})">Carregar no Placar</button>
+                ` : ''}
               </div>
-              ${match.referee ? `<div class="match-referee-text">Árbitro: ${match.referee}</div>` : ''}
-              <div class="match-athlete branco">${a1Display}</div>
-              <div class="match-athlete azul">${a2Display}</div>
-              ${!match.winner && match.athlete1 !== "A definir" && match.athlete2 !== "A definir" && !match.athlete1.includes("BYE") && !match.athlete2.includes("BYE") ? 
-                `<button class="btn-load-match" onclick="loadMatchIntoScoreboard(${gId}, ${match.id})">Ir para o Placar 🥋</button>` : ''}
             `;
-            roundDiv.appendChild(matchCard);
           });
 
-          roundsContainer.appendChild(roundDiv);
+          groupHtml += `</div>`;
         });
 
-        groupDiv.appendChild(roundsContainer);
-        container.appendChild(groupDiv);
-      }
+        groupHtml += `</div></div>`;
+        container.innerHTML += groupHtml;
+      });
     }
 
-    function deleteGroup(groupId) {
-      if (confirm("Tem certeza que deseja apagar esta categoria e suas chaves?")) {
-        delete tournaments[groupId];
+    function deleteGroup(gId) {
+      if (confirm("Deseja realmente excluir esta categoria e todas as suas chaves?")) {
+        delete tournaments[gId];
         saveData();
         renderBrackets();
       }
     }
 
     function clearAllBrackets() {
-      if (confirm("Deseja apagar todas as chaves e torneios criados?")) {
+      if (confirm("Apagar todas as chaves criadas?")) {
         tournaments = {};
         globalGroupId = 1;
-        localStorage.removeItem('tatame_tournaments');
-        localStorage.removeItem('tatame_globalGroupId');
+        saveData();
         renderBrackets();
       }
+    }
+
+    function loadMatchToScoreboard(gId, matchId) {
+      let group = tournaments[gId];
+      let targetMatch = null;
+
+      for (let r of group.rounds) {
+        let found = r.find(m => m.id === matchId);
+        if (found) { targetMatch = found; break; }
+      }
+
+      if (!targetMatch) return;
+
+      document.getElementById('athlete1-name').value = targetMatch.athlete1;
+      document.getElementById('athlete2-name').value = targetMatch.athlete2;
+      document.getElementById('category-info').value = group.title;
+
+      defaultSeconds = group.timeSeconds;
+      resetTimer();
+
+      activeMatchTracker = { groupId: gId, matchId: matchId };
+
+      let badge = document.getElementById('current-match-indicator');
+      badge.innerText = `Chave: ${group.title} (Luta #${matchId})`;
+      badge.style.display = 'block';
+
+      switchTab('tab-scoreboard');
+    }
+
+    function advanceAthlete(gId, matchId, winnerName, refereeName, methodText) {
+      let group = tournaments[gId];
+      let currentRoundIdx = -1;
+      let currentMatchIdx = -1;
+
+      for (let r = 0; r < group.rounds.length; r++) {
+        let mIdx = group.rounds[r].findIndex(m => m.id === matchId);
+        if (mIdx !== -1) {
+          currentRoundIdx = r;
+          currentMatchIdx = mIdx;
+          break;
+        }
+      }
+
+      if (currentRoundIdx === -1) return;
+
+      group.rounds[currentRoundIdx][currentMatchIdx].winner = winnerName;
+      group.rounds[currentRoundIdx][currentMatchIdx].referee = refereeName;
+      group.rounds[currentRoundIdx][currentMatchIdx].method = methodText;
+
+      if (currentRoundIdx + 1 < group.rounds.length) {
+        let nextRound = group.rounds[currentRoundIdx + 1];
+        let nextMatchIdx = Math.floor(currentMatchIdx / 2);
+        let nextMatch = nextRound[nextMatchIdx];
+
+        if (currentMatchIdx % 2 === 0) {
+          nextMatch.athlete1 = winnerName;
+        } else {
+          nextMatch.athlete2 = winnerName;
+        }
+
+        if (nextMatch.athlete1 !== "A definir" && nextMatch.athlete2 === "BYE (Folga)") {
+          nextMatch.winner = nextMatch.athlete1;
+          nextMatch.method = "W.O.";
+        } else if (nextMatch.athlete2 !== "A definir" && nextMatch.athlete1 === "BYE (Folga)") {
+          nextMatch.winner = nextMatch.athlete2;
+          nextMatch.method = "W.O.";
+        }
+      }
+
+      saveData();
+      renderBrackets();
     }
   </script>
 </body>
