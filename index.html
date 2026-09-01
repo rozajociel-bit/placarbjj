@@ -17,29 +17,29 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    html, body { height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; display: flex; flex-direction: column; }
+    html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
 
     /* NAVEGAÇÃO TOPO */
-    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: center; gap: 12px; padding: 8px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
+    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
     .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
     .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
     .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
 
-    .tab-content { display: none; flex-direction: column; flex-grow: 1; height: calc(100vh - 49px); padding: 15px; width: 100%; overflow: hidden; }
+    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
     .tab-content.active { display: flex; }
 
     /* CABEÇALHO DO PLACAR */
-    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 12px; }
+    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 15px; }
     .header-input-group { display: flex; flex-direction: column; gap: 4px; }
     .header-input-group label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-    .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; }
+    .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; width: 100%; }
     .header-input-group input:focus { outline: none; border-color: var(--accent-blue); }
     
     .current-match-badge { background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-bottom: 4px; display: none; text-transform: uppercase; font-weight: 700; text-align: center; }
 
     /* CRONÔMETRO */
     .timer-container { text-align: center; background: #111318; padding: 8px 20px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); }
-    .timer-display { font-size: 3rem; font-family: 'Courier New', Courier, monospace; font-weight: 800; color: var(--accent-gold); line-height: 1; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); margin-bottom: 6px; }
+    .timer-display { font-size: 2.8rem; font-family: 'Courier New', Courier, monospace; font-weight: 800; color: var(--accent-gold); line-height: 1; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); margin-bottom: 6px; }
     .timer-controls { display: flex; gap: 6px; justify-content: center; margin-bottom: 4px; }
     .timer-btn { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
     .btn-start { background: #16a34a; color: white; }
@@ -55,8 +55,8 @@
     .btn-reset-match:hover { background: #334155; }
 
     /* CORPO DO PLACAR */
-    main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; min-height: 0; }
-    .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; height: 100%; }
+    main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; }
+    .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; min-height: 420px; }
     
     /* CORES DOS CARDS DOS ATLETAS */
     .athlete-1 { background: #e5e7eb; border-color: #9ca3af; color: #1f2937; }
@@ -72,19 +72,19 @@
     .athlete-1 .score-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
     .athlete-2 .score-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
 
-    .score-number { font-size: 6rem; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .score-number { font-size: 5.5rem; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .athlete-1 .score-number { color: #111827; }
     .athlete-2 .score-number { color: #ffffff; }
 
-    .points-actions { display: flex; gap: 8px; margin-bottom: 6px; flex-shrink: 0; }
-    .btn-score { cursor: pointer; border-radius: 8px; font-weight: 800; padding: 10px 6px; font-size: 1.3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: all 0.15s ease; text-align: center; }
+    .points-actions { display: flex; gap: 6px; margin-bottom: 6px; flex-shrink: 0; }
+    .btn-score { cursor: pointer; border-radius: 8px; font-weight: 800; padding: 10px 4px; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: all 0.15s ease; text-align: center; }
     
     .athlete-1 .btn-score { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .athlete-1 .btn-score:hover { background: #ffffff; border-color: #9ca3af; }
     .athlete-2 .btn-score { background: #112652; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     .athlete-2 .btn-score:hover { background: #16326c; border-color: #3b82f6; }
 
-    .btn-score span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-top: 2px; opacity: 0.85; }
+    .btn-score span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-top: 2px; opacity: 0.85; }
 
     .undo-row { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
     .undo-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
@@ -106,7 +106,7 @@
     .athlete-1 .sec-title { color: #4b5563; }
     .athlete-2 .sec-title { color: var(--text-muted); }
 
-    .sec-value { font-size: 1.8rem; font-weight: 900; margin: 2px 0; }
+    .sec-value { font-size: 1.6rem; font-weight: 900; margin: 2px 0; }
     .sec-btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 2px; }
     .btn-sec { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
     
@@ -122,8 +122,8 @@
     .athlete-2 .btn-dq:hover { background: rgba(220, 38, 38, 0.3); color: #fca5a5; }
 
     /* CHAVES */
-    .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; height: 100%; overflow: hidden; }
-    .form-card { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; overflow-y: auto; }
+    .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; width: 100%; }
+    .form-card { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
     .form-card h3 { color: var(--accent-blue); font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
@@ -134,13 +134,12 @@
     .btn-print { width: 100%; background: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 6px; }
     .btn-clear-all { width: 100%; background: #dc2626; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; margin-top: 6px; }
 
-    .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; overflow: auto; display: flex; flex-direction: column; }
-    #matches-container { flex-grow: 1; }
-    .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+    .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; overflow-x: auto; }
+    .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; min-width: 600px; }
     .bracket-group-header { font-size: 1rem; color: #4ade80; margin-bottom: 12px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     
     .bracket-rounds-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
-    .bracket-round { flex: 0 0 300px; display: flex; flex-direction: column; gap: 10px; }
+    .bracket-round { flex: 0 0 280px; display: flex; flex-direction: column; gap: 10px; }
     .round-title { font-size: 0.8rem; color: var(--text-muted); text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; margin-bottom: 4px; font-weight: 800; }
 
     .match-card { background: #181b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; position: relative; }
@@ -157,14 +156,23 @@
 
     .btn-load-match { width: 100%; background: #2563eb; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 6px; font-size: 0.7rem; text-transform: uppercase; }
 
+    /* RESPONSIVIDADE MOBILE / TABLET */
+    @media (max-width: 900px) {
+      .scoreboard-header { grid-template-columns: 1fr; gap: 10px; }
+      main.scoreboard-main { grid-template-columns: 1fr; }
+      .bracket-builder { grid-template-columns: 1fr; }
+      .timer-display { font-size: 2.2rem; }
+      .score-number { font-size: 4.5rem; }
+    }
+
     @media print {
       body, html { height: auto !important; overflow: auto !important; background: white !important; color: black !important; }
       nav.top-nav, .form-card, .btn-load-match, .btn-clear-all, .bracket-group-header button { display: none !important; }
       #tab-scoreboard { display: none !important; }
-      #tab-bracket { display: block !important; height: auto !important; padding: 0 !important; }
-      .bracket-builder { display: block !important; height: auto !important; }
-      .bracket-display { background: white; border: none; height: auto !important; overflow: visible; padding: 0; }
-      .bracket-group { background: white; border: 2px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; }
+      #tab-bracket { display: block !important; padding: 0 !important; }
+      .bracket-builder { display: block !important; }
+      .bracket-display { background: white; border: none; overflow: visible; padding: 0; }
+      .bracket-group { background: white; border: 2px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; min-width: auto; }
       .bracket-group-header { color: black; border-bottom: 2px solid black; }
       .match-card { background: white; border: 1px solid #999; }
       .match-athlete { background: #f5f5f5; color: black; }
@@ -544,183 +552,221 @@
       const age = document.getElementById('b-age').value;
       const belt = document.getElementById('b-belt').value;
       const weight = document.getElementById('b-weight').value;
-      const customTime = parseInt(document.getElementById('b-time').value) || 5;
-      let names = document.getElementById('b-athletes').value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+      const timeMinutes = parseInt(document.getElementById('b-time').value) || 5;
+      const rawAthletes = document.getElementById('b-athletes').value.split('\n').map(item => item.trim()).filter(Boolean);
 
-      if (names.length < 2) return alert("Insira pelo menos 2 atletas!");
-
-      if (document.getElementById('b-shuffle').checked) {
-        for (let i = names.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [names[i], names[j]] = [names[j], names[i]];
-        }
+      if (rawAthletes.length < 2) {
+        alert("Insira pelo menos 2 atletas para gerar a chave.");
+        return;
       }
 
-      let totalSlots = 2;
-      while (totalSlots < names.length) totalSlots *= 2;
-      while (names.length < totalSlots) names.push("BYE");
+      let athletes = [...rawAthletes];
+      if (document.getElementById('b-shuffle').checked) {
+        athletes.sort(() => Math.random() - 0.5);
+      }
 
       const groupId = globalGroupId++;
-      const headerText = `${gender} / ${age} / Faixa ${belt} / Peso ${weight} (${customTime} min)`;
-      
-      let matches = [];
-      let roundMatches = totalSlots / 2;
-      let currentRound = 1;
-      
-      let categoryMatchCounter = 1;
+      let nextPowerOfTwo = 1;
+      while (nextPowerOfTwo < athletes.length) nextPowerOfTwo *= 2;
 
-      let nameIndex = 0;
-      for (let i = 0; i < roundMatches; i++) {
-        let a1 = names[nameIndex++];
-        let a2 = names[nameIndex++];
-        
-        let formattedMatchNum = String(categoryMatchCounter).padStart(2, '0');
-        
-        matches.push({
-          id: `g${groupId}_r1_m${i+1}`,
-          matchNum: formattedMatchNum,
-          round: 1,
-          athlete1: a1,
-          athlete2: a2,
-          winner: null,
-          method: null,
-          referee: null
-        });
-        categoryMatchCounter++;
+      let paddedAthletes = [...athletes];
+      while (paddedAthletes.length < nextPowerOfTwo) {
+        paddedAthletes.push("BYE (Folga)");
       }
 
-      while (roundMatches > 1) {
-        roundMatches /= 2;
-        currentRound++;
-        for (let i = 0; i < roundMatches; i++) {
-          let formattedMatchNum = String(categoryMatchCounter).padStart(2, '0');
-          matches.push({
-            id: `g${groupId}_r${currentRound}_m${i+1}`,
-            matchNum: formattedMatchNum,
-            round: currentRound,
+      let rounds = [];
+      let firstRoundMatches = [];
+      let matchCounter = 1;
+
+      for (let i = 0; i < paddedAthletes.length; i += 2) {
+        firstRoundMatches.push({
+          id: matchCounter++,
+          athlete1: paddedAthletes[i],
+          athlete2: paddedAthletes[i+1],
+          winner: null,
+          method: null,
+          referee: null,
+          time: timeMinutes
+        });
+      }
+      rounds.push(firstRoundMatches);
+
+      while (rounds[rounds.length - 1].length > 1) {
+        let prevRound = rounds[rounds.length - 1];
+        let currentRoundMatches = [];
+        for (let i = 0; i < prevRound.length; i += 2) {
+          currentRoundMatches.push({
+            id: matchCounter++,
             athlete1: "A definir",
             athlete2: "A definir",
             winner: null,
             method: null,
-            referee: null
+            referee: null,
+            time: timeMinutes
           });
-          categoryMatchCounter++;
         }
+        rounds.push(currentRoundMatches);
       }
 
       tournaments[groupId] = {
-        header: headerText,
-        time: customTime,
-        matches: matches
+        title: `${gender} • ${age} • ${belt} • ${weight}`,
+        rounds: rounds,
+        time: timeMinutes
       };
 
+      for(let m of rounds[0]) {
+        if(m.athlete2 === "BYE (Folga)") {
+          m.winner = m.athlete1;
+          m.method = "W.O. / Folga";
+          propagateWinner(groupId, 1, m.id, m.athlete1);
+        }
+      }
+
+      document.getElementById('b-athletes').value = '';
       saveData();
       renderBrackets();
-      document.getElementById('b-athletes').value = '';
+    }
+
+    function propagateWinner(groupId, roundIdx, matchId, winnerName) {
+      let rounds = tournaments[groupId].rounds;
+      if (roundIdx >= rounds.length) return; 
+
+      let currentRound = rounds[roundIdx - 1];
+      let matchIndex = currentRound.findIndex(m => m.id === matchId);
+      let targetMatchIndex = Math.floor(matchIndex / 2);
+      let isEven = (matchIndex % 2 === 0);
+
+      let nextRoundMatch = rounds[roundIdx][targetMatchIndex];
+      if (isEven) {
+        nextRoundMatch.athlete1 = winnerName;
+      } else {
+        nextRoundMatch.athlete2 = winnerName;
+      }
+    }
+
+    function advanceAthlete(groupId, matchId, winnerName, refereeName, method) {
+      let rounds = tournaments[groupId].rounds;
+      let foundRoundIdx = -1;
+      let targetMatch = null;
+
+      for (let r = 0; r < rounds.length; r++) {
+        let match = rounds[r].find(m => m.id === matchId);
+        if (match) {
+          foundRoundIdx = r;
+          targetMatch = match;
+          break;
+        }
+      }
+
+      if (targetMatch) {
+        targetMatch.winner = winnerName;
+        targetMatch.referee = refereeName;
+        targetMatch.method = method;
+        propagateWinner(groupId, foundRoundIdx + 2, matchId, winnerName);
+        saveData();
+        renderBrackets();
+      }
+    }
+
+    function loadMatchIntoScoreboard(groupId, matchId) {
+      let group = tournaments[groupId];
+      let targetMatch = null;
+      for (let r of group.rounds) {
+        let m = r.find(x => x.id === matchId);
+        if (m) { targetMatch = m; break; }
+      }
+
+      if (!targetMatch) return;
+      if (targetMatch.athlete1 === "A definir" || targetMatch.athlete2 === "A definir" || targetMatch.athlete1.includes("BYE") || targetMatch.athlete2.includes("BYE")) {
+        alert("Esta luta ainda não tem os dois atletas definidos.");
+        return;
+      }
+
+      document.getElementById('athlete1-name').value = targetMatch.athlete1;
+      document.getElementById('athlete2-name').value = targetMatch.athlete2;
+      document.getElementById('category-info').value = group.title;
+
+      defaultSeconds = (targetMatch.time || 5) * 60;
+      remainingSeconds = defaultSeconds;
+      updateTimerDisplay();
+      resetFullMatch();
+
+      activeMatchTracker = { groupId: groupId, matchId: matchId };
+      let badge = document.getElementById('current-match-indicator');
+      badge.style.display = 'block';
+      badge.innerText = `Chave: ${group.title} (Luta #${matchId})`;
+
+      switchTab('tab-scoreboard');
     }
 
     function renderBrackets() {
       const container = document.getElementById('matches-container');
       container.innerHTML = '';
 
-      const groupIds = Object.keys(tournaments);
-      if (groupIds.length === 0) {
+      if (Object.keys(tournaments).length === 0) {
         container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p>';
         return;
       }
 
-      groupIds.forEach(groupId => {
-        const group = tournaments[groupId];
-        const groupDiv = document.createElement('div');
+      for (let gId in tournaments) {
+        let t = tournaments[gId];
+        let groupDiv = document.createElement('div');
         groupDiv.className = 'bracket-group';
 
-        let html = `<div class="bracket-group-header">
-          <span>🏆 ${group.header}</span>
-          <button class="btn-clear-all" style="width:auto; padding:4px 10px; font-size:0.7rem; margin:0;" onclick="deleteGroup('${groupId}')">Apagar Categoria</button>
-        </div><div class="bracket-rounds-container">`;
+        let headerDiv = document.createElement('div');
+        headerDiv.className = 'bracket-group-header';
+        headerDiv.innerHTML = `<span>🏆 ${t.title}</span> <button onclick="deleteGroup(${gId})" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.7rem;">Excluir Categoria</button>`;
+        groupDiv.appendChild(headerDiv);
 
-        const rounds = {};
-        group.matches.forEach(m => {
-          if (!rounds[m.round]) rounds[m.round] = [];
-          rounds[m.round].push(m);
-        });
+        let roundsContainer = document.createElement('div');
+        roundsContainer.className = 'bracket-rounds-container';
 
-        Object.keys(rounds).sort().forEach(rNum => {
-          html += `<div class="bracket-round"><div class="round-title">Rodada ${rNum}</div>`;
-          rounds[rNum].forEach(m => {
-            let a1IsWinner = (m.athlete1 === m.winner);
-            let a2IsWinner = (m.athlete2 === m.winner);
+        t.rounds.forEach((round, rIndex) => {
+          let roundDiv = document.createElement('div');
+          roundDiv.className = 'bracket-round';
 
-            let a1Class = a1IsWinner ? 'branco winner' : 'branco';
-            let a2Class = a2IsWinner ? 'azul winner' : 'azul';
+          let roundTitle = document.createElement('div');
+          roundTitle.className = 'round-title';
+          roundTitle.innerText = rIndex === t.rounds.length - 1 ? 'Final' : (rIndex === t.rounds.length - 2 ? 'Semifinal' : `Rodada ${rIndex + 1}`);
+          roundDiv.appendChild(roundTitle);
 
-            html += `<div class="match-card" id="${m.id}">
-              <div class="match-header-info">
-                <span>Luta #${m.matchNum}</span>
-              </div>
-              ${m.referee ? `<div class="match-referee-text">Árbitro: ${m.referee}</div>` : ''}
-              
-              <div class="match-athlete ${a1Class}">
-                <span>${m.athlete1}</span>
-                ${a1IsWinner ? `<div class="winner-info-container"><span class="winner-badge">🏆 Vencedor</span><span class="win-method-badge">${m.method}</span></div>` : ''}
-              </div>
-              
-              <div class="match-athlete ${a2Class}">
-                <span>${m.athlete2}</span>
-                ${a2IsWinner ? `<div class="winner-info-container"><span class="winner-badge">🏆 Vencedor</span><span class="win-method-badge">${m.method}</span></div>` : ''}
-              </div>`;
+          round.forEach(match => {
+            let matchCard = document.createElement('div');
+            matchCard.className = 'match-card';
 
-            if (!m.winner && m.athlete1 !== "A definir" && m.athlete2 !== "A definir" && m.athlete1 !== "BYE" && m.athlete2 !== "BYE") {
-              html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', '${m.id}')">Carregar no Placar</button>`;
+            let isA1Winner = match.winner === match.athlete1;
+            let isA2Winner = match.winner === match.athlete2;
+
+            let a1Display = `<span ${isA1Winner ? 'style="color:#f59e0b; font-weight:900;"' : ''}>${match.athlete1}</span>`;
+            if (isA1Winner) {
+              a1Display += `<div class="winner-info-container"><span class="winner-badge">Vencedor</span><span class="win-method-badge">${match.method || 'Vitória'}</span></div>`;
             }
-            html += `</div>`;
+
+            let a2Display = `<span ${isA2Winner ? 'style="color:#f59e0b; font-weight:900;"' : ''}>${match.athlete2}</span>`;
+            if (isA2Winner) {
+              a2Display += `<div class="winner-info-container"><span class="winner-badge">Vencedor</span><span class="win-method-badge">${match.method || 'Vitória'}</span></div>`;
+            }
+
+            matchCard.innerHTML = `
+              <div class="match-header-info">
+                <span>Luta #${match.id.toString().padStart(2, '0')}</span>
+                <span>${match.time || 5} min</span>
+              </div>
+              ${match.referee ? `<div class="match-referee-text">Árbitro: ${match.referee}</div>` : ''}
+              <div class="match-athlete branco">${a1Display}</div>
+              <div class="match-athlete azul">${a2Display}</div>
+              ${!match.winner && match.athlete1 !== "A definir" && match.athlete2 !== "A definir" && !match.athlete1.includes("BYE") && !match.athlete2.includes("BYE") ? 
+                `<button class="btn-load-match" onclick="loadMatchIntoScoreboard(${gId}, ${match.id})">Ir para o Placar 🥋</button>` : ''}
+            `;
+            roundDiv.appendChild(matchCard);
           });
-          html += `</div>`;
+
+          roundsContainer.appendChild(roundDiv);
         });
 
-        html += `</div>`;
-        groupDiv.innerHTML = html;
+        groupDiv.appendChild(roundsContainer);
         container.appendChild(groupDiv);
-      });
-    }
-
-    function loadMatchToScoreboard(groupId, matchId) {
-      const group = tournaments[groupId];
-      const match = group.matches.find(m => m.id === matchId);
-
-      if (!match) return;
-
-      document.getElementById('athlete1-name').value = match.athlete1;
-      document.getElementById('athlete2-name').value = match.athlete2;
-      document.getElementById('category-info').value = group.header;
-
-      defaultSeconds = group.time * 60;
-      remainingSeconds = defaultSeconds;
-      updateTimerDisplay();
-
-      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-      updateDisplay();
-
-      activeMatchTracker = { groupId, matchId };
-
-      const indicator = document.getElementById('current-match-indicator');
-      indicator.innerText = `Luta #${match.matchNum} - ${group.header}`;
-      indicator.style.display = 'block';
-
-      switchTab('tab-scoreboard');
-    }
-
-    function advanceAthlete(groupId, matchId, winnerName, referee, method) {
-      const group = tournaments[groupId];
-      const match = group.matches.find(m => m.id === matchId);
-      if (!match) return;
-
-      match.winner = winnerName;
-      match.method = method;
-      match.referee = referee;
-
-      saveData();
-      renderBrackets();
+      }
     }
 
     function deleteGroup(groupId) {
@@ -732,10 +778,11 @@
     }
 
     function clearAllBrackets() {
-      if (confirm("Tem certeza que deseja apagar todas as chaves criadas?")) {
+      if (confirm("Deseja apagar todas as chaves e torneios criados?")) {
         tournaments = {};
         globalGroupId = 1;
-        saveData();
+        localStorage.removeItem('tatame_tournaments');
+        localStorage.removeItem('tatame_globalGroupId');
         renderBrackets();
       }
     }
