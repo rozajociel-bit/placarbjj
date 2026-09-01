@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tatame Pro - Sistema de Placar e Chaves</title>
+  <style>
+    :root {
+      --bg-dark: #0f1117;
+      --surface-dark: #1a1d24;
+      --surface-card: #222631;
+      --border-color: #2f3542;
+      --accent-blue: #3b82f6;
+      --accent-gold: #f59e0b;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    html, body { height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; display: flex; flex-direction: column; }
+
+    /* NAVEGAÇÃO TOPO */
+    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: center; gap: 12px; padding: 8px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
+    .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
+    .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
+    .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+
+    .tab-content { display: none; flex-direction: column; flex-grow: 1; height: calc(100vh - 49px); padding: 15px; width: 100%; overflow: hidden; }
+    .tab-content.active { display: flex; }
+
+    /* CABEÇALHO DO PLACAR */
+    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 12px; }
+    .header-input-group { display: flex; flex-direction: column; gap: 4px; }
+    .header-input-group label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; }
+    .header-input-group input:focus { outline: none; border-color: var(--accent-blue); }
+    
+    .current-match-badge { background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-bottom: 4px; display: none; text-transform: uppercase; font-weight: 700; text-align: center; }
+
+    /* CRONÔMETRO */
+    .timer-container { text-align: center; background: #111318; padding: 8px 20px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); }
+    .timer-display { font-size: 3rem; font-family: 'Courier New', Courier, monospace; font-weight: 800; color: var(--accent-gold); line-height: 1; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); margin-bottom: 6px; }
+    .timer-controls { display: flex; gap: 6px; justify-content: center; margin-bottom: 4px; }
+    .timer-btn { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+    .btn-start { background: #16a34a; color: white; }
+    .btn-start:hover { background: #15803d; }
+    .btn-pause { background: #d97706; color: white; }
+    .btn-pause:hover { background: #b45309; }
+    .btn-reset { background: #dc2626; color: white; }
+    .btn-reset:hover { background: #b91c1c; }
+    .timer-bottom-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn-finish { background: #7c3aed; color: white; width: 100%; padding: 6px; font-size: 0.75rem; }
+    .btn-finish:hover { background: #6d28d9; }
+    .btn-reset-match { background: #475569; color: white; width: 100%; padding: 6px; font-size: 0.75rem; }
+    .btn-reset-match:hover { background: #334155; }
+
+    /* CORPO DO PLACAR */
+    main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; min-height: 0; }
+    .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; height: 100%; }
+    
+    /* CORES DOS CARDS DOS ATLETAS */
+    .athlete-1 { background: #e5e7eb; border-color: #9ca3af; color: #1f2937; }
+    .athlete-2 { background: #0b1c3d; border-color: #1d4ed8; color: #f3f4f6; }
+
+    .athlete-1 .athlete-name-input { background: #ffffff; color: #111827; border: 1px solid #d1d5db; }
+    .athlete-2 .athlete-name-input { background: #071022; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); }
+
+    .athlete-name-input { padding: 10px; font-size: 1.15rem; font-weight: 800; border-radius: 8px; text-transform: uppercase; text-align: center; width: 100%; flex-shrink: 0; }
+    .athlete-name-input:focus { outline: none; border-color: var(--accent-blue); }
+
+    .score-box { text-align: center; margin: 4px 0; border-radius: 10px; padding: 10px; flex-shrink: 0; }
+    .athlete-1 .score-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
+    .athlete-2 .score-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+
+    .score-number { font-size: 6rem; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .athlete-1 .score-number { color: #111827; }
+    .athlete-2 .score-number { color: #ffffff; }
+
+    .points-actions { display: flex; gap: 8px; margin-bottom: 6px; flex-shrink: 0; }
+    .btn-score { cursor: pointer; border-radius: 8px; font-weight: 800; padding: 10px 6px; font-size: 1.3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: all 0.15s ease; text-align: center; }
+    
+    .athlete-1 .btn-score { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .athlete-1 .btn-score:hover { background: #ffffff; border-color: #9ca3af; }
+    .athlete-2 .btn-score { background: #112652; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .athlete-2 .btn-score:hover { background: #16326c; border-color: #3b82f6; }
+
+    .btn-score span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-top: 2px; opacity: 0.85; }
+
+    .undo-row { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
+    .undo-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    .athlete-1 .undo-label { color: #4b5563; }
+    .athlete-2 .undo-label { color: var(--text-muted); }
+
+    .btn-undo { padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; font-weight: 700; }
+    .athlete-1 .btn-undo { background: #d1d5db; color: #374151; border: 1px solid #9ca3af; }
+    .athlete-1 .btn-undo:hover { background: #fca5a5; color: #991b1b; }
+    .athlete-2 .btn-undo { background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); }
+    .athlete-2 .btn-undo:hover { background: rgba(220, 38, 38, 0.3); color: #f87171; }
+
+    .secondary-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; margin-bottom: 6px; }
+    .sec-box { padding: 8px; border-radius: 8px; text-align: center; }
+    .athlete-1 .sec-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
+    .athlete-2 .sec-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+
+    .sec-title { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; }
+    .athlete-1 .sec-title { color: #4b5563; }
+    .athlete-2 .sec-title { color: var(--text-muted); }
+
+    .sec-value { font-size: 1.8rem; font-weight: 900; margin: 2px 0; }
+    .sec-btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 2px; }
+    .btn-sec { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    
+    .athlete-1 .btn-sec { background: #d1d5db; color: #1f2937; border: 1px solid #9ca3af; }
+    .athlete-1 .btn-sec:hover { background: #9ca3af; }
+    .athlete-2 .btn-sec { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.1); }
+    .athlete-2 .btn-sec:hover { background: rgba(255,255,255,0.15); }
+
+    .btn-dq { width: 100%; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
+    .athlete-1 .btn-dq { background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; }
+    .athlete-1 .btn-dq:hover { background: rgba(220, 38, 38, 0.2); }
+    .athlete-2 .btn-dq { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #f87171; }
+    .athlete-2 .btn-dq:hover { background: rgba(220, 38, 38, 0.3); color: #fca5a5; }
+
+    /* CHAVES */
+    .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; height: 100%; overflow: hidden; }
+    .form-card { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; overflow-y: auto; }
+    .form-card h3 { color: var(--accent-blue); font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-size: 0.85rem; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue); }
+
+    .btn-generate { width: 100%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; margin-top: 6px; }
+    .btn-print { width: 100%; background: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 6px; }
+    .btn-clear-all { width: 100%; background: #dc2626; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; margin-top: 6px; }
+
+    .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; overflow: auto; display: flex; flex-direction: column; }
+    #matches-container { flex-grow: 1; }
+    .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+    .bracket-group-header { font-size: 1rem; color: #4ade80; margin-bottom: 12px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+    
+    .bracket-rounds-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
+    .bracket-round { flex: 0 0 300px; display: flex; flex-direction: column; gap: 10px; }
+    .round-title { font-size: 0.8rem; color: var(--text-muted); text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; margin-bottom: 4px; font-weight: 800; }
+
+    .match-card { background: #181b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; position: relative; }
+    .match-header-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
+    .match-referee-text { font-size: 0.65rem; color: var(--accent-gold); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
+    
+    .match-athlete { padding: 6px 8px; background: #222631; border-radius: 6px; margin-bottom: 4px; font-size: 0.85rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .match-athlete.branco { border-left: 4px solid #cbd5e1; color: #fff; }
+    .match-athlete.azul { border-left: 4px solid #3b82f6; color: #fff; }
+    
+    .winner-info-container { display: flex; align-items: center; gap: 4px; margin-left: 4px; }
+    .winner-badge { color: #f59e0b; font-size: 0.55rem; background: rgba(245, 158, 11, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+    .win-method-badge { color: #38bdf8; font-size: 0.55rem; background: rgba(56, 189, 248, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+
+    .btn-load-match { width: 100%; background: #2563eb; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 6px; font-size: 0.7rem; text-transform: uppercase; }
+
+    @media print {
+      body, html { height: auto !important; overflow: auto !important; background: white !important; color: black !important; }
+      nav.top-nav, .form-card, .btn-load-match, .btn-clear-all, .bracket-group-header button { display: none !important; }
+      #tab-scoreboard { display: none !important; }
+      #tab-bracket { display: block !important; height: auto !important; padding: 0 !important; }
+      .bracket-builder { display: block !important; height: auto !important; }
+      .bracket-display { background: white; border: none; height: auto !important; overflow: visible; padding: 0; }
+      .bracket-group { background: white; border: 2px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; }
+      .bracket-group-header { color: black; border-bottom: 2px solid black; }
+      .match-card { background: white; border: 1px solid #999; }
+      .match-athlete { background: #f5f5f5; color: black; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">🥋 Placar do Tatame</button>
+    <button class="nav-btn" onclick="switchTab('tab-bracket')">🏆 Gerenciador de Chaves</button>
+  </nav>
+
+  <!-- PLACAR -->
+  <div id="tab-scoreboard" class="tab-content active">
+    <header class="scoreboard-header">
+      <div class="header-input-group">
+        <label>Árbitro</label>
+        <input type="text" id="referee-name" placeholder="Nome do Árbitro">
+      </div>
+      <div class="timer-container">
+        <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
+        <div id="timer-display" class="timer-display">05:00</div>
+        <div class="timer-controls">
+          <button class="timer-btn btn-start" onclick="startTimer()">Start</button>
+          <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
+          <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="timer-bottom-btns">
+          <button class="timer-btn btn-finish" onclick="manualFinishMatch()">Finalizar (Sub)</button>
+          <button class="timer-btn btn-reset-match" onclick="resetFullMatch()">Zerar Combate</button>
+        </div>
+      </div>
+      <div class="header-input-group">
+        <label>Categoria</label>
+        <input type="text" id="category-info" placeholder="Ex: Adulto / Branca / Médio">
+      </div>
+    </header>
+
+    <main class="scoreboard-main">
+      <!-- ATLETA 1 (BRANCO) -->
+      <section class="athlete-card athlete-1">
+        <input type="text" class="athlete-name-input" id="athlete1-name" value="Atleta Branco">
+        <div class="score-box"><div class="score-number" id="a1-points">0</div></div>
+        <div>
+          <div class="points-actions">
+            <button class="btn-score" onclick="addPoints(1, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
+            <button class="btn-score" onclick="addPoints(1, 3)">+3 <span>Passagem Guarda</span></button>
+            <button class="btn-score" onclick="addPoints(1, 4)">+4 <span>Montada / Costas</span></button>
+          </div>
+          <div class="undo-row">
+            <span class="undo-label">Desfazer:</span>
+            <button class="btn-undo" onclick="addPoints(1, -2)">-2</button>
+            <button class="btn-undo" onclick="addPoints(1, -3)">-3</button>
+            <button class="btn-undo" onclick="addPoints(1, -4)">-4</button>
+          </div>
+        </div>
+        <div>
+          <div class="secondary-scores">
+            <div class="sec-box">
+              <div class="sec-title">Vantagens</div>
+              <div class="sec-value" id="a1-advantages" style="color:#d97706">0</div>
+              <div class="sec-btn-group">
+                <button class="btn-sec" onclick="addAdvantage(1, -1)">-</button>
+                <button class="btn-sec" onclick="addAdvantage(1, 1)">+</button>
+              </div>
+            </div>
+            <div class="sec-box">
+              <div class="sec-title">Punições</div>
+              <div class="sec-value" id="a1-penalties" style="color:#dc2626">0</div>
+              <div class="sec-btn-group">
+                <button class="btn-sec" onclick="addPenalty(1, -1)">-</button>
+                <button class="btn-sec" onclick="addPenalty(1, 1)">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-dq" onclick="disqualifyAthlete(1)">⚠️ Desclassificar (DQ)</button>
+        </div>
+      </section>
+
+      <!-- ATLETA 2 (AZUL) -->
+      <section class="athlete-card athlete-2">
+        <input type="text" class="athlete-name-input" id="athlete2-name" value="Atleta Azul">
+        <div class="score-box"><div class="score-number" id="a2-points">0</div></div>
+        <div>
+          <div class="points-actions">
+            <button class="btn-score" onclick="addPoints(2, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
+            <button class="btn-score" onclick="addPoints(2, 3)">+3 <span>Passagem Guarda</span></button>
+            <button class="btn-score" onclick="addPoints(2, 4)">+4 <span>Montada / Costas</span></button>
+          </div>
+          <div class="undo-row">
+            <span class="undo-label">Desfazer:</span>
+            <button class="btn-undo" onclick="addPoints(2, -2)">-2</button>
+            <button class="btn-undo" onclick="addPoints(2, -3)">-3</button>
+            <button class="btn-undo" onclick="addPoints(2, -4)">-4</button>
+          </div>
+        </div>
+        <div>
+          <div class="secondary-scores">
+            <div class="sec-box">
+              <div class="sec-title">Vantagens</div>
+              <div class="sec-value" id="a2-advantages" style="color:#fbbf24">0</div>
+              <div class="sec-btn-group">
+                <button class="btn-sec" onclick="addAdvantage(2, -1)">-</button>
+                <button class="btn-sec" onclick="addAdvantage(2, 1)">+</button>
+              </div>
+            </div>
+            <div class="sec-box">
+              <div class="sec-title">Punições</div>
+              <div class="sec-value" id="a2-penalties" style="color:#f87171">0</div>
+              <div class="sec-btn-group">
+                <button class="btn-sec" onclick="addPenalty(2, -1)">-</button>
+                <button class="btn-sec" onclick="addPenalty(2, 1)">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-dq" onclick="disqualifyAthlete(2)">⚠️ Desclassificar (DQ)</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- GERENCIADOR DE CHAVES -->
+  <div id="tab-bracket" class="tab-content">
+    <div class="bracket-builder">
+      <div class="form-card">
+        <h3>Nova Categoria</h3>
+        
+        <div class="form-group">
+          <label>Gênero</label>
+          <select id="b-gender">
+            <option value="Masculino" selected>Masculino</option>
+            <option value="Feminino">Feminino</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Faixa Etária</label>
+          <select id="b-age">
+            <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
+            <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
+            <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
+            <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
+            <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
+            <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
+            <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
+            <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
+            <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
+            <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
+            <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
+            <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
+            <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
+            <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Faixa</label>
+          <select id="b-belt">
+            <option value="Cinza/Branca">Cinza / Branca</option>
+            <option value="Cinza">Cinza</option>
+            <option value="Cinza/Preta">Cinza / Preta</option>
+            <option value="Amarela/Branca">Amarela / Branca</option>
+            <option value="Amarela">Amarela</option>
+            <option value="Amarela/Preta">Amarela / Preta</option>
+            <option value="Laranja/Branca">Laranja / Branca</option>
+            <option value="Laranja">Laranja</option>
+            <option value="Laranja/Preta">Laranja / Preta</option>
+            <option value="Verde/Branca">Verde / Branca</option>
+            <option value="Verde">Verde</option>
+            <option value="Verde/Preta">Verde / Preta</option>
+            <option value="Branca" selected>Branca</option>
+            <option value="Azul">Azul</option>
+            <option value="Roxa">Roxa</option>
+            <option value="Marrom">Marrom</option>
+            <option value="Preta">Preta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Peso</label>
+          <select id="b-weight">
+            <option value="Galo">Galo</option>
+            <option value="Pluma">Pluma</option>
+            <option value="Pena">Pena</option>
+            <option value="Leve">Leve</option>
+            <option value="Médio" selected>Médio</option>
+            <option value="Meio-Pesado">Meio-Pesado</option>
+            <option value="Pesado">Pesado</option>
+            <option value="Pesadíssimo">Pesadíssimo</option>
+            <option value="Absoluto">Absoluto</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tempo da Luta (Min)</label>
+          <input type="number" id="b-time" value="5" min="1" max="15">
+        </div>
+
+        <div class="form-group">
+          <label>Atletas (1 por linha):</label>
+          <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
+          <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
+        </div>
+
+        <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir Chaves</button>
+        <button class="btn-clear-all" onclick="clearAllBrackets()">⚠️ Apagar Tudo</button>
+      </div>
+
+      <div class="bracket-display">
+        <div id="matches-container"><p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
+    let defaultSeconds = 300, remainingSeconds = defaultSeconds;
+    let timerInterval = null, isRunning = false;
+    
+    let tournaments = {}; 
+    let globalGroupId = 1;
+    let activeMatchTracker = null; 
+
+    window.onload = function() {
+      const savedTournaments = localStorage.getItem('tatame_tournaments');
+      const savedGroupId = localStorage.getItem('tatame_globalGroupId');
+
+      if (savedTournaments) tournaments = JSON.parse(savedTournaments);
+      if (savedGroupId) globalGroupId = parseInt(savedGroupId);
+
+      renderBrackets();
+    };
+
+    function saveData() {
+      localStorage.setItem('tatame_tournaments', JSON.stringify(tournaments));
+      localStorage.setItem('tatame_globalGroupId', globalGroupId);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.nav-btn')[tabId === 'tab-scoreboard' ? 0 : 1].classList.add('active');
+    }
+
+    function updateDisplay() {
+      document.getElementById('a1-points').innerText = scores[1].points;
+      document.getElementById('a1-advantages').innerText = scores[1].adv;
+      document.getElementById('a1-penalties').innerText = scores[1].pen;
+      document.getElementById('a2-points').innerText = scores[2].points;
+      document.getElementById('a2-advantages').innerText = scores[2].adv;
+      document.getElementById('a2-penalties').innerText = scores[2].pen;
+    }
+
+    function addPoints(a, v) { scores[a].points = Math.max(0, scores[a].points + v); updateDisplay(); }
+    function addAdvantage(a, v) { scores[a].adv = Math.max(0, scores[a].adv + v); updateDisplay(); }
+    function addPenalty(a, v) { scores[a].pen = Math.max(0, scores[a].pen + v); updateDisplay(); }
+
+    function formatTime(sec) {
+      return `${Math.floor(sec / 60).toString().padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
+    }
+    function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
+
+    function playBuzzer() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
+      gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--; updateTimerDisplay();
+        } else {
+          pauseTimer(); playBuzzer(); autoResolveMatch();
+        }
+      }, 1000);
+    }
+    function pauseTimer() { isRunning = false; clearInterval(timerInterval); }
+    function resetTimer() { pauseTimer(); remainingSeconds = defaultSeconds; updateTimerDisplay(); }
+
+    function resetFullMatch() {
+      resetTimer();
+      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
+      updateDisplay();
+    }
+
+    function autoResolveMatch() {
+      if (!activeMatchTracker) {
+        alert("Tempo esgotado!"); return;
+      }
+      setTimeout(() => calculateAndAdvanceWinner(false), 500);
+    }
+
+    function manualFinishMatch() {
+      if (!activeMatchTracker) {
+        alert("Nenhuma luta de campeonato ativa no momento."); return;
+      }
+      pauseTimer();
+      calculateAndAdvanceWinner(true);
+    }
+
+    function disqualifyAthlete(athleteNumber) {
+      let n1 = document.getElementById('athlete1-name').value;
+      let n2 = document.getElementById('athlete2-name').value;
+      let dqName = athleteNumber === 1 ? n1 : n2;
+      let winnerName = athleteNumber === 1 ? n2 : n1;
+      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
+
+      if (confirm(`Tem certeza que deseja desclassificar (DQ) o(a) atleta ${dqName}? O oponente (${winnerName}) vencerá automaticamente.`)) {
+        pauseTimer();
+        alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
+        
+        if (activeMatchTracker) {
+          advanceAthlete(activeMatchTracker.groupId, activeMatchTracker.matchId, winnerName, referee, "Desclassificação (DQ)");
+          activeMatchTracker = null;
+          document.getElementById('current-match-indicator').style.display = 'none';
+          switchTab('tab-bracket');
+        } else {
+          resetFullMatch();
+        }
+      }
+    }
+
+    function calculateAndAdvanceWinner(isManual = false) {
+      let winner = 0; 
+      let n1 = document.getElementById('athlete1-name').value;
+      let n2 = document.getElementById('athlete2-name').value;
+      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
+      let method = "";
+
+      if (!isManual) {
+        method = "Pontos";
+        if (scores[1].points > scores[2].points) winner = 1;
+        else if (scores[2].points > scores[1].points) winner = 2;
+        else if (scores[1].adv > scores[2].adv) winner = 1;
+        else if (scores[2].adv > scores[1].adv) winner = 2;
+        else if (scores[1].pen < scores[2].pen) winner = 1;
+        else if (scores[2].pen < scores[1].pen) winner = 2;
+        else {
+          const choice = prompt(`EMPATE NO TEMPO!\nDigite 1 para vitória de ${n1}\nDigite 2 para vitória de ${n2}`);
+          if (choice === '1') winner = 1;
+          else if (choice === '2') winner = 2;
+          else { alert("Decisão inválida. A luta não foi concluída."); return; }
+        }
+      } else {
+        method = "Finalização/Sub";
+        const choice = prompt(`LUTA FINALIZADA!\nQuem aplicou a submissão?\n1 - ${n1}\n2 - ${n2}`);
+        if (choice === '1') winner = 1;
+        else if (choice === '2') winner = 2;
+        else return;
+      }
+
+      let winnerName = winner === 1 ? n1 : n2;
+      alert(`🏆 Vencedor: ${winnerName} (${method})!\nÁrbitro: ${referee}`);
+      
+      advanceAthlete(activeMatchTracker.groupId, activeMatchTracker.matchId, winnerName, referee, method);
+      
+      activeMatchTracker = null;
+      document.getElementById('current-match-indicator').style.display = 'none';
+      switchTab('tab-bracket');
+    }
+
+    function generateBracket() {
+      const gender = document.getElementById('b-gender').value;
+      const age = document.getElementById('b-age').value;
+      const belt = document.getElementById('b-belt').value;
+      const weight = document.getElementById('b-weight').value;
+      const customTime = parseInt(document.getElementById('b-time').value) || 5;
+      let names = document.getElementById('b-athletes').value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+      if (names.length < 2) return alert("Insira pelo menos 2 atletas!");
+
+      if (document.getElementById('b-shuffle').checked) {
+        for (let i = names.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [names[i], names[j]] = [names[j], names[i]];
+        }
+      }
+
+      let totalSlots = 2;
+      while (totalSlots < names.length) totalSlots *= 2;
+      while (names.length < totalSlots) names.push("BYE");
+
+      const groupId = globalGroupId++;
+      const headerText = `${gender} / ${age} / Faixa ${belt} / Peso ${weight} (${customTime} min)`;
+      
+      let matches = [];
+      let roundMatches = totalSlots / 2;
+      let currentRound = 1;
+      
+      let categoryMatchCounter = 1;
+
+      let nameIndex = 0;
+      for (let i = 0; i < roundMatches; i++) {
+        let a1 = names[nameIndex++];
+        let a2 = names[nameIndex++];
+        
+        let formattedMatchNum = String(categoryMatchCounter).padStart(2, '0');
+        
+        matches.push({
+          id: `g${groupId}_r1_m${i+1}`,
+          matchNum: formattedMatchNum,
+          round: 1,
+          athlete1: a1,
+          athlete2: a2,
+          winner: null,
+          method: null,
+          referee: null
+        });
+        categoryMatchCounter++;
+      }
+
+      while (roundMatches > 1) {
+        roundMatches /= 2;
+        currentRound++;
+        for (let i = 0; i < roundMatches; i++) {
+          let formattedMatchNum = String(categoryMatchCounter).padStart(2, '0');
+          matches.push({
+            id: `g${groupId}_r${currentRound}_m${i+1}`,
+            matchNum: formattedMatchNum,
+            round: currentRound,
+            athlete1: "A definir",
+            athlete2: "A definir",
+            winner: null,
+            method: null,
+            referee: null
+          });
+          categoryMatchCounter++;
+        }
+      }
+
+      tournaments[groupId] = {
+        header: headerText,
+        time: customTime,
+        matches: matches
+      };
+
+      saveData();
+      renderBrackets();
+      document.getElementById('b-athletes').value = '';
+    }
+
+    function renderBrackets() {
+      const container = document.getElementById('matches-container');
+      container.innerHTML = '';
+
+      const groupIds = Object.keys(tournaments);
+      if (groupIds.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p>';
+        return;
+      }
+
+      groupIds.forEach(groupId => {
+        const group = tournaments[groupId];
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'bracket-group';
+
+        let html = `<div class="bracket-group-header">
+          <span>🏆 ${group.header}</span>
+          <button class="btn-clear-all" style="width:auto; padding:4px 10px; font-size:0.7rem; margin:0;" onclick="deleteGroup('${groupId}')">Apagar Categoria</button>
+        </div><div class="bracket-rounds-container">`;
+
+        const rounds = {};
+        group.matches.forEach(m => {
+          if (!rounds[m.round]) rounds[m.round] = [];
+          rounds[m.round].push(m);
+        });
+
+        Object.keys(rounds).sort().forEach(rNum => {
+          html += `<div class="bracket-round"><div class="round-title">Rodada ${rNum}</div>`;
+          rounds[rNum].forEach(m => {
+            let a1IsWinner = (m.athlete1 === m.winner);
+            let a2IsWinner = (m.athlete2 === m.winner);
+
+            let a1Class = a1IsWinner ? 'branco winner' : 'branco';
+            let a2Class = a2IsWinner ? 'azul winner' : 'azul';
+
+            html += `<div class="match-card" id="${m.id}">
+              <div class="match-header-info">
+                <span>Luta #${m.matchNum}</span>
+              </div>
+              ${m.referee ? `<div class="match-referee-text">Árbitro: ${m.referee}</div>` : ''}
+              
+              <div class="match-athlete ${a1Class}">
+                <span>${m.athlete1}</span>
+                ${a1IsWinner ? `<div class="winner-info-container"><span class="winner-badge">🏆 Vencedor</span><span class="win-method-badge">${m.method}</span></div>` : ''}
+              </div>
+              
+              <div class="match-athlete ${a2Class}">
+                <span>${m.athlete2}</span>
+                ${a2IsWinner ? `<div class="winner-info-container"><span class="winner-badge">🏆 Vencedor</span><span class="win-method-badge">${m.method}</span></div>` : ''}
+              </div>`;
+
+            if (!m.winner && m.athlete1 !== "A definir" && m.athlete2 !== "A definir" && m.athlete1 !== "BYE" && m.athlete2 !== "BYE") {
+              html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', '${m.id}')">Carregar no Placar</button>`;
+            }
+            html += `</div>`;
+          });
+          html += `</div>`;
+        });
+
+        html += `</div>`;
+        groupDiv.innerHTML = html;
+        container.appendChild(groupDiv);
+      });
+    }
+
+    function loadMatchToScoreboard(groupId, matchId) {
+      const group = tournaments[groupId];
+      const match = group.matches.find(m => m.id === matchId);
+
+      if (!match) return;
+
+      document.getElementById('athlete1-name').value = match.athlete1;
+      document.getElementById('athlete2-name').value = match.athlete2;
+      document.getElementById('category-info').value = group.header;
+
+      defaultSeconds = group.time * 60;
+      remainingSeconds = defaultSeconds;
+      updateTimerDisplay();
+
+      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
+      updateDisplay();
+
+      activeMatchTracker = { groupId, matchId };
+
+      const indicator = document.getElementById('current-match-indicator');
+      indicator.innerText = `Luta #${match.matchNum} - ${group.header}`;
+      indicator.style.display = 'block';
+
+      switchTab('tab-scoreboard');
+    }
+
+    function advanceAthlete(groupId, matchId, winnerName, referee, method) {
+      const group = tournaments[groupId];
+      const match = group.matches.find(m => m.id === matchId);
+      if (!match) return;
+
+      match.winner = winnerName;
+      match.method = method;
+      match.referee = referee;
+
+      saveData();
+      renderBrackets();
+    }
+
+    function deleteGroup(groupId) {
+      if (confirm("Tem certeza que deseja apagar esta categoria e suas chaves?")) {
+        delete tournaments[groupId];
+        saveData();
+        renderBrackets();
+      }
+    }
+
+    function clearAllBrackets() {
+      if (confirm("Tem certeza que deseja apagar todas as chaves criadas?")) {
+        tournaments = {};
+        globalGroupId = 1;
+        saveData();
+        renderBrackets();
+      }
+    }
+  </script>
+</body>
+</html>
