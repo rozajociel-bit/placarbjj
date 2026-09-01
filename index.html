@@ -524,7 +524,6 @@
         alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
         
         if (activeMatchTracker) {
-          // Salva dados e avança
           let matchDataRecord = {
             athlete1: n1, athlete2: n2,
             a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
@@ -608,17 +607,14 @@
         athletes.sort(() => Math.random() - 0.5);
       }
 
-      // Preenche a chave até a próxima potência de 2 com "BYE" (Folga)
       let power = 1;
       while (power < athletes.length) power *= 2;
       while (athletes.length < power) {
         athletes.push("BYE");
       }
 
-      // Monta as Rodadas
       let rounds = [];
       let currentRoundAthletes = athletes;
-      let roundNum = 1;
 
       while (currentRoundAthletes.length >= 2) {
         let matches = [];
@@ -628,7 +624,6 @@
           let winner = null;
           let matchRecord = null;
 
-          // Se um deles for BYE, o outro avança automaticamente
           if (a1 === "BYE" && a2 !== "BYE") {
             winner = a2;
             matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a2, referee:"Automático", method:"W.O. / BYE" };
@@ -646,9 +641,7 @@
           });
         }
         rounds.push({ roundName: getRoundName(currentRoundAthletes.length), matches: matches });
-        // Para a próxima rodada, criamos slots vazios para receber os vencedores
         currentRoundAthletes = new Array(currentRoundAthletes.length / 2).fill("A definir");
-        roundNum++;
       }
 
       const groupId = 'group_' + (globalGroupId++);
@@ -695,9 +688,6 @@
         group.rounds.forEach((round, rIdx) => {
           html += `<div class="bracket-round"><div class="round-title">${round.roundName}</div>`;
           round.matches.forEach((match, mIdx) => {
-            let a1Class = match.athlete1 === match.winner ? 'winner-glow' : '';
-            let a2Class = match.athlete2 === match.winner ? 'winner-glow' : '';
-            
             html += `
               <div class="match-card">
                 <div class="match-header-info">
@@ -775,7 +765,6 @@
       let group = tournaments[groupId];
       let foundWinner = null;
 
-      // Localiza a luta atual e define o vencedor
       for (let r = 0; r < group.rounds.length; r++) {
         for (let m = 0; m < group.rounds[r].matches.length; m++) {
           if (group.rounds[r].matches[m].id === matchId) {
@@ -783,7 +772,6 @@
             group.rounds[r].matches[m].matchRecord = matchRecord;
             foundWinner = matchRecord.winner;
 
-            // Se houver próxima rodada, propaga o vencedor para o slot correto ("A definir")
             if (r + 1 < group.rounds.length) {
               let nextMatchIdx = Math.floor(m / 2);
               let isEven = (m % 2 === 0);
