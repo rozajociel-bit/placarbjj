@@ -465,9 +465,9 @@
   </div>
 
   <script>
-    // Configuração do Supabase (Insira sua URL e Chave Anon)
-    const SUPABASE_URL = 'SUA_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+    // Configuração do Supabase com as chaves injetadas
+    const SUPABASE_URL = 'https://afnigpphelliwetcgqoc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmlncHBoZWxsaXdldGNncW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNDMzNTAsImV4cCI6MjEwMzkxOTM1MH0.z1EQj-qOsMic40lhaVdKn6Z8FJt9wSts6ujC1UMrfAs';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let isSignUpMode = false;
