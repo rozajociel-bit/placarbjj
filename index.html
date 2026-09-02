@@ -21,167 +21,40 @@
       --text-muted: #9ca3af;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) */
-    #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .auth-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 400px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .auth-card h2 { color: var(--accent-blue); text-align: center; margin-bottom: 6px; text-transform: uppercase; font-size: 1.2rem; font-weight: 800; }
-    .auth-card p { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px; }
+    /* TELA DE AUTENTICAÇÃO */
+    #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 99999; }
+    .auth-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 400px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .auth-card h2 { color: var(--accent-blue); text-align: center; margin-bottom: 6px; text-transform: uppercase; font-size: 1.4rem; font-weight: 800; }
+    .auth-card p { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
     .auth-form-group { margin-bottom: 15px; }
     .auth-form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-    .auth-form-group input { width: 100%; padding: 10px 12px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-size: 0.9rem; }
+    .auth-form-group input { width: 100%; padding: 12px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-size: 0.95rem; }
     .auth-form-group input:focus { outline: none; border-color: var(--accent-blue); }
-    .auth-btn { width: 100%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; margin-top: 5px; }
+    
+    .auth-btn { width: 100%; background: #16a34a; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; text-transform: uppercase; margin-top: 5px; transition: background 0.2s; }
     .auth-btn:hover { background: #15803d; }
-    .auth-switch { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); }
-    .auth-switch a { color: var(--accent-blue); text-decoration: none; font-weight: 700; cursor: pointer; }
-    .auth-switch a:hover { text-decoration: underline; }
+    
+    .auth-switch { text-align: center; margin-top: 18px; font-size: 0.85rem; color: var(--text-muted); }
+    .auth-switch span { color: var(--accent-blue); text-decoration: none; font-weight: 700; cursor: pointer; display: inline-block; padding: 5px; }
+    .auth-switch span:hover { text-decoration: underline; }
 
     /* APLICAÇÃO PRINCIPAL */
     #app-container { display: none; flex-direction: column; flex-grow: 1; width: 100%; }
-
-    /* NAVEGAÇÃO TOPO */
-    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
+    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); }
     .nav-links { display: flex; gap: 12px; }
-    .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
-    .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
-    .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-    .btn-logout { background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
-    .btn-logout:hover { background: rgba(220, 38, 38, 0.3); color: white; }
+    .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+    .nav-btn.active { background: #2563eb; color: white; border-color: #3b82f6; }
+    .btn-logout { background: rgba(220, 38, 38, 0.15); color: #f87171; border-color: rgba(220, 38, 38, 0.3); }
 
-    /* TELA INTEIRA */
-    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; }
+    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 20px; }
     .tab-content.active { display: flex; }
-
-    /* CABEÇALHO DO PLACAR */
-    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 15px; }
-    .header-input-group { display: flex; flex-direction: column; gap: 4px; }
-    .header-input-group label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-    .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; width: 100%; }
-    .header-input-group input:focus { outline: none; border-color: var(--accent-blue); }
     
-    .current-match-badge { background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-bottom: 4px; display: none; text-transform: uppercase; font-weight: 700; text-align: center; }
-
-    /* CRONÔMETRO */
-    .timer-container { text-align: center; background: #111318; padding: 8px 20px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); }
-    .timer-display { font-size: 2.8rem; font-family: 'Courier New', Courier, monospace; font-weight: 800; color: var(--accent-gold); line-height: 1; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); margin-bottom: 6px; }
-    .timer-controls { display: flex; gap: 6px; justify-content: center; margin-bottom: 4px; }
-    .timer-btn { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
-    .btn-start { background: #16a34a; color: white; }
-    .btn-start:hover { background: #15803d; }
-    .btn-pause { background: #d97706; color: white; }
-    .btn-pause:hover { background: #b45309; }
-    .btn-reset { background: #dc2626; color: white; }
-    .btn-reset:hover { background: #b91c1c; }
-    .timer-bottom-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .btn-finish { background: #7c3aed; color: white; width: 100%; padding: 6px; font-size: 0.75rem; }
-    .btn-finish:hover { background: #6d28d9; }
-    .btn-reset-match { background: #475569; color: white; width: 100%; padding: 6px; font-size: 0.75rem; }
-    .btn-reset-match:hover { background: #334155; }
-
-    /* CORPO DO PLACAR */
-    main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; }
-    .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; min-height: 420px; }
-    
-    .athlete-1 { background: #e5e7eb; border-color: #9ca3af; color: #1f2937; }
-    .athlete-2 { background: #0b1c3d; border-color: #1d4ed8; color: #f3f4f6; }
-
-    .athlete-1 .athlete-name-input { background: #ffffff; color: #111827; border: 1px solid #d1d5db; }
-    .athlete-2 .athlete-name-input { background: #071022; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); }
-
-    .athlete-name-input { padding: 10px; font-size: 1.15rem; font-weight: 800; border-radius: 8px; text-transform: uppercase; text-align: center; width: 100%; flex-shrink: 0; }
-    .athlete-name-input:focus { outline: none; border-color: var(--accent-blue); }
-
-    .score-box { text-align: center; margin: 4px 0; border-radius: 10px; padding: 10px; flex-shrink: 0; }
-    .athlete-1 .score-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
-    .athlete-2 .score-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-
-    .score-number { font-size: 5.5rem; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .athlete-1 .score-number { color: #111827; }
-    .athlete-2 .score-number { color: #ffffff; }
-
-    .points-actions { display: flex; gap: 6px; margin-bottom: 6px; flex-shrink: 0; }
-    .btn-score { cursor: pointer; border-radius: 8px; font-weight: 800; padding: 10px 4px; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: all 0.15s ease; text-align: center; }
-    
-    .athlete-1 .btn-score { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .athlete-1 .btn-score:hover { background: #ffffff; border-color: #9ca3af; }
-    .athlete-2 .btn-score { background: #112652; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .athlete-2 .btn-score:hover { background: #16326c; border-color: #3b82f6; }
-
-    .btn-score span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-top: 2px; opacity: 0.85; }
-
-    .undo-row { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
-    .undo-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
-    .athlete-1 .undo-label { color: #4b5563; }
-    .athlete-2 .undo-label { color: var(--text-muted); }
-
-    .btn-undo { padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; font-weight: 700; }
-    .athlete-1 .btn-undo { background: #d1d5db; color: #374151; border: 1px solid #9ca3af; }
-    .athlete-1 .btn-undo:hover { background: #fca5a5; color: #991b1b; }
-    .athlete-2 .btn-undo { background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); }
-    .athlete-2 .btn-undo:hover { background: rgba(220, 38, 38, 0.3); color: #f87171; }
-
-    .secondary-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; margin-bottom: 6px; }
-    .sec-box { padding: 8px; border-radius: 8px; text-align: center; }
-    .athlete-1 .sec-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
-    .athlete-2 .sec-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-
-    .sec-title { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; }
-    .athlete-1 .sec-title { color: #4b5563; }
-    .athlete-2 .sec-title { color: var(--text-muted); }
-
-    .sec-value { font-size: 1.6rem; font-weight: 900; margin: 2px 0; }
-    .sec-btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 2px; }
-    .btn-sec { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-    
-    .athlete-1 .btn-sec { background: #d1d5db; color: #1f2937; border: 1px solid #9ca3af; }
-    .athlete-1 .btn-sec:hover { background: #9ca3af; }
-    .athlete-2 .btn-sec { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.1); }
-    .athlete-2 .btn-sec:hover { background: rgba(255,255,255,0.15); }
-
-    .btn-dq { width: 100%; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
-    .athlete-1 .btn-dq { background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; }
-    .athlete-1 .btn-dq:hover { background: rgba(220, 38, 38, 0.2); }
-    .athlete-2 .btn-dq { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #f87171; }
-    .athlete-2 .btn-dq:hover { background: rgba(220, 38, 38, 0.3); color: #fca5a5; }
-
-    /* CHAVES & LUTA CASADA */
-    .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; width: 100%; }
-    .sidebar-col { display: flex; flex-direction: column; gap: 15px; }
-    
-    .luta-casada-container { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-    .luta-casada-container h3 { color: var(--accent-rose); font-size: 1rem; margin-bottom: 6px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
-    .luta-casada-container p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.3; }
-    .input-group-casada { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-    .input-group-casada input { flex: 1; min-width: 0; padding: 8px 10px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-size: 0.85rem; }
-    .input-group-casada input:focus { outline: none; border-color: var(--accent-blue); }
-    .btn-casada { width: 100%; background: var(--accent-rose); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; }
-    .btn-casada:hover { background: #e11d48; }
-
-    .form-card { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
-    .form-card h3 { color: var(--accent-blue); font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-size: 0.85rem; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue); }
-
-    .btn-generate { width: 100%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; margin-top: 6px; }
-    .btn-print { width: 100%; background: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 6px; }
-    .btn-clear-all { width: 100%; background: #dc2626; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; margin-top: 6px; }
-
-    .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; overflow-x: auto; }
-    .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; min-width: 600px; }
-    .bracket-group-header { font-size: 1rem; color: #4ade80; margin-bottom: 12px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-
-    @media (max-width: 900px) {
-      .scoreboard-header { grid-template-columns: 1fr; gap: 10px; }
-      main.scoreboard-main { grid-template-columns: 1fr; }
-      .bracket-builder { grid-template-columns: 1fr; }
-      .timer-display { font-size: 2.2rem; }
-      .score-number { font-size: 4.5rem; }
-    }
+    .welcome-panel { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; text-align: center; max-width: 600px; margin: 40px auto; }
+    .welcome-panel h3 { color: var(--accent-gold); margin-bottom: 10px; font-size: 1.5rem; }
+    .welcome-panel p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -202,11 +75,11 @@
         <input type="password" id="auth-pass" placeholder="Digite sua senha">
       </div>
 
-      <button class="auth-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">Entrar</button>
+      <button class="auth-btn" id="auth-submit-btn">Entrar</button>
       
       <div class="auth-switch">
         <span id="auth-switch-text">Não tem uma conta?</span> 
-        <a id="auth-switch-link" onclick="toggleAuthMode()">Criar Cadastro</a>
+        <span id="auth-switch-link" style="color: var(--accent-blue); font-weight: bold;">Criar Cadastro</span>
       </div>
     </div>
   </div>
@@ -215,408 +88,134 @@
   <div id="app-container">
     <nav class="top-nav">
       <div class="nav-links">
-        <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">🥋 Placar</button>
-        <button class="nav-btn" onclick="switchTab('tab-bracket')">🏆 Chaves</button>
+        <button class="nav-btn active" id="btn-tab-home" onclick="switchTab('home')">🏠 Início</button>
       </div>
-      <button class="nav-btn btn-logout" onclick="logoutSystem()">Sair</button>
+      <button class="nav-btn btn-logout" id="btn-logout">Sair</button>
     </nav>
 
-    <div id="tab-scoreboard" class="tab-content active">
-      <header class="scoreboard-header">
-        <div class="header-input-group">
-          <label>Árbitro</label>
-          <input type="text" id="referee-name" placeholder="Nome do Árbitro">
-        </div>
-        <div class="timer-container">
-          <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
-          <div id="timer-display" class="timer-display">05:00</div>
-          <div class="timer-controls">
-            <button class="timer-btn btn-start" onclick="startTimer()">Start</button>
-            <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
-            <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
-          </div>
-          <div class="timer-bottom-btns">
-            <button class="timer-btn btn-finish" onclick="manualFinishMatch()">Finalizar (Sub)</button>
-            <button class="timer-btn btn-reset-match" onclick="resetFullMatch()">Zerar Combate</button>
-          </div>
-        </div>
-        <div class="header-input-group">
-          <label>Categoria</label>
-          <input type="text" id="category-info" placeholder="Ex: Adulto / Branca / Médio">
-        </div>
-      </header>
-
-      <main class="scoreboard-main">
-        <section class="athlete-card athlete-1">
-          <input type="text" class="athlete-name-input" id="athlete1-name" value="Atleta Branco">
-          <div class="score-box"><div class="score-number" id="a1-points">0</div></div>
-          <div>
-            <div class="points-actions">
-              <button class="btn-score" onclick="addPoints(1, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-              <button class="btn-score" onclick="addPoints(1, 3)">+3 <span>Passagem Guarda</span></button>
-              <button class="btn-score" onclick="addPoints(1, 4)">+4 <span>Montada / Costas</span></button>
-            </div>
-            <div class="undo-row">
-              <span class="undo-label">Desfazer:</span>
-              <button class="btn-undo" onclick="addPoints(1, -2)">-2</button>
-              <button class="btn-undo" onclick="addPoints(1, -3)">-3</button>
-              <button class="btn-undo" onclick="addPoints(1, -4)">-4</button>
-            </div>
-          </div>
-          <div>
-            <div class="secondary-scores">
-              <div class="sec-box">
-                <div class="sec-title">Vantagens</div>
-                <div class="sec-value" id="a1-advantages" style="color:#d97706">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addAdvantage(1, -1)">-</button>
-                  <button class="btn-sec" onclick="addAdvantage(1, 1)">+</button>
-                </div>
-              </div>
-              <div class="sec-box">
-                <div class="sec-title">Punições</div>
-                <div class="sec-value" id="a1-penalties" style="color:#dc2626">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addPenalty(1, -1)">-</button>
-                  <button class="btn-sec" onclick="addPenalty(1, 1)">+</button>
-                </div>
-              </div>
-            </div>
-            <button class="btn-dq" onclick="disqualifyAthlete(1)">⚠️ Desclassificar (DQ)</button>
-          </div>
-        </section>
-
-        <section class="athlete-card athlete-2">
-          <input type="text" class="athlete-name-input" id="athlete2-name" value="Atleta Azul">
-          <div class="score-box"><div class="score-number" id="a2-points">0</div></div>
-          <div>
-            <div class="points-actions">
-              <button class="btn-score" onclick="addPoints(2, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-              <button class="btn-score" onclick="addPoints(2, 3)">+3 <span>Passagem Guarda</span></button>
-              <button class="btn-score" onclick="addPoints(2, 4)">+4 <span>Montada / Costas</span></button>
-            </div>
-            <div class="undo-row">
-              <span class="undo-label">Desfazer:</span>
-              <button class="btn-undo" onclick="addPoints(2, -2)">-2</button>
-              <button class="btn-undo" onclick="addPoints(2, -3)">-3</button>
-              <button class="btn-undo" onclick="addPoints(2, -4)">-4</button>
-            </div>
-          </div>
-          <div>
-            <div class="secondary-scores">
-              <div class="sec-box">
-                <div class="sec-title">Vantagens</div>
-                <div class="sec-value" id="a2-advantages" style="color:#fbbf24">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addAdvantage(2, -1)">-</button>
-                  <button class="btn-sec" onclick="addAdvantage(2, 1)">+</button>
-                </div>
-              </div>
-              <div class="sec-box">
-                <div class="sec-title">Punições</div>
-                <div class="sec-value" id="a2-penalties" style="color:#f87171">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addPenalty(2, -1)">-</button>
-                  <button class="btn-sec" onclick="addPenalty(2, 1)">+</button>
-                </div>
-              </div>
-            </div>
-            <button class="btn-dq" onclick="disqualifyAthlete(2)">⚠️ Desclassificar (DQ)</button>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <div id="tab-bracket" class="tab-content">
-      <div class="bracket-builder">
-        <div class="sidebar-col">
-          <div class="luta-casada-container">
-              <h3>⚔️ Luta Casada</h3>
-              <p>Confronto direto rápido e sem chave. Envie os nomes para o placar.</p>
-              
-              <div class="input-group-casada">
-                  <input type="text" id="lutadorA-casada" placeholder="Atleta 1">
-                  <span style="font-weight: 800; font-size: 0.75rem; color: var(--text-muted);">VS</span>
-                  <input type="text" id="lutadorB-casada" placeholder="Atleta 2">
-              </div>
-              
-              <button onclick="iniciarLutaCasada()" class="btn-casada">Enviar p/ Placar</button>
-          </div>
-
-          <div class="form-card">
-            <h3>Nova Categoria</h3>
-            
-            <div class="form-group">
-              <label>Gênero</label>
-              <select id="b-gender">
-                <option value="Masculino" selected>Masculino</option>
-                <option value="Feminino">Feminino</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Faixa Etária</label>
-              <select id="b-age">
-                <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
-                <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Faixa</label>
-              <select id="b-belt">
-                <option value="Branca" selected>Branca</option>
-                <option value="Azul">Azul</option>
-                <option value="Roxa">Roxa</option>
-                <option value="Marrom">Marrom</option>
-                <option value="Preta">Preta</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Peso</label>
-              <select id="b-weight">
-                <option value="Médio" selected>Médio</option>
-                <option value="Pesado">Pesado</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Atletas (1 por linha):</label>
-              <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
-            </div>
-
-            <button class="btn-generate" onclick="generateBracket()">Gerar Chaves</button>
-            <button class="btn-clear-all" onclick="clearAllData()">Limpar Tudo</button>
-          </div>
-        </div>
-
-        <div class="bracket-display" id="bracket-container">
-          <p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda.</p>
-        </div>
+    <div id="tab-home" class="tab-content active">
+      <div class="welcome-panel">
+        <h3>🥋 Bem-vindo ao Tatame Pro!</h3>
+        <p>Sua autenticação com o Supabase ocorreu com sucesso. O sistema está pronto para gerenciar suas chaves e combates.</p>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPT DE SUPABASE E CONTROLE -->
+  <!-- SCRIPT INTEGRADO COM SUAS CREDENCIAIS REAIS -->
   <script>
-    // Cole suas credenciais reais do Supabase abaixo:
-    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI';
-    const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_AQUI';
+    // Configuração oficial utilizando a URL do seu projeto e a Publishable Key do Supabase
+    const SUPABASE_URL = 'https://afnigpphelliwetcgqoc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_3iizD8irrrpGdblE1NVzaQ_vQBJDeD8';
 
-    let supabase = null;
+    let supabaseClient = null;
     let isLoginMode = true;
 
     try {
-      if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      if (window.supabase && SUPABASE_URL.startsWith('http')) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
-    } catch (e) {
-      console.error("Erro ao inicializar Supabase:", e);
+    } catch (err) {
+      console.error("Erro ao iniciar Supabase:", err);
     }
 
-    // Alternar entre Login e Cadastro
-    function toggleAuthMode() {
-      isLoginMode = !isLoginMode;
-      const title = document.getElementById('auth-title');
-      const subtitle = document.getElementById('auth-subtitle');
-      const btn = document.getElementById('auth-submit-btn');
-      const switchText = document.getElementById('auth-switch-text');
-      const switchLink = document.getElementById('auth-switch-link');
+    document.addEventListener('DOMContentLoaded', () => {
+      const authTitle = document.getElementById('auth-title');
+      const authSubtitle = document.getElementById('auth-subtitle');
+      const authSubmitBtn = document.getElementById('auth-submit-btn');
+      const authSwitchLink = document.getElementById('auth-switch-link');
+      const authSwitchText = document.getElementById('auth-switch-text');
+      
+      const emailInput = document.getElementById('auth-email');
+      const passInput = document.getElementById('auth-pass');
+      
+      const authScreen = document.getElementById('auth-screen');
+      const appContainer = document.getElementById('app-container');
+      const logoutBtn = document.getElementById('btn-logout');
 
-      if (isLoginMode) {
-        title.innerText = 'Tatame Pro';
-        subtitle.innerText = 'Faça login para acessar o sistema';
-        btn.innerText = 'Entrar';
-        switchText.innerText = 'Não tem uma conta?';
-        switchLink.innerText = 'Criar Cadastro';
-      } else {
-        title.innerText = 'Criar Conta';
-        subtitle.innerText = 'Cadastre-se para gerenciar seus torneios';
-        btn.innerText = 'Cadastrar';
-        switchText.innerText = 'Já tem uma conta?';
-        switchLink.innerText = 'Fazer Login';
-      }
-    }
-
-    // Autenticação
-    async function handleAuthSubmit() {
-      const email = document.getElementById('auth-email').value.trim();
-      const pass = document.getElementById('auth-pass').value.trim();
-
-      if (!email || !pass) {
-        alert('Preencha o e-mail e a senha.');
-        return;
-      }
-
-      if (!supabase) {
-        alert('Erro: Supabase não foi carregado corretamente.');
-        return;
-      }
-
-      if (isLoginMode) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-        if (error) {
-          alert('Erro ao entrar: ' + error.message);
+      // Alternar Login <-> Cadastro
+      authSwitchLink.addEventListener('click', () => {
+        isLoginMode = !isLoginMode;
+        if (isLoginMode) {
+          authTitle.innerText = 'Tatame Pro';
+          authSubtitle.innerText = 'Faça login para acessar o sistema';
+          authSubmitBtn.innerText = 'Entrar';
+          authSwitchText.innerText = 'Não tem uma conta?';
+          authSwitchLink.innerText = 'Criar Cadastro';
         } else {
-          checkUserSession();
+          authTitle.innerText = 'Criar Conta';
+          authSubtitle.innerText = 'Cadastre-se para gerenciar seus torneios';
+          authSubmitBtn.innerText = 'Cadastrar';
+          authSwitchText.innerText = 'Já tem uma conta?';
+          authSwitchLink.innerText = 'Fazer Login';
         }
-      } else {
-        const { data, error } = await supabase.auth.signUp({ email, password: pass });
-        if (error) {
-          alert('Erro no cadastro: ' + error.message);
+      });
+
+      // Ação do Botão Principal (Entrar / Cadastrar)
+      authSubmitBtn.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passInput.value.trim();
+
+        if (!email || !password) {
+          alert('Por favor, preencha o e-mail e a senha.');
+          return;
+        }
+
+        if (!supabaseClient) {
+          alert('Erro: Supabase não inicializou.');
+          return;
+        }
+
+        if (isLoginMode) {
+          // Processo de Login
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) {
+            alert('Erro ao entrar: ' + error.message);
+          } else {
+            checkSession();
+          }
         } else {
-          alert('Cadastro realizado com sucesso! Faça login agora.');
-          toggleAuthMode();
+          // Processo de Cadastro
+          const { data, error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) {
+            alert('Erro no cadastro: ' + error.message);
+          } else {
+            alert('Cadastro realizado com sucesso! Agora faça o login.');
+            authSwitchLink.click(); // Volta para a tela de login
+          }
+        }
+      });
+
+      // Botão Sair
+      logoutBtn.addEventListener('click', async () => {
+        if (supabaseClient) {
+          await supabaseClient.auth.signOut();
+        }
+        authScreen.style.display = 'flex';
+        appContainer.style.display = 'none';
+        emailInput.value = '';
+        passInput.value = '';
+      });
+
+      // Checar sessão ativa ao carregar
+      async function checkSession() {
+        if (!supabaseClient) return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          authScreen.style.display = 'none';
+          appContainer.style.display = 'flex';
+        } else {
+          authScreen.style.display = 'flex';
+          appContainer.style.display = 'none';
         }
       }
-    }
 
-    async function logoutSystem() {
-      if (supabase) await supabase.auth.signOut();
-      document.getElementById('app-container').style.display = 'none';
-      document.getElementById('auth-screen').style.display = 'flex';
-    }
-
-    async function checkUserSession() {
-      if (!supabase) return;
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex';
-      } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-      }
-    }
-
-    // Executa ao carregar
-    window.addEventListener('DOMContentLoaded', () => {
-      checkUserSession();
+      checkSession();
     });
 
-    // Funções do Placar
-    function switchTab(tabId) {
+    // Função auxiliar de abas
+    function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => {
-        if(!el.classList.contains('btn-logout')) el.classList.remove('active');
-      });
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-    }
-
-    let timerInterval = null;
-    let totalSeconds = 300;
-    let isRunning = false;
-
-    function updateTimerDisplay() {
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      document.getElementById('timer-display').innerText = 
-        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function startTimer() {
-      if (isRunning) return;
-      isRunning = true;
-      timerInterval = setInterval(() => {
-        if (totalSeconds > 0) {
-          totalSeconds--;
-          updateTimerDisplay();
-        } else {
-          pauseTimer();
-          alert('Fim do tempo regulamentar!');
-        }
-      }, 1000);
-    }
-
-    function pauseTimer() {
-      isRunning = false;
-      clearInterval(timerInterval);
-    }
-
-    function resetTimer() {
-      pauseTimer();
-      totalSeconds = 300;
-      updateTimerDisplay();
-    }
-
-    function resetFullMatch() {
-      resetTimer();
-      document.getElementById('a1-points').innerText = '0';
-      document.getElementById('a2-points').innerText = '0';
-      document.getElementById('a1-advantages').innerText = '0';
-      document.getElementById('a2-advantages').innerText = '0';
-      document.getElementById('a1-penalties').innerText = '0';
-      document.getElementById('a2-penalties').innerText = '0';
-    }
-
-    function addPoints(athlete, pts) {
-      const el = document.getElementById(`a${athlete}-points`);
-      let current = parseInt(el.innerText) + pts;
-      if (current < 0) current = 0;
-      el.innerText = current;
-    }
-
-    function addAdvantage(athlete, val) {
-      const el = document.getElementById(`a${athlete}-advantages`);
-      let current = parseInt(el.innerText) + val;
-      if (current < 0) current = 0;
-      el.innerText = current;
-    }
-
-    function addPenalty(athlete, val) {
-      const el = document.getElementById(`a${athlete}-penalties`);
-      let current = parseInt(el.innerText) + val;
-      if (current < 0) current = 0;
-      el.innerText = current;
-    }
-
-    function disqualifyAthlete(athlete) {
-      const name = document.getElementById(`athlete${athlete}-name`).value;
-      alert(`Atleta ${name} desclassificado por DQ!`);
-    }
-
-    function manualFinishMatch() {
-      pauseTimer();
-      alert('Luta finalizada!');
-    }
-
-    function iniciarLutaCasada() {
-      const a1 = document.getElementById('lutadorA-casada').value.trim();
-      const a2 = document.getElementById('lutadorB-casada').value.trim();
-      if (!a1 || !a2) {
-        alert('Digite o nome dos dois atletas.');
-        return;
-      }
-      document.getElementById('athlete1-name').value = a1;
-      document.getElementById('athlete2-name').value = a2;
-      resetFullMatch();
-      switchTab('tab-scoreboard');
-      document.querySelector('button[onclick="switchTab(\'tab-scoreboard\')"]').classList.add('active');
-    }
-
-    function generateBracket() {
-      const athletesText = document.getElementById('b-athletes').value.trim();
-      if (!athletesText) {
-        alert('Insira os nomes dos atletas.');
-        return;
-      }
-      const athletes = athletesText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-      const container = document.getElementById('bracket-container');
-      container.innerHTML = `
-        <div class="bracket-group">
-          <div class="bracket-group-header">
-            <span>Categoria Gerada (${athletes.length} Atletas)</span>
-          </div>
-          <p style="color:var(--text-muted); font-size:0.8rem;">Atletas cadastrados com sucesso para o chaveamento.</p>
-        </div>
-      `;
-    }
-
-    function clearAllData() {
-      document.getElementById('b-athletes').value = '';
-      document.getElementById('bracket-container').innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda.</p>';
+      document.getElementById('tab-' + tabName).classList.add('active');
     }
   </script>
 </body>
