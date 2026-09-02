@@ -103,15 +103,14 @@
 
   <!-- SCRIPT INTEGRADO COM SUAS CREDENCIAIS REAIS -->
   <script>
-    // Configuração oficial utilizando a URL do seu projeto e a Publishable Key do Supabase
     const SUPABASE_URL = 'https://afnigpphelliwetcgqoc.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_3iizD8irrrpGdblE1NVzaQ_vQBJDeD8';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmlncHBoZWxsaXdldGNncW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNDMzNTAsImV4cCI6MjEwMzkxOTM1MH0.z1EQj-qOsMic40lhaVdKn6Z8FJt9wSts6ujC1UMrfAs';
 
     let supabaseClient = null;
     let isLoginMode = true;
 
     try {
-      if (window.supabase && SUPABASE_URL.startsWith('http')) {
+      if (window.supabase && SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.startsWith('eyJ')) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
     } catch (err) {
