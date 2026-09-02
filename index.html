@@ -43,6 +43,11 @@
     .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
     .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
     .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+    
+    .nav-right-group { display: flex; align-items: center; gap: 15px; }
+    .live-clock-widget { background: var(--surface-card); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+    .live-clock-widget span.date-text { font-size: 0.6rem; color: var(--text-muted); font-family: 'Inter', sans-serif; font-weight: 600; }
+
     .btn-logout { background: #dc2626; color: white; border: none; padding: 8px 15px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
     .btn-logout:hover { background: #b91c1c; }
 
@@ -247,7 +252,13 @@
         <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">Placar do Tatame</button>
         <button class="nav-btn" onclick="switchTab('tab-bracket')">Gerenciador de Chaves</button>
       </div>
-      <button class="btn-logout" onclick="handleLogout()">Sair</button>
+      <div class="nav-right-group">
+        <div class="live-clock-widget" id="live-clock">
+          00:00:00
+          <span class="date-text" id="live-date">--/--/----</span>
+        </div>
+        <button class="btn-logout" onclick="handleLogout()">Sair</button>
+      </div>
     </nav>
 
     <div id="tab-scoreboard" class="tab-content active">
@@ -359,72 +370,107 @@
     <div id="tab-bracket" class="tab-content">
       <div class="bracket-builder">
         <div class="form-card">
-          <h3>Nova Categoria</h3>
+          <h3>Nova Categoria / Luta</h3>
           
           <div class="form-group">
-            <label>Gênero</label>
-            <select id="b-gender">
-              <option value="Masculino" selected>Masculino</option>
-              <option value="Feminino">Feminino</option>
+            <label>Tipo de Evento</label>
+            <select id="b-event-type" onchange="toggleEventTypeInputs()">
+              <option value="chave" selected>Chave / Torneio</option>
+              <option value="casada">Luta Casada (Super Fight)</option>
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Faixa Etária</label>
-            <select id="b-age">
-              <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
-              <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
-              <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
-              <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
-              <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
-              <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
-              <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
-              <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
-              <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
-              <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
-              <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
-              <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
-              <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
-              <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
-            </select>
+          <div id="bracket-inputs-container">
+            <div class="form-group">
+              <label>Gênero</label>
+              <select id="b-gender">
+                <option value="Masculino" selected>Masculino</option>
+                <option value="Feminino">Feminino</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Faixa Etária</label>
+              <select id="b-age">
+                <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
+                <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
+                <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
+                <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
+                <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
+                <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
+                <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
+                <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
+                <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
+                <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
+                <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
+                <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
+                <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
+                <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Faixa</label>
+              <select id="b-belt">
+                <option value="Cinza/Branca">Cinza / Branca</option>
+                <option value="Cinza">Cinza</option>
+                <option value="Cinza/Preta">Cinza / Preta</option>
+                <option value="Amarela/Branca">Amarela / Branca</option>
+                <option value="Amarela">Amarela</option>
+                <option value="Amarela/Preta">Amarela / Preta</option>
+                <option value="Laranja/Branca">Laranja / Branca</option>
+                <option value="Laranja">Laranja</option>
+                <option value="Laranja/Preta">Laranja / Preta</option>
+                <option value="Verde/Branca">Verde / Branca</option>
+                <option value="Verde">Verde</option>
+                <option value="Verde/Preta">Verde / Preta</option>
+                <option value="Branca" selected>Branca</option>
+                <option value="Azul">Azul</option>
+                <option value="Roxa">Roxa</option>
+                <option value="Marrom">Marrom</option>
+                <option value="Preta">Preta</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Peso</label>
+              <select id="b-weight">
+                <option value="Galo">Galo</option>
+                <option value="Pluma">Pluma</option>
+                <option value="Pena">Pena</option>
+                <option value="Leve">Leve</option>
+                <option value="Médio" selected>Médio</option>
+                <option value="Meio-Pesado">Meio-Pesado</option>
+                <option value="Pesado">Pesado</option>
+                <option value="Pesadíssimo">Pesadíssimo</option>
+                <option value="Absoluto">Absoluto</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Atletas (1 por linha):</label>
+              <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;" id="shuffle-container">
+              <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
+              <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Faixa</label>
-            <select id="b-belt">
-              <option value="Cinza/Branca">Cinza / Branca</option>
-              <option value="Cinza">Cinza</option>
-              <option value="Cinza/Preta">Cinza / Preta</option>
-              <option value="Amarela/Branca">Amarela / Branca</option>
-              <option value="Amarela">Amarela</option>
-              <option value="Amarela/Preta">Amarela / Preta</option>
-              <option value="Laranja/Branca">Laranja / Branca</option>
-              <option value="Laranja">Laranja</option>
-              <option value="Laranja/Preta">Laranja / Preta</option>
-              <option value="Verde/Branca">Verde / Branca</option>
-              <option value="Verde">Verde</option>
-              <option value="Verde/Preta">Verde / Preta</option>
-              <option value="Branca" selected>Branca</option>
-              <option value="Azul">Azul</option>
-              <option value="Roxa">Roxa</option>
-              <option value="Marrom">Marrom</option>
-              <option value="Preta">Preta</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Peso</label>
-            <select id="b-weight">
-              <option value="Galo">Galo</option>
-              <option value="Pluma">Pluma</option>
-              <option value="Pena">Pena</option>
-              <option value="Leve">Leve</option>
-              <option value="Médio" selected>Médio</option>
-              <option value="Meio-Pesado">Meio-Pesado</option>
-              <option value="Pesado">Pesado</option>
-              <option value="Pesadíssimo">Pesadíssimo</option>
-              <option value="Absoluto">Absoluto</option>
-            </select>
+          <div id="casada-inputs-container" style="display:none;">
+            <div class="form-group">
+              <label>Nome do Evento / Destaque</label>
+              <input type="text" id="c-title" value="Super Fight / Luta Casada" placeholder="Ex: Main Event">
+            </div>
+            <div class="form-group">
+              <label>Atleta 1 (Canto Branco)</label>
+              <input type="text" id="c-athlete1" placeholder="Nome do Atleta 1">
+            </div>
+            <div class="form-group">
+              <label>Atleta 2 (Canto Azul)</label>
+              <input type="text" id="c-athlete2" placeholder="Nome do Atleta 2">
+            </div>
           </div>
 
           <div class="form-group">
@@ -432,17 +478,7 @@
             <input type="number" id="b-time" value="5" min="1" max="15">
           </div>
 
-          <div class="form-group">
-            <label>Atletas (1 por linha):</label>
-            <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
-          </div>
-
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
-            <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
-          </div>
-
-          <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave</button>
+          <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave / Luta</button>
           <button class="btn-print" onclick="window.print()">🖨️ Imprimir Chaves</button>
           <button class="btn-clear-all" onclick="clearAllBrackets()">⚠️ Apagar Tudo</button>
         </div>
@@ -528,11 +564,28 @@
       checkUserSession();
     }
 
+    // Relógio em Tempo Real
+    function updateLiveClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+
+      const clockEl = document.getElementById('live-clock');
+      if (clockEl) {
+        clockEl.innerHTML = `${hours}:${minutes}:${seconds}<span class="date-text">${day}/${month}/${year}</span>`;
+      }
+    }
+    setInterval(updateLiveClock, 1000);
+
     // Variáveis do Tatame Pro
     let scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
     let defaultSeconds = 300, remainingSeconds = defaultSeconds;
     let timerInterval = null, isRunning = false;
-    let audioCtx = null;
     let tournaments = {}; 
     let globalGroupId = 1;
     let activeMatchTracker = null; 
@@ -548,6 +601,7 @@
         console.error("Erro ao carregar dados do LocalStorage", e);
       }
       renderBrackets();
+      updateLiveClock();
     }
 
     window.onload = function() {
@@ -588,33 +642,20 @@
     }
     function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
 
-    function initAudio() {
-      try {
-        if (!audioCtx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) audioCtx = new AudioContextClass();
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-      } catch(e) { console.log(e); }
-    }
-
+    // Som de Gongo do Boxe
     function playBuzzer() {
       try {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
-        gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+        const audioUrl = 'https://www.myinstants.com/media/sounds/boxing-bell.mp3';
+        const audio = new Audio(audioUrl);
+        audio.play().catch(e => {
+          console.log("O navegador impediu o som automático. Interaja com a página primeiro.", e);
+        });
       } catch(e) {
-        console.log("Áudio bloqueado ou não suportado pelo navegador.");
+        console.log("Erro ao reproduzir o som:", e);
       }
     }
 
     function startTimer() {
-      initAudio();
       if (isRunning) return;
       isRunning = true;
       timerInterval = setInterval(() => {
@@ -643,7 +684,7 @@
 
     function manualFinishMatch() {
       if (!activeMatchTracker) {
-        alert("Nenhuma luta de campeonato ativa no momento."); return;
+        alert("Nenhuma luta ativa no momento."); return;
       }
       pauseTimer();
       calculateAndAdvanceWinner(true);
@@ -723,12 +764,60 @@
       switchTab('tab-bracket');
     }
 
+    function toggleEventTypeInputs() {
+      const type = document.getElementById('b-event-type').value;
+      if (type === 'casada') {
+        document.getElementById('bracket-inputs-container').style.display = 'none';
+        document.getElementById('casada-inputs-container').style.display = 'block';
+      } else {
+        document.getElementById('bracket-inputs-container').style.display = 'block';
+        document.getElementById('casada-inputs-container').style.display = 'none';
+      }
+    }
+
     function generateBracket() {
+      const eventType = document.getElementById('b-event-type').value;
+      const timeMin = parseInt(document.getElementById('b-time').value) || 5;
+
+      if (eventType === 'casada') {
+        const eventTitle = document.getElementById('c-title').value.trim() || "Luta Casada";
+        const a1 = document.getElementById('c-athlete1').value.trim();
+        const a2 = document.getElementById('c-athlete2').value.trim();
+
+        if (!a1 || !a2) {
+          alert("Preencha o nome dos dois atletas para a luta casada."); return;
+        }
+
+        let rounds = [{
+          roundName: "Super Fight",
+          matches: [{
+            id: 'm_' + Math.random().toString(36).substring(2, 9),
+            athlete1: a1,
+            athlete2: a2,
+            winner: null,
+            matchRecord: null
+          }]
+        }];
+
+        const groupId = 'group_' + (globalGroupId++);
+        tournaments[groupId] = {
+          title: `⚔️ ${eventTitle} (Luta Casada)`,
+          timeSec: timeMin * 60,
+          rounds: rounds
+        };
+
+        saveData();
+        renderBrackets();
+        document.getElementById('c-athlete1').value = '';
+        document.getElementById('c-athlete2').value = '';
+        return;
+      }
+
+      // Lógica padrão de Torneio / Chave
       const gender = document.getElementById('b-gender').value;
       const age = document.getElementById('b-age').value;
       const belt = document.getElementById('b-belt').value;
       const weight = document.getElementById('b-weight').value;
-      const timeMin = parseInt(document.getElementById('b-time').value) || 5;
       const rawText = document.getElementById('b-athletes').value.trim();
 
       if (!rawText) {
@@ -1001,7 +1090,7 @@
     }
 
     function deleteGroup(groupId) {
-      if (confirm("Tem certeza que deseja apagar esta categoria/chave?")) {
+      if (confirm("Tem certeza que deseja apagar esta categoria/luta?")) {
         delete tournaments[groupId];
         saveData();
         renderBrackets();
@@ -1009,7 +1098,7 @@
     }
 
     function clearAllBrackets() {
-      if (confirm("ATENÇÃO: Deseja apagar todas as chaves e dados salvos?")) {
+      if (confirm("ATENÇÃO: Deseja apagar todas as chaves e lutas salvas?")) {
         tournaments = {};
         globalGroupId = 1;
         localStorage.removeItem('tatame_tournaments');
