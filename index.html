@@ -39,7 +39,7 @@
     .auth-switch a { color: var(--accent-blue); text-decoration: none; font-weight: 700; cursor: pointer; }
     .auth-switch a:hover { text-decoration: underline; }
 
-    /* APLICAÇÃO PRINCIPAL (INICIALMENTE OCULTA ATÉ LOGAR) */
+    /* APLICAÇÃO PRINCIPAL */
     #app-container { display: none; flex-direction: column; flex-grow: 1; width: 100%; }
 
     /* NAVEGAÇÃO TOPO */
@@ -174,42 +174,6 @@
     .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; overflow-x: auto; }
     .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; min-width: 600px; }
     .bracket-group-header { font-size: 1rem; color: #4ade80; margin-bottom: 12px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-    
-    .bracket-rounds-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
-    .bracket-round { flex: 0 0 280px; display: flex; flex-direction: column; gap: 10px; }
-    .round-title { font-size: 0.8rem; color: var(--text-muted); text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; margin-bottom: 4px; font-weight: 800; }
-
-    .match-card { background: #181b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; position: relative; }
-    .match-header-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-    .match-referee-text { font-size: 0.65rem; color: var(--accent-gold); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-    
-    .match-athlete { padding: 6px 8px; background: #222631; border-radius: 6px; margin-bottom: 4px; font-size: 0.85rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-    .match-athlete.branco { border-left: 4px solid #cbd5e1; color: #fff; }
-    .match-athlete.azul { border-left: 4px solid #3b82f6; color: #fff; }
-    
-    .winner-info-container { display: flex; align-items: center; gap: 4px; margin-left: 4px; }
-    .winner-badge { color: #f59e0b; font-size: 0.55rem; background: rgba(245, 158, 11, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
-    .win-method-badge { color: #38bdf8; font-size: 0.55rem; background: rgba(56, 189, 248, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
-
-    .btn-load-match { width: 100%; background: #2563eb; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 6px; font-size: 0.7rem; text-transform: uppercase; }
-    .btn-view-score { width: 100%; background: #475569; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 4px; font-size: 0.7rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 4px; }
-    .btn-view-score:hover { background: #334155; }
-
-    /* MODAL */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); }
-    .modal-overlay.active { display: flex; }
-    .modal-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 450px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-    .modal-title { font-size: 1rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; }
-    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; font-weight: bold; }
-    .modal-close:hover { color: var(--text-main); }
-    .modal-body { display: flex; flex-direction: column; gap: 12px; }
-    .score-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-    .summary-box { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
-    .summary-athlete-name { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; color: var(--accent-blue); }
-    .summary-stats { font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
-    .summary-stats strong { color: var(--text-main); font-size: 1.1rem; }
-    .match-meta-info { font-size: 0.75rem; color: var(--text-muted); background: var(--surface-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
 
     @media (max-width: 900px) {
       .scoreboard-header { grid-template-columns: 1fr; gap: 10px; }
@@ -217,20 +181,6 @@
       .bracket-builder { grid-template-columns: 1fr; }
       .timer-display { font-size: 2.2rem; }
       .score-number { font-size: 4.5rem; }
-    }
-
-    @media print {
-      body, html { height: auto !important; overflow: auto !important; background: white !important; color: black !important; }
-      nav.top-nav, .form-card, .luta-casada-container, .btn-load-match, .btn-view-score, .btn-clear-all, .bracket-group-header button { display: none !important; }
-      #tab-scoreboard { display: none !important; }
-      #tab-bracket { display: block !important; padding: 0 !important; }
-      .bracket-builder { display: block !important; }
-      .sidebar-col { display: none !important; }
-      .bracket-display { background: white; border: none; overflow: visible; padding: 0; width: 100%; }
-      .bracket-group { background: white; border: 2px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; min-width: auto; }
-      .bracket-group-header { color: black; border-bottom: 2px solid black; }
-      .match-card { background: white; border: 1px solid #999; }
-      .match-athlete { background: #f5f5f5; color: black; }
     }
   </style>
 </head>
@@ -407,38 +357,14 @@
             <div class="form-group">
               <label>Faixa Etária</label>
               <select id="b-age">
-                <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
-                <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
-                <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
-                <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
-                <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
-                <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
-                <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
                 <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
                 <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
-                <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
-                <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
-                <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
-                <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
-                <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
               </select>
             </div>
 
             <div class="form-group">
               <label>Faixa</label>
               <select id="b-belt">
-                <option value="Cinza/Branca">Cinza / Branca</option>
-                <option value="Cinza">Cinza</option>
-                <option value="Cinza/Preta">Cinza / Preta</option>
-                <option value="Amarela/Branca">Amarela / Branca</option>
-                <option value="Amarela">Amarela</option>
-                <option value="Amarela/Preta">Amarela / Preta</option>
-                <option value="Laranja/Branca">Laranja / Branca</option>
-                <option value="Laranja">Laranja</option>
-                <option value="Laranja/Preta">Laranja / Preta</option>
-                <option value="Verde/Branca">Verde / Branca</option>
-                <option value="Verde">Verde</option>
-                <option value="Verde/Preta">Verde / Preta</option>
                 <option value="Branca" selected>Branca</option>
                 <option value="Azul">Azul</option>
                 <option value="Roxa">Roxa</option>
@@ -450,21 +376,9 @@
             <div class="form-group">
               <label>Peso</label>
               <select id="b-weight">
-                <option value="Galo">Galo</option>
-                <option value="Pluma">Pluma</option>
-                <option value="Pena">Pena</option>
-                <option value="Leve">Leve</option>
                 <option value="Médio" selected>Médio</option>
-                <option value="Meio-Pesado">Meio-Pesado</option>
                 <option value="Pesado">Pesado</option>
-                <option value="Pesadíssimo">Pesadíssimo</option>
-                <option value="Absoluto">Absoluto</option>
               </select>
-            </div>
-
-            <div class="form-group">
-              <label>Tempo da Luta (Min)</label>
-              <input type="number" id="b-time" value="5" min="1" max="15">
             </div>
 
             <div class="form-group">
@@ -473,29 +387,35 @@
             </div>
 
             <button class="btn-generate" onclick="generateBracket()">Gerar Chaves</button>
-            <button class="btn-print" onclick="window.print()">Imprimir Chaves</button>
             <button class="btn-clear-all" onclick="clearAllData()">Limpar Tudo</button>
           </div>
         </div>
 
         <div class="bracket-display" id="bracket-container">
-          <p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda. Preencha os dados ao lado para começar.</p>
+          <p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPT DE INTEGRAÇÃO SUPABASE E LÓGICA DO SISTEMA -->
+  <!-- SCRIPT DE SUPABASE E CONTROLE -->
   <script>
-    // Cole aqui a sua URL e a Chave anon públicas do seu painel do Supabase (Settings > API)
+    // Cole suas credenciais reais do Supabase abaixo:
     const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI';
     const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_AQUI';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    let supabase = null;
     let isLoginMode = true;
 
-    // Alternar entre Login e Cadastro na tela inicial
+    try {
+      if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (e) {
+      console.error("Erro ao inicializar Supabase:", e);
+    }
+
+    // Alternar entre Login e Cadastro
     function toggleAuthMode() {
       isLoginMode = !isLoginMode;
       const title = document.getElementById('auth-title');
@@ -519,7 +439,7 @@
       }
     }
 
-    // Ação do Botão de Enviar (Entrar ou Cadastrar)
+    // Autenticação
     async function handleAuthSubmit() {
       const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
@@ -529,43 +449,37 @@
         return;
       }
 
-      if (isLoginMode) {
-        // Fazer Login
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: pass,
-        });
+      if (!supabase) {
+        alert('Erro: Supabase não foi carregado corretamente.');
+        return;
+      }
 
+      if (isLoginMode) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
         if (error) {
           alert('Erro ao entrar: ' + error.message);
         } else {
           checkUserSession();
         }
       } else {
-        // Fazer Cadastro
-        const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: pass,
-        });
-
+        const { data, error } = await supabase.auth.signUp({ email, password: pass });
         if (error) {
           alert('Erro no cadastro: ' + error.message);
         } else {
-          alert('Cadastro realizado com sucesso! Verifique seu e-mail se necessário.');
+          alert('Cadastro realizado com sucesso! Faça login agora.');
           toggleAuthMode();
         }
       }
     }
 
-    // Sair da conta (Logout)
     async function logoutSystem() {
-      await supabase.auth.signOut();
+      if (supabase) await supabase.auth.signOut();
       document.getElementById('app-container').style.display = 'none';
       document.getElementById('auth-screen').style.display = 'flex';
     }
 
-    // Verificar se já existe sessão ativa ao carregar a página
     async function checkUserSession() {
+      if (!supabase) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         document.getElementById('auth-screen').style.display = 'none';
@@ -576,10 +490,12 @@
       }
     }
 
-    // Executa verificação ao iniciar
-    checkUserSession();
+    // Executa ao carregar
+    window.addEventListener('DOMContentLoaded', () => {
+      checkUserSession();
+    });
 
-    // --- FUNÇÕES DO SISTEMA (PLACAR E CHAVES) ---
+    // Funções do Placar
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => {
@@ -589,7 +505,6 @@
       event.currentTarget.classList.add('active');
     }
 
-    // Variáveis do Placar e Cronômetro
     let timerInterval = null;
     let totalSeconds = 300;
     let isRunning = false;
@@ -664,21 +579,19 @@
 
     function manualFinishMatch() {
       pauseTimer();
-      alert('Luta finalizada por finalização (Submissão)!');
+      alert('Luta finalizada!');
     }
 
     function iniciarLutaCasada() {
       const a1 = document.getElementById('lutadorA-casada').value.trim();
       const a2 = document.getElementById('lutadorB-casada').value.trim();
       if (!a1 || !a2) {
-        alert('Digite o nome dos dois atletas para a Luta Casada.');
+        alert('Digite o nome dos dois atletas.');
         return;
       }
       document.getElementById('athlete1-name').value = a1;
       document.getElementById('athlete2-name').value = a2;
       resetFullMatch();
-      document.getElementById('current-match-indicator').style.display = 'block';
-      document.getElementById('current-match-indicator').innerText = 'Luta Casada';
       switchTab('tab-scoreboard');
       document.querySelector('button[onclick="switchTab(\'tab-scoreboard\')"]').classList.add('active');
     }
@@ -686,26 +599,24 @@
     function generateBracket() {
       const athletesText = document.getElementById('b-athletes').value.trim();
       if (!athletesText) {
-        alert('Insira pelo menos os nomes dos atletas.');
+        alert('Insira os nomes dos atletas.');
         return;
       }
       const athletes = athletesText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-      const categoryName = `${document.getElementById('b-gender').value} / ${document.getElementById('b-age').value} / ${document.getElementById('b-belt').value} / ${document.getElementById('b-weight').value}`;
-      
       const container = document.getElementById('bracket-container');
       container.innerHTML = `
         <div class="bracket-group">
           <div class="bracket-group-header">
-            <span>${categoryName} (${athletes.length} Atletas)</span>
+            <span>Categoria Gerada (${athletes.length} Atletas)</span>
           </div>
-          <p style="color:var(--text-muted); font-size:0.8rem;">Chave gerada com sucesso para ${athletes.length} atletas cadastrados.</p>
+          <p style="color:var(--text-muted); font-size:0.8rem;">Atletas cadastrados com sucesso para o chaveamento.</p>
         </div>
       `;
     }
 
     function clearAllData() {
       document.getElementById('b-athletes').value = '';
-      document.getElementById('bracket-container').innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda. Preencha os dados ao lado para começar.</p>';
+      document.getElementById('bracket-container').innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda.</p>';
     }
   </script>
 </body>
