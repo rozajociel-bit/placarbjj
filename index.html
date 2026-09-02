@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tatame Pro - Sistema de Placar e Chaves</title>
+  
+  <!-- Biblioteca do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --bg-dark: #0f1117;
@@ -20,11 +24,32 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
 
+    /* TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) */
+    #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .auth-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 400px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .auth-card h2 { color: var(--accent-blue); text-align: center; margin-bottom: 6px; text-transform: uppercase; font-size: 1.2rem; font-weight: 800; }
+    .auth-card p { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px; }
+    .auth-form-group { margin-bottom: 15px; }
+    .auth-form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
+    .auth-form-group input { width: 100%; padding: 10px 12px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-size: 0.9rem; }
+    .auth-form-group input:focus { outline: none; border-color: var(--accent-blue); }
+    .auth-btn { width: 100%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; margin-top: 5px; }
+    .auth-btn:hover { background: #15803d; }
+    .auth-switch { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); }
+    .auth-switch a { color: var(--accent-blue); text-decoration: none; font-weight: 700; cursor: pointer; }
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* APLICAÇÃO PRINCIPAL (INICIALMENTE OCULTA ATÉ LOGAR) */
+    #app-container { display: none; flex-direction: column; flex-grow: 1; width: 100%; }
+
     /* NAVEGAÇÃO TOPO */
-    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
+    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
+    .nav-links { display: flex; gap: 12px; }
     .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
     .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
     .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+    .btn-logout { background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+    .btn-logout:hover { background: rgba(220, 38, 38, 0.3); color: white; }
 
     /* TELA INTEIRA */
     .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; }
@@ -126,7 +151,6 @@
     .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; width: 100%; }
     .sidebar-col { display: flex; flex-direction: column; gap: 15px; }
     
-    /* Novo Card: Luta Casada */
     .luta-casada-container { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
     .luta-casada-container h3 { color: var(--accent-rose); font-size: 1rem; margin-bottom: 6px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
     .luta-casada-container p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.3; }
@@ -212,764 +236,476 @@
 </head>
 <body>
 
-  <nav class="top-nav">
-    <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">🥋 Placar do Tatame</button>
-    <button class="nav-btn" onclick="switchTab('tab-bracket')">🏆 Gerenciador de Chaves</button>
-  </nav>
-
-  <div id="tab-scoreboard" class="tab-content active">
-    <header class="scoreboard-header">
-      <div class="header-input-group">
-        <label>Árbitro</label>
-        <input type="text" id="referee-name" placeholder="Nome do Árbitro">
+  <!-- TELA DE LOGIN / CADASTRO -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <h2 id="auth-title">Tatame Pro</h2>
+      <p id="auth-subtitle">Faça login para acessar o sistema</p>
+      
+      <div class="auth-form-group">
+        <label>E-mail</label>
+        <input type="email" id="auth-email" placeholder="seu-email@exemplo.com">
       </div>
-      <div class="timer-container">
-        <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
-        <div id="timer-display" class="timer-display">05:00</div>
-        <div class="timer-controls">
-          <button class="timer-btn btn-start" onclick="startTimer()">Start</button>
-          <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
-          <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
-        </div>
-        <div class="timer-bottom-btns">
-          <button class="timer-btn btn-finish" onclick="manualFinishMatch()">Finalizar (Sub)</button>
-          <button class="timer-btn btn-reset-match" onclick="resetFullMatch()">Zerar Combate</button>
-        </div>
-      </div>
-      <div class="header-input-group">
-        <label>Categoria</label>
-        <input type="text" id="category-info" placeholder="Ex: Adulto / Branca / Médio">
-      </div>
-    </header>
-
-    <main class="scoreboard-main">
-      <section class="athlete-card athlete-1">
-        <input type="text" class="athlete-name-input" id="athlete1-name" value="Atleta Branco">
-        <div class="score-box"><div class="score-number" id="a1-points">0</div></div>
-        <div>
-          <div class="points-actions">
-            <button class="btn-score" onclick="addPoints(1, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-            <button class="btn-score" onclick="addPoints(1, 3)">+3 <span>Passagem Guarda</span></button>
-            <button class="btn-score" onclick="addPoints(1, 4)">+4 <span>Montada / Costas</span></button>
-          </div>
-          <div class="undo-row">
-            <span class="undo-label">Desfazer:</span>
-            <button class="btn-undo" onclick="addPoints(1, -2)">-2</button>
-            <button class="btn-undo" onclick="addPoints(1, -3)">-3</button>
-            <button class="btn-undo" onclick="addPoints(1, -4)">-4</button>
-          </div>
-        </div>
-        <div>
-          <div class="secondary-scores">
-            <div class="sec-box">
-              <div class="sec-title">Vantagens</div>
-              <div class="sec-value" id="a1-advantages" style="color:#d97706">0</div>
-              <div class="sec-btn-group">
-                <button class="btn-sec" onclick="addAdvantage(1, -1)">-</button>
-                <button class="btn-sec" onclick="addAdvantage(1, 1)">+</button>
-              </div>
-            </div>
-            <div class="sec-box">
-              <div class="sec-title">Punições</div>
-              <div class="sec-value" id="a1-penalties" style="color:#dc2626">0</div>
-              <div class="sec-btn-group">
-                <button class="btn-sec" onclick="addPenalty(1, -1)">-</button>
-                <button class="btn-sec" onclick="addPenalty(1, 1)">+</button>
-              </div>
-            </div>
-          </div>
-          <button class="btn-dq" onclick="disqualifyAthlete(1)">⚠️ Desclassificar (DQ)</button>
-        </div>
-      </section>
-
-      <section class="athlete-card athlete-2">
-        <input type="text" class="athlete-name-input" id="athlete2-name" value="Atleta Azul">
-        <div class="score-box"><div class="score-number" id="a2-points">0</div></div>
-        <div>
-          <div class="points-actions">
-            <button class="btn-score" onclick="addPoints(2, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-            <button class="btn-score" onclick="addPoints(2, 3)">+3 <span>Passagem Guarda</span></button>
-            <button class="btn-score" onclick="addPoints(2, 4)">+4 <span>Montada / Costas</span></button>
-          </div>
-          <div class="undo-row">
-            <span class="undo-label">Desfazer:</span>
-            <button class="btn-undo" onclick="addPoints(2, -2)">-2</button>
-            <button class="btn-undo" onclick="addPoints(2, -3)">-3</button>
-            <button class="btn-undo" onclick="addPoints(2, -4)">-4</button>
-          </div>
-        </div>
-        <div>
-          <div class="secondary-scores">
-            <div class="sec-box">
-              <div class="sec-title">Vantagens</div>
-              <div class="sec-value" id="a2-advantages" style="color:#fbbf24">0</div>
-              <div class="sec-btn-group">
-                <button class="btn-sec" onclick="addAdvantage(2, -1)">-</button>
-                <button class="btn-sec" onclick="addAdvantage(2, 1)">+</button>
-              </div>
-            </div>
-            <div class="sec-box">
-              <div class="sec-title">Punições</div>
-              <div class="sec-value" id="a2-penalties" style="color:#f87171">0</div>
-              <div class="sec-btn-group">
-                <button class="btn-sec" onclick="addPenalty(2, -1)">-</button>
-                <button class="btn-sec" onclick="addPenalty(2, 1)">+</button>
-              </div>
-            </div>
-          </div>
-          <button class="btn-dq" onclick="disqualifyAthlete(2)">⚠️ Desclassificar (DQ)</button>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div id="tab-bracket" class="tab-content">
-    <div class="bracket-builder">
-      <!-- Coluna Esquerda: Controles -->
-      <div class="sidebar-col">
-        
-        <!-- NOVO: Luta Casada -->
-        <div class="luta-casada-container">
-            <h3>⚔️ Luta Casada</h3>
-            <p>Confronto direto rápido e sem chave. Envie os nomes para o placar.</p>
-            
-            <div class="input-group-casada">
-                <input type="text" id="lutadorA-casada" placeholder="Atleta 1">
-                <span style="font-weight: 800; font-size: 0.75rem; color: var(--text-muted);">VS</span>
-                <input type="text" id="lutadorB-casada" placeholder="Atleta 2">
-            </div>
-            
-            <button onclick="iniciarLutaCasada()" class="btn-casada">Enviar p/ Placar</button>
-        </div>
-
-        <!-- ORIGINAL: Nova Categoria (Chave) -->
-        <div class="form-card">
-          <h3>Nova Categoria</h3>
-          
-          <div class="form-group">
-            <label>Gênero</label>
-            <select id="b-gender">
-              <option value="Masculino" selected>Masculino</option>
-              <option value="Feminino">Feminino</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Faixa Etária</label>
-            <select id="b-age">
-              <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
-              <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
-              <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
-              <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
-              <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
-              <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
-              <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
-              <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
-              <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
-              <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
-              <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
-              <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
-              <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
-              <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Faixa</label>
-            <select id="b-belt">
-              <option value="Cinza/Branca">Cinza / Branca</option>
-              <option value="Cinza">Cinza</option>
-              <option value="Cinza/Preta">Cinza / Preta</option>
-              <option value="Amarela/Branca">Amarela / Branca</option>
-              <option value="Amarela">Amarela</option>
-              <option value="Amarela/Preta">Amarela / Preta</option>
-              <option value="Laranja/Branca">Laranja / Branca</option>
-              <option value="Laranja">Laranja</option>
-              <option value="Laranja/Preta">Laranja / Preta</option>
-              <option value="Verde/Branca">Verde / Branca</option>
-              <option value="Verde">Verde</option>
-              <option value="Verde/Preta">Verde / Preta</option>
-              <option value="Branca" selected>Branca</option>
-              <option value="Azul">Azul</option>
-              <option value="Roxa">Roxa</option>
-              <option value="Marrom">Marrom</option>
-              <option value="Preta">Preta</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Peso</label>
-            <select id="b-weight">
-              <option value="Galo">Galo</option>
-              <option value="Pluma">Pluma</option>
-              <option value="Pena">Pena</option>
-              <option value="Leve">Leve</option>
-              <option value="Médio" selected>Médio</option>
-              <option value="Meio-Pesado">Meio-Pesado</option>
-              <option value="Pesado">Pesado</option>
-              <option value="Pesadíssimo">Pesadíssimo</option>
-              <option value="Absoluto">Absoluto</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Tempo da Luta (Min)</label>
-            <input type="number" id="b-time" value="5" min="1" max="15">
-          </div>
-
-          <div class="form-group">
-            <label>Atletas (1 por linha):</label>
-            <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
-          </div>
-
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
-            <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
-          </div>
-
-          <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave</button>
-          <button class="btn-print" onclick="window.print()">🖨️ Imprimir Chaves</button>
-          <button class="btn-clear-all" onclick="clearAllBrackets()">⚠️ Apagar Tudo</button>
-        </div>
+      
+      <div class="auth-form-group">
+        <label>Senha</label>
+        <input type="password" id="auth-pass" placeholder="Digite sua senha">
       </div>
 
-      <!-- Coluna Direita: Exibição das Chaves -->
-      <div class="bracket-display">
-        <div id="matches-container"><p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p></div>
+      <button class="auth-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">Entrar</button>
+      
+      <div class="auth-switch">
+        <span id="auth-switch-text">Não tem uma conta?</span> 
+        <a id="auth-switch-link" onclick="toggleAuthMode()">Criar Cadastro</a>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="scoreModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title" id="modalMatchTitle">Detalhes da Luta</div>
-        <button class="modal-close" onclick="closeScoreModal()">✕</button>
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="app-container">
+    <nav class="top-nav">
+      <div class="nav-links">
+        <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">🥋 Placar</button>
+        <button class="nav-btn" onclick="switchTab('tab-bracket')">🏆 Chaves</button>
       </div>
-      <div class="modal-body" id="modalMatchBody"></div>
+      <button class="nav-btn btn-logout" onclick="logoutSystem()">Sair</button>
+    </nav>
+
+    <div id="tab-scoreboard" class="tab-content active">
+      <header class="scoreboard-header">
+        <div class="header-input-group">
+          <label>Árbitro</label>
+          <input type="text" id="referee-name" placeholder="Nome do Árbitro">
+        </div>
+        <div class="timer-container">
+          <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
+          <div id="timer-display" class="timer-display">05:00</div>
+          <div class="timer-controls">
+            <button class="timer-btn btn-start" onclick="startTimer()">Start</button>
+            <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
+            <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
+          </div>
+          <div class="timer-bottom-btns">
+            <button class="timer-btn btn-finish" onclick="manualFinishMatch()">Finalizar (Sub)</button>
+            <button class="timer-btn btn-reset-match" onclick="resetFullMatch()">Zerar Combate</button>
+          </div>
+        </div>
+        <div class="header-input-group">
+          <label>Categoria</label>
+          <input type="text" id="category-info" placeholder="Ex: Adulto / Branca / Médio">
+        </div>
+      </header>
+
+      <main class="scoreboard-main">
+        <section class="athlete-card athlete-1">
+          <input type="text" class="athlete-name-input" id="athlete1-name" value="Atleta Branco">
+          <div class="score-box"><div class="score-number" id="a1-points">0</div></div>
+          <div>
+            <div class="points-actions">
+              <button class="btn-score" onclick="addPoints(1, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
+              <button class="btn-score" onclick="addPoints(1, 3)">+3 <span>Passagem Guarda</span></button>
+              <button class="btn-score" onclick="addPoints(1, 4)">+4 <span>Montada / Costas</span></button>
+            </div>
+            <div class="undo-row">
+              <span class="undo-label">Desfazer:</span>
+              <button class="btn-undo" onclick="addPoints(1, -2)">-2</button>
+              <button class="btn-undo" onclick="addPoints(1, -3)">-3</button>
+              <button class="btn-undo" onclick="addPoints(1, -4)">-4</button>
+            </div>
+          </div>
+          <div>
+            <div class="secondary-scores">
+              <div class="sec-box">
+                <div class="sec-title">Vantagens</div>
+                <div class="sec-value" id="a1-advantages" style="color:#d97706">0</div>
+                <div class="sec-btn-group">
+                  <button class="btn-sec" onclick="addAdvantage(1, -1)">-</button>
+                  <button class="btn-sec" onclick="addAdvantage(1, 1)">+</button>
+                </div>
+              </div>
+              <div class="sec-box">
+                <div class="sec-title">Punições</div>
+                <div class="sec-value" id="a1-penalties" style="color:#dc2626">0</div>
+                <div class="sec-btn-group">
+                  <button class="btn-sec" onclick="addPenalty(1, -1)">-</button>
+                  <button class="btn-sec" onclick="addPenalty(1, 1)">+</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-dq" onclick="disqualifyAthlete(1)">⚠️ Desclassificar (DQ)</button>
+          </div>
+        </section>
+
+        <section class="athlete-card athlete-2">
+          <input type="text" class="athlete-name-input" id="athlete2-name" value="Atleta Azul">
+          <div class="score-box"><div class="score-number" id="a2-points">0</div></div>
+          <div>
+            <div class="points-actions">
+              <button class="btn-score" onclick="addPoints(2, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
+              <button class="btn-score" onclick="addPoints(2, 3)">+3 <span>Passagem Guarda</span></button>
+              <button class="btn-score" onclick="addPoints(2, 4)">+4 <span>Montada / Costas</span></button>
+            </div>
+            <div class="undo-row">
+              <span class="undo-label">Desfazer:</span>
+              <button class="btn-undo" onclick="addPoints(2, -2)">-2</button>
+              <button class="btn-undo" onclick="addPoints(2, -3)">-3</button>
+              <button class="btn-undo" onclick="addPoints(2, -4)">-4</button>
+            </div>
+          </div>
+          <div>
+            <div class="secondary-scores">
+              <div class="sec-box">
+                <div class="sec-title">Vantagens</div>
+                <div class="sec-value" id="a2-advantages" style="color:#fbbf24">0</div>
+                <div class="sec-btn-group">
+                  <button class="btn-sec" onclick="addAdvantage(2, -1)">-</button>
+                  <button class="btn-sec" onclick="addAdvantage(2, 1)">+</button>
+                </div>
+              </div>
+              <div class="sec-box">
+                <div class="sec-title">Punições</div>
+                <div class="sec-value" id="a2-penalties" style="color:#f87171">0</div>
+                <div class="sec-btn-group">
+                  <button class="btn-sec" onclick="addPenalty(2, -1)">-</button>
+                  <button class="btn-sec" onclick="addPenalty(2, 1)">+</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-dq" onclick="disqualifyAthlete(2)">⚠️ Desclassificar (DQ)</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="tab-bracket" class="tab-content">
+      <div class="bracket-builder">
+        <div class="sidebar-col">
+          <div class="luta-casada-container">
+              <h3>⚔️ Luta Casada</h3>
+              <p>Confronto direto rápido e sem chave. Envie os nomes para o placar.</p>
+              
+              <div class="input-group-casada">
+                  <input type="text" id="lutadorA-casada" placeholder="Atleta 1">
+                  <span style="font-weight: 800; font-size: 0.75rem; color: var(--text-muted);">VS</span>
+                  <input type="text" id="lutadorB-casada" placeholder="Atleta 2">
+              </div>
+              
+              <button onclick="iniciarLutaCasada()" class="btn-casada">Enviar p/ Placar</button>
+          </div>
+
+          <div class="form-card">
+            <h3>Nova Categoria</h3>
+            
+            <div class="form-group">
+              <label>Gênero</label>
+              <select id="b-gender">
+                <option value="Masculino" selected>Masculino</option>
+                <option value="Feminino">Feminino</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Faixa Etária</label>
+              <select id="b-age">
+                <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
+                <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
+                <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
+                <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
+                <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
+                <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
+                <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
+                <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
+                <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
+                <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
+                <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
+                <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
+                <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
+                <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Faixa</label>
+              <select id="b-belt">
+                <option value="Cinza/Branca">Cinza / Branca</option>
+                <option value="Cinza">Cinza</option>
+                <option value="Cinza/Preta">Cinza / Preta</option>
+                <option value="Amarela/Branca">Amarela / Branca</option>
+                <option value="Amarela">Amarela</option>
+                <option value="Amarela/Preta">Amarela / Preta</option>
+                <option value="Laranja/Branca">Laranja / Branca</option>
+                <option value="Laranja">Laranja</option>
+                <option value="Laranja/Preta">Laranja / Preta</option>
+                <option value="Verde/Branca">Verde / Branca</option>
+                <option value="Verde">Verde</option>
+                <option value="Verde/Preta">Verde / Preta</option>
+                <option value="Branca" selected>Branca</option>
+                <option value="Azul">Azul</option>
+                <option value="Roxa">Roxa</option>
+                <option value="Marrom">Marrom</option>
+                <option value="Preta">Preta</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Peso</label>
+              <select id="b-weight">
+                <option value="Galo">Galo</option>
+                <option value="Pluma">Pluma</option>
+                <option value="Pena">Pena</option>
+                <option value="Leve">Leve</option>
+                <option value="Médio" selected>Médio</option>
+                <option value="Meio-Pesado">Meio-Pesado</option>
+                <option value="Pesado">Pesado</option>
+                <option value="Pesadíssimo">Pesadíssimo</option>
+                <option value="Absoluto">Absoluto</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tempo da Luta (Min)</label>
+              <input type="number" id="b-time" value="5" min="1" max="15">
+            </div>
+
+            <div class="form-group">
+              <label>Atletas (1 por linha):</label>
+              <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
+            </div>
+
+            <button class="btn-generate" onclick="generateBracket()">Gerar Chaves</button>
+            <button class="btn-print" onclick="window.print()">Imprimir Chaves</button>
+            <button class="btn-clear-all" onclick="clearAllData()">Limpar Tudo</button>
+          </div>
+        </div>
+
+        <div class="bracket-display" id="bracket-container">
+          <p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda. Preencha os dados ao lado para começar.</p>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- SCRIPT DE INTEGRAÇÃO SUPABASE E LÓGICA DO SISTEMA -->
   <script>
-    let scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-    let defaultSeconds = 300, remainingSeconds = defaultSeconds;
-    let timerInterval = null, isRunning = false;
-    let audioCtx = null;
-    
-    let tournaments = {}; 
-    let globalGroupId = 1;
-    let activeMatchTracker = null; 
+    // Cole aqui a sua URL e a Chave anon públicas do seu painel do Supabase (Settings > API)
+    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI';
+    const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_AQUI';
 
-    window.onload = function() {
-      try {
-        const savedTournaments = localStorage.getItem('tatame_tournaments');
-        const savedGroupId = localStorage.getItem('tatame_globalGroupId');
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (savedTournaments) tournaments = JSON.parse(savedTournaments);
-        if (savedGroupId) globalGroupId = parseInt(savedGroupId);
-      } catch(e) {
-        console.error("Erro ao carregar dados do LocalStorage", e);
-      }
-      renderBrackets();
-    };
+    let isLoginMode = true;
 
-    function saveData() {
-      try {
-        localStorage.setItem('tatame_tournaments', JSON.stringify(tournaments));
-        localStorage.setItem('tatame_globalGroupId', globalGroupId);
-      } catch(e) {
-        console.error("Erro ao salvar dados no LocalStorage", e);
+    // Alternar entre Login e Cadastro na tela inicial
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const btn = document.getElementById('auth-submit-btn');
+      const switchText = document.getElementById('auth-switch-text');
+      const switchLink = document.getElementById('auth-switch-link');
+
+      if (isLoginMode) {
+        title.innerText = 'Tatame Pro';
+        subtitle.innerText = 'Faça login para acessar o sistema';
+        btn.innerText = 'Entrar';
+        switchText.innerText = 'Não tem uma conta?';
+        switchLink.innerText = 'Criar Cadastro';
+      } else {
+        title.innerText = 'Criar Conta';
+        subtitle.innerText = 'Cadastre-se para gerenciar seus torneios';
+        btn.innerText = 'Cadastrar';
+        switchText.innerText = 'Já tem uma conta?';
+        switchLink.innerText = 'Fazer Login';
       }
     }
 
+    // Ação do Botão de Enviar (Entrar ou Cadastrar)
+    async function handleAuthSubmit() {
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-pass').value.trim();
+
+      if (!email || !pass) {
+        alert('Preencha o e-mail e a senha.');
+        return;
+      }
+
+      if (isLoginMode) {
+        // Fazer Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: pass,
+        });
+
+        if (error) {
+          alert('Erro ao entrar: ' + error.message);
+        } else {
+          checkUserSession();
+        }
+      } else {
+        // Fazer Cadastro
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: pass,
+        });
+
+        if (error) {
+          alert('Erro no cadastro: ' + error.message);
+        } else {
+          alert('Cadastro realizado com sucesso! Verifique seu e-mail se necessário.');
+          toggleAuthMode();
+        }
+      }
+    }
+
+    // Sair da conta (Logout)
+    async function logoutSystem() {
+      await supabase.auth.signOut();
+      document.getElementById('app-container').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+    }
+
+    // Verificar se já existe sessão ativa ao carregar a página
+    async function checkUserSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+      } else {
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none';
+      }
+    }
+
+    // Executa verificação ao iniciar
+    checkUserSession();
+
+    // --- FUNÇÕES DO SISTEMA (PLACAR E CHAVES) ---
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        if(!el.classList.contains('btn-logout')) el.classList.remove('active');
+      });
       document.getElementById(tabId).classList.add('active');
-      document.querySelectorAll('.nav-btn')[tabId === 'tab-scoreboard' ? 0 : 1].classList.add('active');
+      event.currentTarget.classList.add('active');
     }
 
-    // NOVA FUNÇÃO: Iniciar Luta Casada
-    function iniciarLutaCasada() {
-      const lutadorA = document.getElementById('lutadorA-casada').value.trim() || 'Atleta 1';
-      const lutadorB = document.getElementById('lutadorB-casada').value.trim() || 'Atleta 2';
+    // Variáveis do Placar e Cronômetro
+    let timerInterval = null;
+    let totalSeconds = 300;
+    let isRunning = false;
 
-      const placarNome1 = document.getElementById('athlete1-name');
-      const placarNome2 = document.getElementById('athlete2-name');
-      const catInfo = document.getElementById('category-info');
-
-      if (placarNome1 && placarNome2) {
-          placarNome1.value = lutadorA;
-          placarNome2.value = lutadorB;
-          
-          if(catInfo) catInfo.value = "Luta Casada - Rinha de Faixa Branca";
-          
-          // Desativa o tracker de campeonato para lutas avulsas
-          activeMatchTracker = null;
-          
-          const indicator = document.getElementById('current-match-indicator');
-          indicator.innerText = "Luta Casada";
-          indicator.style.display = 'block';
-
-          resetFullMatch(); 
-
-          document.getElementById('lutadorA-casada').value = '';
-          document.getElementById('lutadorB-casada').value = '';
-
-          switchTab('tab-scoreboard');
-      }
-    }
-
-    function updateDisplay() {
-      document.getElementById('a1-points').innerText = scores[1].points;
-      document.getElementById('a1-advantages').innerText = scores[1].adv;
-      document.getElementById('a1-penalties').innerText = scores[1].pen;
-      document.getElementById('a2-points').innerText = scores[2].points;
-      document.getElementById('a2-advantages').innerText = scores[2].adv;
-      document.getElementById('a2-penalties').innerText = scores[2].pen;
-    }
-
-    function addPoints(a, v) { scores[a].points = Math.max(0, scores[a].points + v); updateDisplay(); }
-    function addAdvantage(a, v) { scores[a].adv = Math.max(0, scores[a].adv + v); updateDisplay(); }
-    function addPenalty(a, v) { scores[a].pen = Math.max(0, scores[a].pen + v); updateDisplay(); }
-
-    function formatTime(sec) {
-      return `${Math.floor(sec / 60).toString().padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
-    }
-    function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
-
-    function initAudio() {
-      try {
-        if (!audioCtx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) audioCtx = new AudioContextClass();
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-      } catch(e) { console.log(e); }
-    }
-
-    function playBuzzer() {
-      try {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 1.2);
-        gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.2);
-      } catch(e) {
-        console.log("Áudio bloqueado ou não suportado pelo navegador.");
-      }
+    function updateTimerDisplay() {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      document.getElementById('timer-display').innerText = 
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
     function startTimer() {
-      initAudio();
       if (isRunning) return;
       isRunning = true;
       timerInterval = setInterval(() => {
-        if (remainingSeconds > 0) {
-          remainingSeconds--; updateTimerDisplay();
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateTimerDisplay();
         } else {
-          pauseTimer(); playBuzzer(); autoResolveMatch();
+          pauseTimer();
+          alert('Fim do tempo regulamentar!');
         }
       }, 1000);
     }
-    function pauseTimer() { isRunning = false; clearInterval(timerInterval); }
-    function resetTimer() { pauseTimer(); remainingSeconds = defaultSeconds; updateTimerDisplay(); }
+
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      totalSeconds = 300;
+      updateTimerDisplay();
+    }
 
     function resetFullMatch() {
       resetTimer();
-      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-      updateDisplay();
+      document.getElementById('a1-points').innerText = '0';
+      document.getElementById('a2-points').innerText = '0';
+      document.getElementById('a1-advantages').innerText = '0';
+      document.getElementById('a2-advantages').innerText = '0';
+      document.getElementById('a1-penalties').innerText = '0';
+      document.getElementById('a2-penalties').innerText = '0';
     }
 
-    function autoResolveMatch() {
-      if (!activeMatchTracker) {
-        alert("Tempo esgotado da Luta Casada!"); return;
-      }
-      setTimeout(() => calculateAndAdvanceWinner(false), 500);
+    function addPoints(athlete, pts) {
+      const el = document.getElementById(`a${athlete}-points`);
+      let current = parseInt(el.innerText) + pts;
+      if (current < 0) current = 0;
+      el.innerText = current;
+    }
+
+    function addAdvantage(athlete, val) {
+      const el = document.getElementById(`a${athlete}-advantages`);
+      let current = parseInt(el.innerText) + val;
+      if (current < 0) current = 0;
+      el.innerText = current;
+    }
+
+    function addPenalty(athlete, val) {
+      const el = document.getElementById(`a${athlete}-penalties`);
+      let current = parseInt(el.innerText) + val;
+      if (current < 0) current = 0;
+      el.innerText = current;
+    }
+
+    function disqualifyAthlete(athlete) {
+      const name = document.getElementById(`athlete${athlete}-name`).value;
+      alert(`Atleta ${name} desclassificado por DQ!`);
     }
 
     function manualFinishMatch() {
-      if (!activeMatchTracker) {
-        alert("Esta é uma Luta Casada. Finalização registrada visualmente, mas não há chaves para avançar."); 
-        pauseTimer();
+      pauseTimer();
+      alert('Luta finalizada por finalização (Submissão)!');
+    }
+
+    function iniciarLutaCasada() {
+      const a1 = document.getElementById('lutadorA-casada').value.trim();
+      const a2 = document.getElementById('lutadorB-casada').value.trim();
+      if (!a1 || !a2) {
+        alert('Digite o nome dos dois atletas para a Luta Casada.');
         return;
       }
-      pauseTimer();
-      calculateAndAdvanceWinner(true);
-    }
-
-    function disqualifyAthlete(athleteNumber) {
-      let n1 = document.getElementById('athlete1-name').value;
-      let n2 = document.getElementById('athlete2-name').value;
-      let dqName = athleteNumber === 1 ? n1 : n2;
-      let winnerName = athleteNumber === 1 ? n2 : n1;
-      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
-
-      if (confirm(`Tem certeza que deseja desclassificar (DQ) o(a) atleta ${dqName}? O oponente (${winnerName}) vencerá automaticamente.`)) {
-        pauseTimer();
-        alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
-        
-        if (activeMatchTracker) {
-          let matchDataRecord = {
-            athlete1: n1, athlete2: n2,
-            a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
-            a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
-            winner: winnerName, referee: referee, method: "Desclassificação (DQ)"
-          };
-          advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
-          activeMatchTracker = null;
-          document.getElementById('current-match-indicator').style.display = 'none';
-          switchTab('tab-bracket');
-        } else {
-          resetFullMatch();
-        }
-      }
-    }
-
-    function calculateAndAdvanceWinner(isManual = false) {
-      let winner = 0; 
-      let n1 = document.getElementById('athlete1-name').value;
-      let n2 = document.getElementById('athlete2-name').value;
-      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
-      let method = "";
-
-      if (!isManual) {
-        method = "Pontos";
-        if (scores[1].points > scores[2].points) winner = 1;
-        else if (scores[2].points > scores[1].points) winner = 2;
-        else if (scores[1].adv > scores[2].adv) winner = 1;
-        else if (scores[2].adv > scores[1].adv) winner = 2;
-        else if (scores[1].pen < scores[2].pen) winner = 1;
-        else if (scores[2].pen < scores[1].pen) winner = 2;
-        else {
-          const choice = prompt(`EMPATE NO TEMPO!\nDigite 1 para vitória de ${n1}\nDigite 2 para vitória de ${n2}`);
-          if (choice === '1') winner = 1;
-          else if (choice === '2') winner = 2;
-          else { alert("Decisão inválida. A luta não foi concluída."); return; }
-        }
-      } else {
-        method = "Finalização/Sub";
-        const choice = prompt(`LUTA FINALIZADA!\nQuem aplicou a submissão?\n1 - ${n1}\n2 - ${n2}`);
-        if (choice === '1') winner = 1;
-        else if (choice === '2') winner = 2;
-        else return;
-      }
-
-      let winnerName = winner === 1 ? n1 : n2;
-      alert(`🏆 Vencedor: ${winnerName} (${method})!\nÁrbitro: ${referee}`);
-      
-      let matchDataRecord = {
-        athlete1: n1, athlete2: n2,
-        a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
-        a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
-        winner: winnerName, referee: referee, method: method
-      };
-
-      advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
-      
-      activeMatchTracker = null;
-      document.getElementById('current-match-indicator').style.display = 'none';
-      switchTab('tab-bracket');
+      document.getElementById('athlete1-name').value = a1;
+      document.getElementById('athlete2-name').value = a2;
+      resetFullMatch();
+      document.getElementById('current-match-indicator').style.display = 'block';
+      document.getElementById('current-match-indicator').innerText = 'Luta Casada';
+      switchTab('tab-scoreboard');
+      document.querySelector('button[onclick="switchTab(\'tab-scoreboard\')"]').classList.add('active');
     }
 
     function generateBracket() {
-      const gender = document.getElementById('b-gender').value;
-      const age = document.getElementById('b-age').value;
-      const belt = document.getElementById('b-belt').value;
-      const weight = document.getElementById('b-weight').value;
-      const timeMin = parseInt(document.getElementById('b-time').value) || 5;
-      const rawText = document.getElementById('b-athletes').value.trim();
-
-      if (!rawText) {
-        alert("Insira ao menos 2 atletas."); return;
-      }
-
-      let athletes = rawText.split('\n').map(a => a.trim()).filter(a => a.length > 0);
-      if (athletes.length < 2) {
-        alert("Insira pelo menos 2 atletas para gerar a chave."); return;
-      }
-
-      if (document.getElementById('b-shuffle').checked) {
-        for (let i = athletes.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [athletes[i], athletes[j]] = [athletes[j], athletes[i]];
-        }
-      }
-
-      let power = 1;
-      while (power < athletes.length) power *= 2;
-      
-      let byesCount = power - athletes.length;
-      let currentRoundAthletes = [];
-      
-      for (let i = 0; i < power / 2; i++) {
-        currentRoundAthletes.push(athletes.shift());
-        if (byesCount > 0) {
-          currentRoundAthletes.push("BYE");
-          byesCount--;
-        } else {
-          currentRoundAthletes.push(athletes.shift());
-        }
-      }
-
-      let rounds = [];
-
-      while (currentRoundAthletes.length >= 2) {
-        let matches = [];
-        for (let i = 0; i < currentRoundAthletes.length; i += 2) {
-          let a1 = currentRoundAthletes[i];
-          let a2 = currentRoundAthletes[i+1];
-          let winner = null;
-          let matchRecord = null;
-
-          if (a1 === "BYE" && a2 !== "BYE") {
-            winner = a2;
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a2, referee:"Automático", method:"W.O. / BYE" };
-          } else if (a2 === "BYE" && a1 !== "BYE") {
-            winner = a1;
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a1, referee:"Automático", method:"W.O. / BYE" };
-          } else if (a1 === "BYE" && a2 === "BYE") {
-            winner = "BYE";
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: "BYE", referee:"Automático", method:"W.O. / BYE" };
-          }
-
-          matches.push({
-            id: 'm_' + Math.random().toString(36).substring(2, 9),
-            athlete1: a1,
-            athlete2: a2,
-            winner: winner,
-            matchRecord: matchRecord
-          });
-        }
-        rounds.push({ roundName: getRoundName(currentRoundAthletes.length), matches: matches });
-        currentRoundAthletes = new Array(currentRoundAthletes.length / 2).fill("A definir");
-      }
-
-      for (let r = 0; r < rounds.length - 1; r++) {
-        for (let m = 0; m < rounds[r].matches.length; m++) {
-          let match = rounds[r].matches[m];
-          if (match.winner) {
-            let nextMatchIdx = Math.floor(m / 2);
-            let isEven = (m % 2 === 0);
-            let nextMatch = rounds[r + 1].matches[nextMatchIdx];
-            if (isEven) {
-              nextMatch.athlete1 = match.winner;
-            } else {
-              nextMatch.athlete2 = match.winner;
-            }
-          }
-        }
-      }
-
-      const groupId = 'group_' + (globalGroupId++);
-      tournaments[groupId] = {
-        title: `${gender} • ${age} • Faixa ${belt} • ${weight}`,
-        timeSec: timeMin * 60,
-        rounds: rounds
-      };
-
-      saveData();
-      renderBrackets();
-      document.getElementById('b-athletes').value = '';
-    }
-
-    function getRoundName(num) {
-      if (num === 2) return "Final";
-      if (num === 4) return "Semifinal";
-      if (num === 8) return "Quartas de Final";
-      if (num === 16) return "Oitavas de Final";
-      return `Rodada de ${num}`;
-    }
-
-    function renderBrackets() {
-      const container = document.getElementById('matches-container');
-      const keys = Object.keys(tournaments);
-
-      if (keys.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p>';
+      const athletesText = document.getElementById('b-athletes').value.trim();
+      if (!athletesText) {
+        alert('Insira pelo menos os nomes dos atletas.');
         return;
       }
-
-      let html = '';
-      keys.forEach(groupId => {
-        let group = tournaments[groupId];
-        html += `
-          <div class="bracket-group">
-            <div class="bracket-group-header">
-              <span>🏆 ${group.title}</span>
-              <button onclick="deleteGroup('${groupId}')" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:0.7rem; cursor:pointer; font-weight:bold;">Apagar Chave</button>
-            </div>
-            <div class="bracket-rounds-container">
-        `;
-
-        group.rounds.forEach((round, rIdx) => {
-          html += `<div class="bracket-round"><div class="round-title">${round.roundName}</div>`;
-          round.matches.forEach((match, mIdx) => {
-            html += `
-              <div class="match-card">
-                <div class="match-header-info">
-                  <span>Luta ${mIdx + 1}</span>
-                  <span>${group.timeSec / 60} min</span>
-                </div>
-            `;
-
-            if (match.matchRecord && match.matchRecord.referee && match.matchRecord.referee !== "Automático") {
-              html += `<div class="match-referee-text">Árbitro: ${match.matchRecord.referee}</div>`;
-            }
-
-            // Atleta 1
-            html += `<div class="match-athlete branco">
-                      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;" title="${match.athlete1}">${match.athlete1}</span>`;
-            if (match.winner && match.winner === match.athlete1) {
-              html += `<div class="winner-info-container">
-                        <span class="winner-badge">Venc</span>
-                        ${match.matchRecord && match.matchRecord.method ? `<span class="win-method-badge">${match.matchRecord.method}</span>` : ''}
-                      </div>`;
-            }
-            html += `</div>`;
-
-            // Atleta 2
-            html += `<div class="match-athlete azul">
-                      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;" title="${match.athlete2}">${match.athlete2}</span>`;
-            if (match.winner && match.winner === match.athlete2) {
-              html += `<div class="winner-info-container">
-                        <span class="winner-badge">Venc</span>
-                        ${match.matchRecord && match.matchRecord.method ? `<span class="win-method-badge">${match.matchRecord.method}</span>` : ''}
-                      </div>`;
-            }
-            html += `</div>`;
-
-            let isPlayable = !match.winner && 
-                             match.athlete1 !== "BYE" && match.athlete2 !== "BYE" && 
-                             match.athlete1 !== "A definir" && match.athlete2 !== "A definir";
-
-            if (isPlayable) {
-              html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', ${rIdx}, ${mIdx})">▶️ Carregar no Placar</button>`;
-            } else if (match.winner && match.matchRecord && match.matchRecord.method !== "W.O. / BYE") {
-              let encodedData = encodeURIComponent(JSON.stringify(match.matchRecord));
-              html += `<button class="btn-view-score" onclick="openScoreModal('${encodedData}')">📋 Ver Placar</button>`;
-            }
-
-            html += `</div>`;
-          });
-          html += `</div>`;
-        });
-
-        html += `</div></div>`;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function loadMatchToScoreboard(groupId, roundIdx, matchIdx) {
-      let group = tournaments[groupId];
-      let match = group.rounds[roundIdx].matches[matchIdx];
-
-      document.getElementById('athlete1-name').value = match.athlete1;
-      document.getElementById('athlete2-name').value = match.athlete2;
-      document.getElementById('category-info').value = group.title;
-      defaultSeconds = group.timeSec;
-      resetTimer();
-      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-      updateDisplay();
-
-      activeMatchTracker = { groupId: groupId, roundIdx: roundIdx, matchId: match.id };
-
-      let indicator = document.getElementById('current-match-indicator');
-      indicator.innerText = `Chave: ${group.title} (${group.rounds[roundIdx].roundName})`;
-      indicator.style.display = 'block';
-
-      switchTab('tab-scoreboard');
-    }
-
-    function advanceAthleteWithRecord(groupId, matchId, matchRecord) {
-      let group = tournaments[groupId];
-      let foundWinner = null;
-
-      for (let r = 0; r < group.rounds.length; r++) {
-        for (let m = 0; m < group.rounds[r].matches.length; m++) {
-          if (group.rounds[r].matches[m].id === matchId) {
-            group.rounds[r].matches[m].winner = matchRecord.winner;
-            group.rounds[r].matches[m].matchRecord = matchRecord;
-            foundWinner = matchRecord.winner;
-
-            if (r + 1 < group.rounds.length) {
-              let nextMatchIdx = Math.floor(m / 2);
-              let isEven = (m % 2 === 0);
-              let nextMatch = group.rounds[r + 1].matches[nextMatchIdx];
-              if (isEven) {
-                nextMatch.athlete1 = foundWinner;
-              } else {
-                nextMatch.athlete2 = foundWinner;
-              }
-            }
-            break;
-          }
-        }
-        if (foundWinner) break;
-      }
-
-      saveData();
-      renderBrackets();
-    }
-
-    function openScoreModal(encodedRecord) {
-      let record = JSON.parse(decodeURIComponent(encodedRecord));
-      document.getElementById('modalMatchTitle').innerText = `Placar: ${record.athlete1} vs ${record.athlete2}`;
+      const athletes = athletesText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+      const categoryName = `${document.getElementById('b-gender').value} / ${document.getElementById('b-age').value} / ${document.getElementById('b-belt').value} / ${document.getElementById('b-weight').value}`;
       
-      let bodyHtml = `
-        <div class="score-summary-grid">
-          <div class="summary-box">
-            <div class="summary-athlete-name">${record.athlete1}</div>
-            <div class="summary-stats">
-              Pontos: <strong>${record.a1Score.points}</strong>
-              Vantagens: <strong>${record.a1Score.adv}</strong>
-              Punições: <strong>${record.a1Score.pen}</strong>
-            </div>
+      const container = document.getElementById('bracket-container');
+      container.innerHTML = `
+        <div class="bracket-group">
+          <div class="bracket-group-header">
+            <span>${categoryName} (${athletes.length} Atletas)</span>
           </div>
-          <div class="summary-box">
-            <div class="summary-athlete-name">${record.athlete2}</div>
-            <div class="summary-stats">
-              Pontos: <strong>${record.a2Score.points}</strong>
-              Vantagens: <strong>${record.a2Score.adv}</strong>
-              Punições: <strong>${record.a2Score.pen}</strong>
-            </div>
-          </div>
-        </div>
-        <div class="match-meta-info">
-          <div>🏆 <strong>Vencedor:</strong> ${record.winner}</div>
-          <div>🛠️ <strong>Método:</strong> ${record.method}</div>
-          <div>⚖️ <strong>Árbitro:</strong> ${record.referee}</div>
+          <p style="color:var(--text-muted); font-size:0.8rem;">Chave gerada com sucesso para ${athletes.length} atletas cadastrados.</p>
         </div>
       `;
-
-      document.getElementById('modalMatchBody').innerHTML = bodyHtml;
-      document.getElementById('scoreModal').classList.add('active');
     }
 
-    function closeScoreModal() {
-      document.getElementById('scoreModal').classList.remove('active');
-    }
-
-    function deleteGroup(groupId) {
-      if (confirm("Tem certeza que deseja apagar esta categoria/chave?")) {
-        delete tournaments[groupId];
-        saveData();
-        renderBrackets();
-      }
-    }
-
-    function clearAllBrackets() {
-      if (confirm("ATENÇÃO: Deseja apagar todas as chaves e dados salvos?")) {
-        tournaments = {};
-        globalGroupId = 1;
-        localStorage.removeItem('tatame_tournaments');
-        localStorage.removeItem('tatame_globalGroupId');
-        renderBrackets();
-      }
+    function clearAllData() {
+      document.getElementById('b-athletes').value = '';
+      document.getElementById('bracket-container').innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Nenhuma chave gerada ainda. Preencha os dados ao lado para começar.</p>';
     }
   </script>
 </body>
