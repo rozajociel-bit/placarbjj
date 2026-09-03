@@ -21,17 +21,112 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* CONTROLE DE AUTENTICAÇÃO / TELAS */
-    #auth-screen { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; background: var(--bg-dark); position: fixed; top: 0; left: 0; z-index: 1000; }
-    .auth-card { background: var(--surface-dark); border: 1px solid var(--border-color); padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .auth-card h2 { color: var(--accent-gold); margin-bottom: 20px; text-align: center; text-transform: uppercase; font-size: 1.2rem; }
-    .auth-group { margin-bottom: 15px; }
-    .auth-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-    .auth-group input { width: 100%; padding: 10px 12px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; font-size: 0.9rem; }
-    .auth-group input:focus { outline: none; border-color: var(--accent-blue); }
-    .btn-auth { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: background 0.2s; }
-    .btn-auth:hover { background: #1d4ed8; }
-    .auth-toggle { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; }
+    /* CONTROLE DE AUTENTICAÇÃO / TELAS REFORMULADA */
+    #auth-screen { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      width: 100vw; 
+      background: radial-gradient(circle at center, #1e293b 0%, #0f1117 70%); 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      z-index: 1000; 
+    }
+
+    .auth-card { 
+      background: rgba(26, 29, 36, 0.95); 
+      border: 1px solid var(--border-color); 
+      border-top: 4px solid var(--accent-gold);
+      padding: 35px 30px; 
+      border-radius: 16px; 
+      width: 100%; 
+      max-width: 420px; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px rgba(245, 158, 11, 0.15); 
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-header-brand {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .auth-header-brand .brand-logo {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .auth-card h2 { 
+      color: #ffffff; 
+      margin-bottom: 4px; 
+      text-align: center; 
+      text-transform: uppercase; 
+      font-size: 1.3rem; 
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .auth-subtitle {
+      color: var(--accent-gold);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .auth-group { margin-bottom: 18px; }
+    .auth-group label { 
+      display: block; 
+      font-size: 0.75rem; 
+      color: var(--text-muted); 
+      margin-bottom: 6px; 
+      text-transform: uppercase; 
+      font-weight: 700; 
+    }
+
+    .auth-group input { 
+      width: 100%; 
+      padding: 12px 14px; 
+      background: #12151c; 
+      border: 1px solid #2f3542; 
+      color: #ffffff; 
+      border-radius: 8px; 
+      font-size: 0.95rem; 
+      transition: all 0.2s ease;
+    }
+
+    .auth-group input:focus { 
+      outline: none; 
+      border-color: var(--accent-blue); 
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      background: #171b24;
+    }
+
+    .btn-auth { 
+      width: 100%; 
+      background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+      color: white; 
+      border: none; 
+      padding: 14px; 
+      border-radius: 8px; 
+      font-weight: 800; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      letter-spacing: 1px;
+      margin-top: 10px; 
+      transition: all 0.2s ease; 
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-auth:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    }
+
+    .auth-toggle { text-align: center; margin-top: 18px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; }
     .auth-toggle span { color: var(--accent-blue); font-weight: 700; }
     .auth-error { color: #f87171; font-size: 0.8rem; text-align: center; margin-top: 10px; display: none; }
 
@@ -203,7 +298,7 @@
     .summary-stats strong { color: var(--text-main); font-size: 1.1rem; }
     .match-meta-info { font-size: 0.75rem; color: var(--text-muted); background: var(--surface-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
 
-    /* MODAL CUSTOMIZADO (SUBSTITUTO DOS AVISOS NATIVOS DO NAVEGADOR) */
+    /* MODAL CUSTOMIZADO CENTRALIZADO (AVISOS E CONFIRMAÇÕES) */
     .custom-modal-overlay {
       position: fixed;
       top: 0;
@@ -333,20 +428,28 @@
 </head>
 <body>
 
-  <!-- TELA DE AUTENTICAÇÃO -->
+  <!-- TELA DE AUTENTICAÇÃO REFORMULADA -->
   <div id="auth-screen">
     <div class="auth-card">
-      <h2 id="auth-title">Tatame Pro - Entrar</h2>
+      <div class="auth-header-brand">
+        <span class="brand-logo">🥋</span>
+        <h2 id="auth-title">TATAME PRO</h2>
+        <div class="auth-subtitle" id="auth-subtitle">Gestão de Placar & Chaves</div>
+      </div>
+      
       <div class="auth-group">
         <label>E-mail</label>
         <input type="email" id="auth-email" placeholder="seu@email.com">
       </div>
+      
       <div class="auth-group">
         <label>Senha</label>
         <input type="password" id="auth-password" placeholder="Sua senha">
       </div>
-      <button class="btn-auth" id="auth-btn" onclick="handleAuth()">Entrar</button>
+      
+      <button class="btn-auth" id="auth-btn" onclick="handleAuth()">Entrar no Sistema</button>
       <div class="auth-error" id="auth-error"></div>
+      
       <div class="auth-toggle" onclick="toggleAuthMode()">
         Não tem uma conta? <span id="auth-toggle-text">Cadastre-se</span>
       </div>
@@ -610,7 +713,7 @@
     </div>
   </div>
 
-  <!-- MODAL CUSTOMIZADO CENTRALIZADO (AVISOS E CONFIRMAÇÕES) -->
+  <!-- MODAL CUSTOMIZADO CENTRALIZADO -->
   <div id="custom-modal-overlay" class="custom-modal-overlay hidden">
     <div class="custom-modal-box">
       <div class="custom-modal-header">
@@ -624,7 +727,7 @@
   </div>
 
   <script>
-    // Configuração do Supabase com as chaves injetadas
+    // Configuração do Supabase
     const SUPABASE_URL = 'https://afnigpphelliwetcgqoc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmlncHBoZWxsaXdldGNncW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNDMzNTAsImV4cCI6MjEwMzkxOTM1MH0.z1EQj-qOsMic40lhaVdKn6Z8FJt9wSts6ujC1UMrfAs';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -656,7 +759,6 @@
       overlay.classList.remove("hidden");
     }
 
-    // Subtitui o window.alert padrão do navegador
     window.alert = function (message) {
       showCustomDialog({
         message: message,
@@ -666,7 +768,6 @@
       });
     };
 
-    // Substituto para mensagens com confirmação (ex: "Tem certeza?")
     window.customConfirm = function (message, onConfirm, onCancel) {
       showCustomDialog({
         message: message,
@@ -677,7 +778,6 @@
       });
     };
 
-    // Modal para seleção de vencedor quando houver empate ou submissão
     function selectWinnerDialog(title, message, athlete1, athlete2, callback) {
       showCustomDialog({
         title: title,
@@ -703,8 +803,9 @@
 
     function toggleAuthMode() {
       isSignUpMode = !isSignUpMode;
-      document.getElementById('auth-title').innerText = isSignUpMode ? 'Tatame Pro - Cadastro' : 'Tatame Pro - Entrar';
-      document.getElementById('auth-btn').innerText = isSignUpMode ? 'Cadastrar' : 'Entrar';
+      document.getElementById('auth-title').innerText = isSignUpMode ? 'CRIAR CONTA' : 'TATAME PRO';
+      document.getElementById('auth-subtitle').innerText = isSignUpMode ? 'Cadastro de Novo Usuário' : 'Gestão de Placar & Chaves';
+      document.getElementById('auth-btn').innerText = isSignUpMode ? 'Cadastrar' : 'Entrar no Sistema';
       document.getElementById('auth-toggle-text').innerText = isSignUpMode ? 'Fazer login' : 'Cadastre-se';
     }
 
@@ -823,7 +924,6 @@
     }
     function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
 
-    // Som de Gongo do Boxe
     function playBuzzer() {
       try {
         const audioUrl = 'https://www.myinstants.com/media/sounds/boxing-bell.mp3';
@@ -998,7 +1098,6 @@
         return;
       }
 
-      // Lógica padrão de Torneio / Chave
       const gender = document.getElementById('b-gender').value;
       const age = document.getElementById('b-age').value;
       const belt = document.getElementById('b-belt').value;
