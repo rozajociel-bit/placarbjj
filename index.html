@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tatame Pro - Sistema de Placar e Chaves</title>
-  <!-- Supabase Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg-dark: #0f1117;
@@ -21,116 +19,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* CONTROLE DE AUTENTICAÇÃO / TELAS REFORMULADA */
-    #auth-screen { 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      height: 100vh; 
-      width: 100vw; 
-      background: radial-gradient(circle at center, #1e293b 0%, #0f1117 70%); 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      z-index: 1000; 
-    }
-
-    .auth-card { 
-      background: rgba(26, 29, 36, 0.95); 
-      border: 1px solid var(--border-color); 
-      border-top: 4px solid var(--accent-gold);
-      padding: 35px 30px; 
-      border-radius: 16px; 
-      width: 100%; 
-      max-width: 420px; 
-      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px rgba(245, 158, 11, 0.15); 
-      backdrop-filter: blur(10px);
-    }
-
-    .auth-header-brand {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .auth-header-brand .brand-logo {
-      font-size: 2.5rem;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .auth-card h2 { 
-      color: #ffffff; 
-      margin-bottom: 4px; 
-      text-align: center; 
-      text-transform: uppercase; 
-      font-size: 1.3rem; 
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    .auth-subtitle {
-      color: var(--accent-gold);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-align: center;
-    }
-
-    .auth-group { margin-bottom: 18px; }
-    .auth-group label { 
-      display: block; 
-      font-size: 0.75rem; 
-      color: var(--text-muted); 
-      margin-bottom: 6px; 
-      text-transform: uppercase; 
-      font-weight: 700; 
-    }
-
-    .auth-group input { 
-      width: 100%; 
-      padding: 12px 14px; 
-      background: #12151c; 
-      border: 1px solid #2f3542; 
-      color: #ffffff; 
-      border-radius: 8px; 
-      font-size: 0.95rem; 
-      transition: all 0.2s ease;
-    }
-
-    .auth-group input:focus { 
-      outline: none; 
-      border-color: var(--accent-blue); 
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-      background: #171b24;
-    }
-
-    .btn-auth { 
-      width: 100%; 
-      background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-      color: white; 
-      border: none; 
-      padding: 14px; 
-      border-radius: 8px; 
-      font-weight: 800; 
-      cursor: pointer; 
-      text-transform: uppercase; 
-      letter-spacing: 1px;
-      margin-top: 10px; 
-      transition: all 0.2s ease; 
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
-    }
-
-    .btn-auth:hover { 
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
-    }
-
-    .auth-toggle { text-align: center; margin-top: 18px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; }
-    .auth-toggle span { color: var(--accent-blue); font-weight: 700; }
-    .auth-error { color: #f87171; font-size: 0.8rem; text-align: center; margin-top: 10px; display: none; }
-
-    #app-container { display: none; flex-direction: column; flex-grow: 1; height: 100vh; }
+    #app-container { display: flex; flex-direction: column; flex-grow: 1; height: 100vh; }
 
     /* NAVEGAÇÃO TOPO */
     nav.top-nav { background: var(--surface-dark); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
@@ -142,9 +31,6 @@
     .nav-right-group { display: flex; align-items: center; gap: 15px; }
     .live-clock-widget { background: var(--surface-card); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
     .live-clock-widget span.date-text { font-size: 0.6rem; color: var(--text-muted); font-family: 'Inter', sans-serif; font-weight: 600; }
-
-    .btn-logout { background: #dc2626; color: white; border: none; padding: 8px 15px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
-    .btn-logout:hover { background: #b91c1c; }
 
     /* TELA INTEIRA */
     .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; overflow-y: auto; }
@@ -428,34 +314,6 @@
 </head>
 <body>
 
-  <!-- TELA DE AUTENTICAÇÃO REFORMULADA -->
-  <div id="auth-screen">
-    <div class="auth-card">
-      <div class="auth-header-brand">
-        <span class="brand-logo">🥋</span>
-        <h2 id="auth-title">TATAME PRO</h2>
-        <div class="auth-subtitle" id="auth-subtitle">Gestão de Placar & Chaves</div>
-      </div>
-      
-      <div class="auth-group">
-        <label>E-mail</label>
-        <input type="email" id="auth-email" placeholder="seu@email.com">
-      </div>
-      
-      <div class="auth-group">
-        <label>Senha</label>
-        <input type="password" id="auth-password" placeholder="Sua senha">
-      </div>
-      
-      <button class="btn-auth" id="auth-btn" onclick="handleAuth()">Entrar no Sistema</button>
-      <div class="auth-error" id="auth-error"></div>
-      
-      <div class="auth-toggle" onclick="toggleAuthMode()">
-        Não tem uma conta? <span id="auth-toggle-text">Cadastre-se</span>
-      </div>
-    </div>
-  </div>
-
   <!-- APLICAÇÃO PRINCIPAL -->
   <div id="app-container">
     <nav class="top-nav">
@@ -469,7 +327,6 @@
           00:00:00
           <span class="date-text" id="live-date">--/--/----</span>
         </div>
-        <button class="btn-logout" onclick="handleLogout()">Sair</button>
       </div>
     </nav>
 
@@ -727,13 +584,6 @@
   </div>
 
   <script>
-    // Configuração do Supabase
-    const SUPABASE_URL = 'https://afnigpphelliwetcgqoc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmlncHBoZWxsaXdldGNncW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNDMzNTAsImV4cCI6MjEwMzkxOTM1MH0.z1EQj-qOsMic40lhaVdKn6Z8FJt9wSts6ujC1UMrfAs';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let isSignUpMode = false;
-
     // SISTEMA DO MODAL CUSTOMIZADO
     function showCustomDialog({ title = "TATAME PRO", message, buttons = [] }) {
       const overlay = document.getElementById("custom-modal-overlay");
@@ -789,63 +639,6 @@
       });
     }
 
-    async function checkUserSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex';
-        initApp();
-      } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-      }
-    }
-
-    function toggleAuthMode() {
-      isSignUpMode = !isSignUpMode;
-      document.getElementById('auth-title').innerText = isSignUpMode ? 'CRIAR CONTA' : 'TATAME PRO';
-      document.getElementById('auth-subtitle').innerText = isSignUpMode ? 'Cadastro de Novo Usuário' : 'Gestão de Placar & Chaves';
-      document.getElementById('auth-btn').innerText = isSignUpMode ? 'Cadastrar' : 'Entrar no Sistema';
-      document.getElementById('auth-toggle-text').innerText = isSignUpMode ? 'Fazer login' : 'Cadastre-se';
-    }
-
-    async function handleAuth() {
-      const email = document.getElementById('auth-email').value;
-      const password = document.getElementById('auth-password').value;
-      const errorEl = document.getElementById('auth-error');
-      errorEl.style.display = 'none';
-
-      if (!email || !password) {
-        errorEl.innerText = 'Preencha e-mail e senha.';
-        errorEl.style.display = 'block';
-        return;
-      }
-
-      if (isSignUpMode) {
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
-        if (error) {
-          errorEl.innerText = error.message;
-          errorEl.style.display = 'block';
-        } else {
-          alert('Cadastro realizado com sucesso!');
-          checkUserSession();
-        }
-      } else {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          errorEl.innerText = 'E-mail ou senha incorretos.';
-          errorEl.style.display = 'block';
-        } else {
-          checkUserSession();
-        }
-      }
-    }
-
-    async function handleLogout() {
-      await supabaseClient.auth.signOut();
-      checkUserSession();
-    }
-
     // Relógio em Tempo Real
     function updateLiveClock() {
       const now = new Date();
@@ -887,7 +680,7 @@
     }
 
     window.onload = function() {
-      checkUserSession();
+      initApp();
     };
 
     function saveData() {
