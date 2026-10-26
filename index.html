@@ -710,7 +710,28 @@
 
     function addPoints(a, v) { scores[a].points = Math.max(0, scores[a].points + v); updateDisplay(); }
     function addAdvantage(a, v) { scores[a].adv = Math.max(0, scores[a].adv + v); updateDisplay(); }
-    function addPenalty(a, v) { scores[a].pen = Math.max(0, scores[a].pen + v); updateDisplay(); }
+    
+    // REGRAS DE PUNIÇÕES AUTOMÁTICAS (CBJJ) - SEM POPUPS PARA 2ª E 3ª PUNIÇÃO
+    function addPenalty(athleteNum, delta) {
+      let oppNum = athleteNum === 1 ? 2 : 1;
+
+      if (delta > 0) {
+        scores[athleteNum].pen += 1;
+        let currentPen = scores[athleteNum].pen;
+
+        if (currentPen === 2) {
+          scores[oppNum].adv += 1;
+        } else if (currentPen === 3) {
+          scores[oppNum].points += 2;
+        } else if (currentPen >= 4) {
+          disqualifyAthlete(athleteNum);
+          return;
+        }
+      } else {
+        scores[athleteNum].pen = Math.max(0, scores[athleteNum].pen + delta);
+      }
+      updateDisplay();
+    }
 
     function formatTime(sec) {
       return `${Math.floor(sec / 60).toString().padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
@@ -778,25 +799,23 @@
       let winnerName = athleteNumber === 1 ? n2 : n1;
       let referee = document.getElementById('referee-name').value.trim() || "Não informado";
 
-      customConfirm(`Tem certeza que deseja desclassificar (DQ) o(a) atleta ${dqName}? O oponente (${winnerName}) vencerá automaticamente.`, () => {
-        pauseTimer();
-        alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
-        
-        if (activeMatchTracker) {
-          let matchDataRecord = {
-            athlete1: n1, athlete2: n2,
-            a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
-            a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
-            winner: winnerName, referee: referee, method: "Desclassificação (DQ)"
-          };
-          advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
-          activeMatchTracker = null;
-          document.getElementById('current-match-indicator').style.display = 'none';
-          switchTab('tab-bracket');
-        } else {
-          resetFullMatch();
-        }
-      });
+      pauseTimer();
+      alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
+      
+      if (activeMatchTracker) {
+        let matchDataRecord = {
+          athlete1: n1, athlete2: n2,
+          a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
+          a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
+          winner: winnerName, referee: referee, method: "Desclassificação (DQ)"
+        };
+        advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
+        activeMatchTracker = null;
+        document.getElementById('current-match-indicator').style.display = 'none';
+        switchTab('tab-bracket');
+      } else {
+        resetFullMatch();
+      }
     }
 
     function calculateAndAdvanceWinner(isManual = false) {
