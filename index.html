@@ -1,1282 +1,675 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tatame Pro - Sistema de Placar e Chaves</title>
-  <style>
-    :root {
-      --bg-dark: #0f1117;
-      --surface-dark: #1a1d24;
-      --surface-card: #222631;
-      --border-color: #2f3542;
-      --accent-blue: #3b82f6;
-      --accent-gold: #f59e0b;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Tatame Pro — placar, cronômetro e gerenciamento de chaves para jiu-jitsu.">
+<title>Tatame Pro | Placar & Chaves</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1020'/%3E%3Cpath d='M50 10 84 28 80 68 50 90 20 68 16 28Z' fill='%231d4ed8' stroke='%23f5b942' stroke-width='4'/%3E%3Cpath d='M33 35 43 28 50 37 57 28 67 35 64 52 58 62 50 68 42 62 36 52Z' fill='white'/%3E%3Cpath d='M35 48 45 45 M55 45 65 48' stroke='%230b1020' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme:dark;--bg:#080b13;--panel:#111725;--panel2:#171f30;--panel3:#202b40;
+  --line:#2a3850;--muted:#9aa8bd;--text:#f4f7fc;--gold:#f5b942;--blue:#3978f6;
+  --blue2:#2458cb;--green:#20c77a;--red:#ef5350;--radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.3)
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1a2a49 0,transparent 48%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;transition:transform .15s,filter .15s,border-color .15s}
+button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{max-width:1920px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:24px;padding:12px clamp(14px,3vw,34px);background:rgba(9,13,23,.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(120,145,180,.18)}
+.brand{display:flex;align-items:center;gap:11px;min-width:max-content}
+.brand-mark{width:40px;height:40px;display:grid;place-items:center;background:linear-gradient(145deg,#254fbd,#101b35);border:1px solid #e4b74f;border-radius:12px;color:var(--gold);font-size:22px;box-shadow:0 5px 18px #0005}
+.brand-name{font-size:1rem;font-weight:950;letter-spacing:1.5px}.brand-name span{color:var(--gold)}
+.brand-sub{font-size:.62rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.nav{display:flex;gap:8px;margin:auto}
+.nav button{border:1px solid transparent;background:transparent;color:var(--muted);padding:8px 16px;border-radius:10px;font-size:.8rem;font-weight:800}
+.nav button.active{background:#1c2b47;border-color:#344e7d;color:#fff}
+.nav button.active:before{content:"";display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin:0 8px 1px 0}
+.clock{font-variant-numeric:tabular-nums;text-align:right;font-weight:850;color:var(--gold);font-size:.95rem;min-width:90px}
+.clock small{display:block;color:var(--muted);font-size:.62rem;font-weight:600;margin-top:2px}
+main{padding:clamp(14px,2vw,24px);flex:1;display:flex;flex-direction:column}
+.page{display:none;flex:1;flex-direction:column}.page.active{display:flex}
+.page-heading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:16px}
+.eyebrow{font-size:.68rem;color:var(--gold);font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+h1{font-size:clamp(1.4rem,2.5vw,2rem);letter-spacing:-.8px;margin:0;font-weight:900}
+.subtitle{color:var(--muted);margin:5px 0 0;font-size:.88rem}
+.pill{border:1px solid #385078;background:#152440;border-radius:99px;color:#c9d9f6;padding:6px 12px;font-size:.72rem;font-weight:800;white-space:nowrap}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:16px}
+.field label{display:block;color:var(--muted);font-size:.68rem;font-weight:850;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;min-width:0;background:#0b1120;border:1px solid #2b3a53;color:var(--text);border-radius:10px;padding:10px 12px}
+.field textarea{resize:vertical;min-height:100px}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    html, body { min-height: 100vh; width: 100vw; background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; }
+/* MODO TV / TELA CHEIA: PLACARES GIGANTES E IMERSIVOS */
+.score-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.85fr) minmax(0,1.2fr);gap:16px;flex:1;align-items:stretch}
+.fighter{position:relative;overflow:hidden;border-radius:22px;padding:clamp(16px,2vw,26px);display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.fighter:before{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--corner)}
+.fighter.white{--corner:#e5eaf2;background:linear-gradient(155deg,#eef2f7,#d2dceb);color:#121c30}
+.fighter.blue{--corner:#4c8dff;background:linear-gradient(155deg,#132950,#0a1426);border:1px solid #294d86;color:#f7f9ff}
+.fighter-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.corner-label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:950;opacity:.75}
+.corner-dot{width:12px;height:12px;border-radius:50%;background:var(--corner);box-shadow:0 0 16px var(--corner)}
+.fighter-name{width:100%;border:2px solid #aebacb;background:#ffffff;color:#121c30;padding:14px;border-radius:12px;font-size:clamp(1.1rem,1.8vw,1.4rem);text-align:center;font-weight:950;text-transform:uppercase;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.blue .fighter-name{background:#071224;color:#fff;border-color:#2e528a}
+.score-wrap{text-align:center;padding:18px 10px;border-radius:18px;background:#070d18;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 4px 20px rgba(0,0,0,.6)}
+.score-label{font-size:.68rem;letter-spacing:2.5px;text-transform:uppercase;color:#8fa5c7;font-weight:900}
+.score{font-size:clamp(6rem,11vw,11.5rem);font-weight:950;letter-spacing:-6px;line-height:1.02;font-variant-numeric:tabular-nums;text-shadow:0 0 30px rgba(0,0,0,.5)}
+.score-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.point-btn{min-height:76px;border:1px solid #b5c0d0;background:#f7f9fc;color:#172238;border-radius:12px;font-weight:950;font-size:1.4rem;box-shadow:0 4px 10px rgba(0,0,0,.06)}
+.point-btn span{display:block;font-size:.58rem;font-weight:800;line-height:1.2;margin-top:3px;opacity:.75}
+.blue .point-btn{background:#162846;color:#fff;border-color:#355588}
+.undo-line{display:flex;justify-content:center;align-items:center;gap:8px;color:inherit;opacity:.88;font-size:.72rem;font-weight:850}
+.undo-line button{padding:6px 12px;border-radius:8px;border:1px solid #8291a8;background:rgba(255,255,255,.2);color:inherit;font-weight:950}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}
+.stat{padding:12px 8px;border:1px solid rgba(129,144,163,.25);background:rgba(0,0,0,.06);border-radius:12px;text-align:center}
+.blue .stat{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+.stat-name{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;font-weight:900;opacity:.75}
+.stat-num{font-size:2rem;font-weight:950;margin:2px 0 6px;font-variant-numeric:tabular-nums}
+.stat-actions{display:flex;justify-content:center;gap:8px}
+.stat-actions button{width:36px;height:32px;border-radius:8px;border:1px solid #8996aa;background:rgba(255,255,255,.25);color:inherit;font-weight:950;font-size:1.1rem}
+.dq{width:100%;padding:10px;border:1px solid #e45d66;background:rgba(159,38,48,.25);color:inherit;border-radius:10px;font-size:.75rem;font-weight:900;letter-spacing:.4px}
 
-    #app-container { display: flex; flex-direction: column; flex-grow: 1; height: 100vh; }
+/* PAINEL CENTRAL / CRONÔMETRO TV */
+.center-panel{background:linear-gradient(160deg,#151d2c,#0e1420);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;box-shadow:var(--shadow)}
+.center-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.center-top strong{font-size:.8rem;letter-spacing:1px;text-transform:uppercase}
+.live-tag{color:#ffce68;background:#3b2b0d;border:1px solid #71551d;border-radius:99px;padding:5px 10px;font-size:.65rem;font-weight:900}
+.timer{font-size:clamp(4rem,7.5vw,7rem);font-weight:950;letter-spacing:-3px;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 35px rgba(245,185,66,.25);line-height:1}
+.timer.urgent{color:#ff6565;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.timer-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:1px solid transparent;border-radius:10px;padding:12px 14px;font-size:.8rem;font-weight:900}
+.btn-green{background:#147a4d;color:white}.btn-amber{background:#9b620e;color:white}.btn-red{background:#8f2930;color:white}.btn-blue{background:#245bd1;color:white}.btn-ghost{background:#202b3d;color:#dbe5f5;border-color:#34445d}.btn-purple{background:#6536bb;color:#fff}
+.full{width:100%}
+.divider{height:1px;background:var(--line)}
+.center-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:900}
+.match-result{background:#101a2b;border:1px solid #2b3d58;border-radius:12px;padding:12px;font-size:.8rem;color:#d7e2f5;line-height:1.5}
+.match-result strong{color:var(--gold)}
+.notice{color:var(--muted);font-size:.72rem;line-height:1.4;text-align:center}
 
-    /* NAVEGAÇÃO TOPO */
-    nav.top-nav { background: var(--surface-dark); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
-    .nav-buttons-group { display: flex; gap: 12px; justify-content: center; flex-grow: 1; }
-    .nav-btn { background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 20px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
-    .nav-btn:hover { background: #2a303c; color: var(--text-main); border-color: #4b5563; }
-    .nav-btn.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-    
-    .nav-right-group { display: flex; align-items: center; gap: 15px; }
-    .live-clock-widget { background: var(--surface-card); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
-    .live-clock-widget span.date-text { font-size: 0.6rem; color: var(--text-muted); font-family: 'Inter', sans-serif; font-weight: 600; }
+/* CHAVES E OUTROS ELEMENTOS */
+.bracket-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.panel-title{font-size:.87rem;font-weight:950;text-transform:uppercase;letter-spacing:.8px;margin:0 0 16px}
+.form-stack{display:flex;flex-direction:column;gap:13px}
+.check-row{display:flex;align-items:center;gap:8px;color:#dbe5f5;font-size:.78rem;font-weight:700}
+.check-row input{accent-color:var(--blue)}
+.form-actions{display:grid;gap:8px;margin-top:4px}
+.bracket-empty{text-align:center;padding:60px 20px;color:var(--muted);border:1px dashed #34435c;border-radius:14px}
+.bracket-empty .big{font-size:2.4rem;margin-bottom:12px}
+.group{border:1px solid var(--line);border-radius:15px;background:#0e1420;margin-bottom:16px;overflow:hidden}
+.group-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#182338;border-bottom:1px solid var(--line)}
+.group-head h3{font-size:.86rem;margin:0;font-weight:900;line-height:1.45}
+.group-head button{background:#61232b;border:1px solid #9b3d46;color:#ffdfe1;padding:6px 9px;border-radius:7px;font-size:.68rem;font-weight:900}
+.champion{padding:12px;text-align:center;color:#ffd36e;background:#33280e;border-bottom:1px solid #6e531d;font-weight:900;font-size:.82rem}
+.rounds{display:flex;gap:14px;overflow-x:auto;padding:16px;align-items:flex-start}
+.round{flex:0 0 250px}
+.round-title{text-align:center;text-transform:uppercase;color:#9fb1cb;font-size:.68rem;letter-spacing:1px;font-weight:950;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.match{background:#151d2c;border:1px solid #2a3850;border-radius:11px;padding:10px;margin-bottom:12px}
+.match-meta{display:flex;justify-content:space-between;gap:8px;color:#8293ad;font-size:.65rem;font-weight:800;margin-bottom:8px}
+.competitor{display:flex;align-items:center;justify-content:space-between;gap:7px;background:#202a3b;border-radius:7px;padding:9px;margin-bottom:5px;font-size:.75rem;font-weight:800;min-height:34px}
+.competitor.white-corner{border-left:3px solid #e5eaf2}.competitor.blue-corner{border-left:3px solid #3d83ff}
+.competitor.winner{color:#ffdb82;background:#3b3019}
+.winner-mark{font-size:.6rem;color:#ffcf5a;white-space:nowrap}
+.match-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.match-actions button{font-size:.65rem;padding:8px 5px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;background:#1d2a40;border:1px solid #49658d;border-radius:12px;padding:12px 18px;box-shadow:var(--shadow);font-size:.82rem;font-weight:750;max-width:90vw}
+.hidden{display:none!important}
+footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:1px solid #182235}
 
-    /* TELA INTEIRA */
-    .tab-content { display: none; flex-direction: column; flex-grow: 1; padding: 15px; width: 100%; max-width: 100%; margin: 0; overflow-y: auto; }
-    .tab-content.active { display: flex; }
+@media(max-width:1150px){.score-layout{grid-template-columns:1fr 1fr;min-height:auto}.center-panel{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:1fr 1fr;align-items:center}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice{display:none}.center-panel .timer{grid-column:1}.center-panel .timer-controls{grid-column:2}.center-panel .center-top{grid-column:1/-1}.bracket-layout{grid-template-columns:290px minmax(0,1fr)}}
+@media(max-width:760px){.topbar{flex-wrap:wrap;gap:12px;padding:12px 14px}.brand{flex:1}.clock{min-width:auto}.nav{order:3;width:100%;justify-content:stretch}.nav button{flex:1;padding:10px 7px;font-size:.72rem}.nav button.active:before{display:none}main{padding:12px}.page-heading{align-items:start;flex-direction:column}.setup-grid{grid-template-columns:1fr}.score-layout{grid-template-columns:1fr}.center-panel{display:flex}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice{display:block}.fighter{min-height:0}.bracket-layout{grid-template-columns:1fr}.round{flex-basis:230px}}
+@media print{
+  @page { size: landscape; margin: 10mm; }
+  body{background:#fff;color:#111}
+  .topbar,.page-heading,.form-panel,.nav,footer{display:none!important}
+  .page{display:none!important}
+  #bracket-page{display:block!important;padding:0}
+  .panel,.group,.group-head,.match,.competitor{background:#fff!important;color:#111!important;border-color:#aaa!important}
+  .rounds{overflow:visible;flex-wrap:wrap}
+  .round{flex:1 1 200px}
+  .group-head button,.match-actions{display:none!important}
+  .champion{background:#fff;color:#111;border-color:#aaa}
+}
 
-    /* CABEÇALHO DO PLACAR */
-    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr 110px auto 1fr; align-items: center; gap: 15px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 15px; }
-    .header-input-group { display: flex; flex-direction: column; gap: 4px; }
-    .header-input-group label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-    .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; width: 100%; }
-    .header-input-group input:focus { outline: none; border-color: var(--accent-blue); }
-    
-    .current-match-badge { background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-bottom: 4px; display: none; text-transform: uppercase; font-weight: 700; text-align: center; }
-
-    /* CRONÔMETRO AUMENTADO */
-    .timer-container { text-align: center; background: #0b0d12; padding: 10px 25px; border-radius: 12px; border: 2px solid var(--border-color); box-shadow: inset 0 2px 8px rgba(0,0,0,0.6); }
-    .timer-display { font-size: 4.2rem; font-family: 'Courier New', Courier, monospace; font-weight: 900; color: var(--accent-gold); line-height: 1; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); margin-bottom: 8px; }
-    .timer-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 6px; }
-    .timer-btn { font-size: 0.8rem; font-weight: 800; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
-    .btn-start { background: #16a34a; color: white; }
-    .btn-start:hover { background: #15803d; }
-    .btn-pause { background: #d97706; color: white; }
-    .btn-pause:hover { background: #b45309; }
-    .btn-reset { background: #dc2626; color: white; }
-    .btn-reset:hover { background: #b91c1c; }
-    .timer-bottom-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .btn-finish { background: #7c3aed; color: white; width: 100%; padding: 6px; font-size: 0.75rem; font-weight: 700; }
-    .btn-finish:hover { background: #6d28d9; }
-    .btn-reset-match { background: #475569; color: white; width: 100%; padding: 6px; font-size: 0.75rem; font-weight: 700; }
-    .btn-reset-match:hover { background: #334155; }
-
-    /* CORPO DO PLACAR */
-    main.scoreboard-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-grow: 1; }
-    .athlete-card { border-radius: 14px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; position: relative; overflow: hidden; min-height: 420px; }
-    
-    .athlete-1 { background: #e5e7eb; border-color: #9ca3af; color: #1f2937; }
-    .athlete-2 { background: #0b1c3d; border-color: #1d4ed8; color: #f3f4f6; }
-
-    .athlete-1 .athlete-name-input { background: #ffffff; color: #111827; border: 1px solid #d1d5db; }
-    .athlete-2 .athlete-name-input { background: #071022; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); }
-
-    .athlete-name-input { padding: 10px; font-size: 1.15rem; font-weight: 800; border-radius: 8px; text-transform: uppercase; text-align: center; width: 100%; flex-shrink: 0; }
-    .athlete-name-input:focus { outline: none; border-color: var(--accent-blue); }
-
-    .score-box { text-align: center; margin: 4px 0; border-radius: 10px; padding: 10px; flex-shrink: 0; }
-    .athlete-1 .score-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
-    .athlete-2 .score-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-
-    .score-number { font-size: 5.5rem; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .athlete-1 .score-number { color: #111827; }
-    .athlete-2 .score-number { color: #ffffff; }
-
-    .points-actions { display: flex; gap: 6px; margin-bottom: 6px; flex-shrink: 0; }
-    .btn-score { cursor: pointer; border-radius: 8px; font-weight: 800; padding: 10px 4px; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: all 0.15s ease; text-align: center; }
-    
-    .athlete-1 .btn-score { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .athlete-1 .btn-score:hover { background: #ffffff; border-color: #9ca3af; }
-    .athlete-2 .btn-score { background: #112652; color: #ffffff; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .athlete-2 .btn-score:hover { background: #16326c; border-color: #3b82f6; }
-
-    .btn-score span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; margin-top: 2px; opacity: 0.85; }
-
-    .undo-row { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
-    .undo-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
-    .athlete-1 .undo-label { color: #4b5563; }
-    .athlete-2 .undo-label { color: var(--text-muted); }
-
-    .btn-undo { padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; font-weight: 700; }
-    .athlete-1 .btn-undo { background: #d1d5db; color: #374151; border: 1px solid #9ca3af; }
-    .athlete-1 .btn-undo:hover { background: #fca5a5; color: #991b1b; }
-    .athlete-2 .btn-undo { background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); }
-    .athlete-2 .btn-undo:hover { background: rgba(220, 38, 38, 0.3); color: #f87171; }
-
-    .secondary-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; margin-bottom: 6px; }
-    .sec-box { padding: 8px; border-radius: 8px; text-align: center; }
-    .athlete-1 .sec-box { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
-    .athlete-2 .sec-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-
-    .sec-title { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; }
-    .athlete-1 .sec-title { color: #4b5563; }
-    .athlete-2 .sec-title { color: var(--text-muted); }
-
-    .sec-value { font-size: 1.6rem; font-weight: 900; margin: 2px 0; }
-    .sec-btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 2px; }
-    .btn-sec { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-    
-    .athlete-1 .btn-sec { background: #d1d5db; color: #1f2937; border: 1px solid #9ca3af; }
-    .athlete-1 .btn-sec:hover { background: #9ca3af; }
-    .athlete-2 .btn-sec { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.1); }
-    .athlete-2 .btn-sec:hover { background: rgba(255,255,255,0.15); }
-
-    .btn-dq { width: 100%; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
-    .athlete-1 .btn-dq { background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; }
-    .athlete-1 .btn-dq:hover { background: rgba(220, 38, 38, 0.2); }
-    .athlete-2 .btn-dq { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #f87171; }
-    .athlete-2 .btn-dq:hover { background: rgba(220, 38, 38, 0.3); color: #fca5a5; }
-
-    /* CHAVES */
-    .bracket-builder { display: grid; grid-template-columns: 320px 1fr; gap: 15px; width: 100%; }
-    .form-card { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
-    .form-card h3 { color: var(--accent-blue); font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; font-weight: 800; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-size: 0.85rem; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-blue); }
-
-    .btn-generate { width: 100%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; margin-top: 6px; }
-    .btn-print { width: 100%; background: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 6px; }
-    .btn-clear-all { width: 100%; background: #dc2626; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; margin-top: 6px; }
-
-    .bracket-display { background: var(--surface-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; overflow-x: auto; }
-    .bracket-group { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px; min-width: 600px; }
-    .bracket-group-header { font-size: 1rem; color: #4ade80; margin-bottom: 12px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-    
-    .bracket-rounds-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
-    .bracket-round { flex: 0 0 280px; display: flex; flex-direction: column; gap: 10px; }
-    .round-title { font-size: 0.8rem; color: var(--text-muted); text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; margin-bottom: 4px; font-weight: 800; }
-
-    .match-card { background: #181b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; position: relative; }
-    .match-header-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-    .match-referee-text { font-size: 0.65rem; color: var(--accent-gold); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-    
-    .match-athlete { padding: 6px 8px; background: #222631; border-radius: 6px; margin-bottom: 4px; font-size: 0.85rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-    .match-athlete.branco { border-left: 4px solid #cbd5e1; color: #fff; }
-    .match-athlete.azul { border-left: 4px solid #3b82f6; color: #fff; }
-    
-    .winner-info-container { display: flex; align-items: center; gap: 4px; margin-left: 4px; }
-    .winner-badge { color: #f59e0b; font-size: 0.55rem; background: rgba(245, 158, 11, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
-    .win-method-badge { color: #38bdf8; font-size: 0.55rem; background: rgba(56, 189, 248, 0.15); padding: 2px 4px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
-
-    .btn-load-match { width: 100%; background: #2563eb; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-top: 6px; font-size: 0.7rem; text-transform: uppercase; }
-    .match-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
-    .btn-view-score { background: #475569; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; }
-    .btn-view-score:hover { background: #334155; }
-    .btn-redo-match { background: #d97706; color: white; border: none; padding: 6px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; width: 100%; }
-    .btn-redo-match:hover { background: #b45309; }
-
-    /* MODAL DE PLACAR */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); }
-    .modal-overlay.active { display: flex; }
-    .modal-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 14px; width: 90%; max-width: 450px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-    .modal-title { font-size: 1rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; }
-    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; font-weight: bold; }
-    .modal-close:hover { color: var(--text-main); }
-    .modal-body { display: flex; flex-direction: column; gap: 12px; }
-    .score-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-    .summary-box { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
-    .summary-athlete-name { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; color: var(--accent-blue); }
-    .summary-stats { font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
-    .summary-stats strong { color: var(--text-main); font-size: 1.1rem; }
-    .match-meta-info { font-size: 0.75rem; color: var(--text-muted); background: var(--surface-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
-
-    /* MODAL CUSTOMIZADO CENTRALIZADO (AVISOS E CONFIRMAÇÕES) */
-    .custom-modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(5px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      transition: opacity 0.2s ease-in-out;
-    }
-
-    .custom-modal-overlay.hidden {
-      display: none !important;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .custom-modal-box {
-      background: var(--surface-dark);
-      border: 1px solid var(--border-color);
-      border-top: 4px solid var(--accent-gold);
-      border-radius: 12px;
-      width: 90%;
-      max-width: 420px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-      text-align: center;
-      animation: modalScale 0.2s ease-out forwards;
-    }
-
-    @keyframes modalScale {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .custom-modal-header {
-      font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: var(--accent-gold);
-      margin-bottom: 14px;
-      text-transform: uppercase;
-    }
-
-    .custom-modal-body p {
-      color: var(--text-main);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-top: 0;
-      margin-bottom: 20px;
-      white-space: pre-line;
-    }
-
-    .custom-modal-footer {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .custom-modal-btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.15s ease;
-      flex: 1;
-      min-width: 100px;
-    }
-
-    .custom-modal-btn.primary {
-      background-color: var(--accent-gold);
-      color: #0f1117;
-    }
-
-    .custom-modal-btn.primary:hover {
-      background-color: #fbbf24;
-    }
-
-    .custom-modal-btn.secondary {
-      background-color: #2f3542;
-      color: var(--text-muted);
-    }
-
-    .custom-modal-btn.secondary:hover {
-      background-color: #4b5563;
-      color: #ffffff;
-    }
-
-    .custom-modal-btn.choice-1 {
-      background-color: #e5e7eb;
-      color: #1f2937;
-    }
-
-    .custom-modal-btn.choice-2 {
-      background-color: #1d4ed8;
-      color: #ffffff;
-    }
-
-    @media (max-width: 900px) {
-      .scoreboard-header { grid-template-columns: 1fr; gap: 10px; }
-      main.scoreboard-main { grid-template-columns: 1fr; }
-      .bracket-builder { grid-template-columns: 1fr; }
-      .timer-display { font-size: 3.2rem; }
-      .score-number { font-size: 4.5rem; }
-    }
-
-    @media print {
-      @page {
-        size: landscape;
-        margin: 10mm;
-      }
-      body, html { height: auto !important; overflow: auto !important; background: white !important; color: black !important; }
-      nav.top-nav, .form-card, .btn-load-match, .match-action-row, .btn-clear-all, .bracket-group-header button { display: none !important; }
-      #tab-scoreboard { display: none !important; }
-      #tab-bracket { display: block !important; padding: 0 !important; }
-      .bracket-builder { display: block !important; }
-      .bracket-display { background: white; border: none; overflow: visible; padding: 0; }
-      .bracket-group { background: white; border: 2px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; min-width: auto; }
-      .bracket-group-header { color: black; border-bottom: 2px solid black; }
-      .match-card { background: white; border: 1px solid #999; }
-      .match-athlete { background: #f5f5f5; color: black; }
-    }
-  </style>
+.custom-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);display:flex;justify-content:center;align-items:center;padding:18px;z-index:99999}
+.custom-modal-overlay.hidden{display:none!important}
+.custom-modal-box{width:min(100%,440px);background:var(--panel2);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:16px;padding:24px;box-shadow:0 20px 60px #0009;text-align:center;animation:customModalIn .16s ease-out}
+@keyframes customModalIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.custom-modal-header{font-size:.9rem;font-weight:900;letter-spacing:1.5px;color:var(--gold);margin-bottom:14px}
+.custom-modal-body p{color:var(--text);font-size:.95rem;line-height:1.55;margin:0 0 20px;white-space:pre-line}
+.custom-modal-footer{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.custom-modal-btn{padding:11px 18px;border-radius:10px;font-weight:850;font-size:.9rem;cursor:pointer;border:1px solid transparent;flex:1;min-width:100px}
+.custom-modal-btn.primary{background:var(--gold);color:#111827}.custom-modal-btn.secondary{background:#303b50;color:var(--text);border-color:#52617a}
+.custom-modal-btn.choice-1{background:#e5eaf2;color:#142036}.custom-modal-btn.choice-2{background:#2458cb;color:white}
+.heading-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+#fullscreen-btn{white-space:nowrap}
+:fullscreen{background:var(--bg);overflow:auto}
+</style>
 </head>
 <body>
-
-  <!-- APLICAÇÃO PRINCIPAL -->
-  <div id="app-container">
-    <nav class="top-nav">
-      <div style="font-weight: 800; color: var(--accent-gold); font-size: 0.9rem;">🥋 TATAME PRO</div>
-      <div class="nav-buttons-group">
-        <button class="nav-btn active" onclick="switchTab('tab-scoreboard')">Placar do Tatame</button>
-        <button class="nav-btn" onclick="switchTab('tab-bracket')">Gerenciador de Chaves</button>
-      </div>
-      <div class="nav-right-group">
-        <div class="live-clock-widget" id="live-clock">
-          00:00:00
-          <span class="date-text" id="live-date">--/--/----</span>
-        </div>
-      </div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🥋</div>
+      <div><div class="brand-name">TATAME <span>PRO</span></div><div class="brand-sub">Fight control system</div></div>
+    </div>
+    <nav class="nav" aria-label="Navegação principal">
+      <button type="button" class="active" data-page="score-page">Placar do tatame</button>
+      <button type="button" data-page="bracket-page">Chaves e lutas</button>
     </nav>
+    <div class="clock" id="clock">00:00:00<small id="date">--/--/----</small></div>
+  </header>
 
-    <div id="tab-scoreboard" class="tab-content active">
-      <header class="scoreboard-header">
-        <div class="header-input-group">
-          <label>Árbitro</label>
-          <input type="text" id="referee-name" placeholder="Nome do Árbitro">
+  <main>
+    <section class="page active" id="score-page">
+      <div class="page-heading">
+        <div><div class="eyebrow">Controle de combate</div><h1>Placar do tatame</h1></div>
+        <div class="heading-actions">
+          <button type="button" class="btn btn-ghost" id="fullscreen-btn">⛶ Tela cheia (TV)</button>
+          <span class="pill" id="fight-status">● PRONTO PARA LUTAR</span>
         </div>
-        <div class="header-input-group">
-          <label>Tempo (Min)</label>
-          <input type="number" id="match-time-input" value="5" min="1" max="15" onchange="changeMatchTime(this.value)">
-        </div>
-        <div class="timer-container">
-          <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
-          <div id="timer-display" class="timer-display">05:00</div>
+      </div>
+      <div class="setup-grid">
+        <div class="field"><label for="referee">Árbitro</label><input id="referee" placeholder="Nome do árbitro"></div>
+        <div class="field"><label for="category">Categoria / divisão</label><input id="category" placeholder="Ex.: Adulto • Faixa branca • Médio"></div>
+        <div class="field"><label for="duration">Duração da luta (minutos)</label><input id="duration" type="number" min="1" max="30" value="5"></div>
+      </div>
+      <div class="score-layout">
+        <!-- ATLETA BRANCO -->
+        <section class="fighter white" aria-label="Atleta do canto branco">
+          <div class="fighter-head"><span class="corner-label">Branco</span><span class="corner-dot"></span></div>
+          <input class="fighter-name" id="name1" value="ATLETA 1" aria-label="Nome do atleta branco">
+          <div class="score-wrap"><div class="score-label">Pontos</div><div class="score" id="points1">0</div></div>
+          <div class="score-buttons">
+            <button type="button" class="point-btn" data-action="point" data-corner="1" data-val="2">+2<span>Queda / raspagem</span></button>
+            <button type="button" class="point-btn" data-action="point" data-corner="1" data-val="3">+3<span>Passagem</span></button>
+            <button type="button" class="point-btn" data-action="point" data-corner="1" data-val="4">+4<span>Montada / costas</span></button>
+          </div>
+          <div class="undo-line">DESFAZER <button type="button" data-action="point" data-corner="1" data-val="-2">−2</button><button type="button" data-action="point" data-corner="1" data-val="-3">−3</button><button type="button" data-action="point" data-corner="1" data-val="-4">−4</button></div>
+          <div class="stats">
+            <div class="stat"><div class="stat-name">Vantagens</div><div class="stat-num" id="adv1">0</div><div class="stat-actions"><button type="button" data-action="adv" data-corner="1" data-val="-1">−</button><button type="button" data-action="adv" data-corner="1" data-val="1">+</button></div></div>
+            <div class="stat"><div class="stat-name">Punições</div><div class="stat-num" id="pen1">0</div><div class="stat-actions"><button type="button" data-action="pen" data-corner="1" data-val="-1">−</button><button type="button" data-action="pen" data-corner="1" data-val="1">+</button></div></div>
+          </div>
+          <button type="button" class="dq" id="dq1">⚠ Desclassificar atleta</button>
+        </section>
+
+        <!-- PAINEL CENTRAL / CRONÔMETRO -->
+        <section class="center-panel" aria-label="Controles da luta">
+          <div class="center-top"><strong>⏱ Tempo de combate</strong><span class="live-tag" id="timer-state">PARADO</span></div>
+          <div class="timer" id="timer">05:00</div>
           <div class="timer-controls">
-            <button class="timer-btn btn-start" onclick="startTimer()">Iniciar</button>
-            <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
-            <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
+            <button type="button" class="btn btn-green" id="start-btn">▶ Iniciar</button>
+            <button type="button" class="btn btn-amber" id="pause-btn">Ⅱ Pausar</button>
+            <button type="button" class="btn btn-ghost" id="reset-timer-btn">↺ Reset</button>
+            <button type="button" class="btn btn-red" id="reset-fight-btn">Zerar luta</button>
           </div>
-          <div class="timer-bottom-btns">
-            <button class="timer-btn btn-finish" onclick="manualFinishMatch()">Finalizar (Sub)</button>
-            <button class="timer-btn btn-reset-match" onclick="resetFullMatch()">Zerar Combate</button>
-          </div>
-        </div>
-        <div class="header-input-group">
-          <label>Categoria</label>
-          <input type="text" id="category-info" placeholder="Ex: Adulto / Branca / Médio">
-        </div>
-      </header>
-
-      <main class="scoreboard-main">
-        <section class="athlete-card athlete-1">
-          <input type="text" class="athlete-name-input" id="athlete1-name" value="Atleta Branco">
-          <div class="score-box"><div class="score-number" id="a1-points">0</div></div>
-          <div>
-            <div class="points-actions">
-              <button class="btn-score" onclick="addPoints(1, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-              <button class="btn-score" onclick="addPoints(1, 3)">+3 <span>Passagem Guarda</span></button>
-              <button class="btn-score" onclick="addPoints(1, 4)">+4 <span>Montada / Costas</span></button>
-            </div>
-            <div class="undo-row">
-              <span class="undo-label">Desfazer:</span>
-              <button class="btn-undo" onclick="addPoints(1, -2)">-2</button>
-              <button class="btn-undo" onclick="addPoints(1, -3)">-3</button>
-              <button class="btn-undo" onclick="addPoints(1, -4)">-4</button>
-            </div>
-          </div>
-          <div>
-            <div class="secondary-scores">
-              <div class="sec-box">
-                <div class="sec-title">Vantagens</div>
-                <div class="sec-value" id="a1-advantages" style="color:#d97706">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addAdvantage(1, -1)">-</button>
-                  <button class="btn-sec" onclick="addAdvantage(1, 1)">+</button>
-                </div>
-              </div>
-              <div class="sec-box">
-                <div class="sec-title">Punições</div>
-                <div class="sec-value" id="a1-penalties" style="color:#dc2626">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addPenalty(1, -1)">-</button>
-                  <button class="btn-sec" onclick="addPenalty(1, 1)">+</button>
-                </div>
-              </div>
-            </div>
-            <button class="btn-dq" onclick="disqualifyAthlete(1)">⚠️ Desclassificar (DQ)</button>
-          </div>
+          <div class="divider"></div>
+          <div class="center-label">Encerramento</div>
+          <button type="button" class="btn btn-purple full" id="sub-btn">🏁 Finalizar por submissão</button>
+          <button type="button" class="btn btn-blue full" id="points-finish-btn">Concluir por tempo / pontos</button>
+          <div class="match-result" id="active-match">Nenhuma luta de chave carregada.<br><strong>Dica:</strong> carregue uma luta na aba “Chaves e lutas” para registrar o vencedor automaticamente.</div>
+          <p class="notice">O cronômetro emite alerta ao zerar.</p>
         </section>
 
-        <section class="athlete-card athlete-2">
-          <input type="text" class="athlete-name-input" id="athlete2-name" value="Atleta Azul">
-          <div class="score-box"><div class="score-number" id="a2-points">0</div></div>
-          <div>
-            <div class="points-actions">
-              <button class="btn-score" onclick="addPoints(2, 2)">+2 <span>Queda / Rasp. / Joelho</span></button>
-              <button class="btn-score" onclick="addPoints(2, 3)">+3 <span>Passagem Guarda</span></button>
-              <button class="btn-score" onclick="addPoints(2, 4)">+4 <span>Montada / Costas</span></button>
-            </div>
-            <div class="undo-row">
-              <span class="undo-label">Desfazer:</span>
-              <button class="btn-undo" onclick="addPoints(2, -2)">-2</button>
-              <button class="btn-undo" onclick="addPoints(2, -3)">-3</button>
-              <button class="btn-undo" onclick="addPoints(2, -4)">-4</button>
-            </div>
+        <!-- ATLETA AZUL -->
+        <section class="fighter blue" aria-label="Atleta do canto azul">
+          <div class="fighter-head"><span class="corner-label">Azul</span><span class="corner-dot"></span></div>
+          <input class="fighter-name" id="name2" value="ATLETA 2" aria-label="Nome do atleta azul">
+          <div class="score-wrap"><div class="score-label">Pontos</div><div class="score" id="points2">0</div></div>
+          <div class="score-buttons">
+            <button type="button" class="point-btn" data-action="point" data-corner="2" data-val="2">+2<span>Queda / raspagem</span></button>
+            <button type="button" class="point-btn" data-action="point" data-corner="2" data-val="3">+3<span>Passagem</span></button>
+            <button type="button" class="point-btn" data-action="point" data-corner="2" data-val="4">+4<span>Montada / costas</span></button>
           </div>
-          <div>
-            <div class="secondary-scores">
-              <div class="sec-box">
-                <div class="sec-title">Vantagens</div>
-                <div class="sec-value" id="a2-advantages" style="color:#fbbf24">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addAdvantage(2, -1)">-</button>
-                  <button class="btn-sec" onclick="addAdvantage(2, 1)">+</button>
-                </div>
-              </div>
-              <div class="sec-box">
-                <div class="sec-title">Punições</div>
-                <div class="sec-value" id="a2-penalties" style="color:#f87171">0</div>
-                <div class="sec-btn-group">
-                  <button class="btn-sec" onclick="addPenalty(2, -1)">-</button>
-                  <button class="btn-sec" onclick="addPenalty(2, 1)">+</button>
-                </div>
-              </div>
-            </div>
-            <button class="btn-dq" onclick="disqualifyAthlete(2)">⚠️ Desclassificar (DQ)</button>
+          <div class="undo-line">DESFAZER <button type="button" data-action="point" data-corner="2" data-val="-2">−2</button><button type="button" data-action="point" data-corner="2" data-val="-3">−3</button><button type="button" data-action="point" data-corner="2" data-val="-4">−4</button></div>
+          <div class="stats">
+            <div class="stat"><div class="stat-name">Vantagens</div><div class="stat-num" id="adv2">0</div><div class="stat-actions"><button type="button" data-action="adv" data-corner="2" data-val="-1">−</button><button type="button" data-action="adv" data-corner="2" data-val="1">+</button></div></div>
+            <div class="stat"><div class="stat-name">Punições</div><div class="stat-num" id="pen2">0</div><div class="stat-actions"><button type="button" data-action="pen" data-corner="2" data-val="-1">−</button><button type="button" data-action="pen" data-corner="2" data-val="1">+</button></div></div>
           </div>
+          <button type="button" class="dq" id="dq2">⚠ Desclassificar atleta</button>
         </section>
-      </main>
-    </div>
+      </div>
+    </section>
 
-    <div id="tab-bracket" class="tab-content">
-      <div class="bracket-builder">
-        <div class="form-card">
-          <h3>Nova Categoria / Luta</h3>
-          
-          <div class="form-group">
-            <label>Tipo de Evento</label>
-            <select id="b-event-type" onchange="toggleEventTypeInputs()">
-              <option value="chave" selected>Chave / Torneio</option>
-              <option value="casada">Luta Casada (Super Fight)</option>
-            </select>
-          </div>
-
-          <div id="bracket-inputs-container">
-            <div class="form-group">
-              <label>Gênero</label>
-              <select id="b-gender">
-                <option value="Masculino" selected>Masculino</option>
-                <option value="Feminino">Feminino</option>
+    <!-- ABA CHAVES E LUTAS -->
+    <section class="page" id="bracket-page">
+      <div class="page-heading">
+        <div><div class="eyebrow">Organização do evento</div><h1>Chaves e lutas</h1><p class="subtitle">Monte categorias, acompanhe resultados e avance os vencedores.</p></div>
+        <span class="pill" id="group-count">0 categorias</span>
+      </div>
+      <div class="bracket-layout">
+        <aside class="panel form-panel">
+          <h2 class="panel-title">＋ Criar categoria ou luta</h2>
+          <div class="form-stack">
+            <div class="field">
+              <label for="event-type">Formato</label>
+              <select id="event-type">
+                <option value="bracket">Chave eliminatória</option>
+                <option value="superfight">Luta casada / Super Fight</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label>Faixa Etária</label>
-              <select id="b-age">
-                <option value="Pré-Mirim (4-5 anos)">Pré-Mirim: 4 e 5 anos</option>
-                <option value="Mirim (6-7 anos)">Mirim: 6 e 7 anos</option>
-                <option value="Infantil A (8-9 anos)">Infantil A: 8 e 9 anos</option>
-                <option value="Infantil B (10-11 anos)">Infantil B: 10 e 11 anos</option>
-                <option value="Infanto-Juvenil A (12-13 anos)">Infanto-Juvenil A: 12 e 13 anos</option>
-                <option value="Infanto-Juvenil B (14-15 anos)">Infanto-Juvenil B: 14 e 15 anos</option>
-                <option value="Juvenil (16-17 anos)">Juvenil: 16 e 17 anos</option>
-                <option value="Adulto (18-29 anos)" selected>Adulto: 18 a 29 anos</option>
-                <option value="Master 1 (30-35 anos)">Master 1: 30 a 35 anos</option>
-                <option value="Master 2 (36-40 anos)">Master 2: 36 a 40 anos</option>
-                <option value="Master 3 (41-45 anos)">Master 3: 41 a 45 anos</option>
-                <option value="Master 4 (46-50 anos)">Master 4: 46 a 50 anos</option>
-                <option value="Master 5 (51-55 anos)">Master 5: 51 a 55 anos</option>
-                <option value="Master 6 (56+ anos)">Master 6: Acima de 56 anos</option>
-              </select>
+            <div id="bracket-fields">
+              <div class="field"><label for="gender">Gênero</label><select id="gender"><option>Masculino</option><option>Feminino</option><option>Misto</option></select></div>
+              <div class="field"><label for="age">Faixa etária</label><select id="age"><option>Pré-Mirim (4–5)</option><option>Mirim (6–7)</option><option>Infantil A (8–9)</option><option>Infantil B (10–11)</option><option>Infanto-Juvenil A (12–13)</option><option>Infanto-Juvenil B (14–15)</option><option>Juvenil (16–17)</option><option selected>Adulto (18–29)</option><option>Master 1 (30–35)</option><option>Master 2 (36–40)</option><option>Master 3 (41–45)</option><option>Master 4 (46–50)</option><option>Master 5 (51–55)</option><option>Master 6 (56+)</option></select></div>
+              <div class="field"><label for="belt">Faixa</label><select id="belt"><option>Amarela</option><option>Amarela/Branca</option><option>Amarela/Preta</option><option>Azul</option><option selected>Branca</option><option>Cinza</option><option>Cinza/Branca</option><option>Cinza/Preta</option><option>Laranja</option><option>Laranja/Branca</option><option>Laranja/Preta</option><option>Marrom</option><option>Preta</option><option>Roxa</option><option>Verde</option><option>Verde/Branca</option><option>Verde/Preta</option></select></div>
+              <div class="field"><label for="weight">Peso</label><select id="weight"><option>Galo</option><option>Pluma</option><option>Pena</option><option>Leve</option><option selected>Médio</option><option>Meio-Pesado</option><option>Pesado</option><option>Pesadíssimo</option><option>Absoluto</option></select></div>
+              <div class="field"><label for="athletes">Atletas (um nome por linha)</label><textarea id="athletes" placeholder="Ex.:&#10;João Silva&#10;Pedro Souza&#10;Lucas Costa"></textarea></div>
+              <label class="check-row"><input type="checkbox" id="shuffle" checked> Embaralhar sorteio</label>
             </div>
-
-            <div class="form-group">
-              <label>Faixa</label>
-              <select id="b-belt">
-                <option value="Cinza/Branca">Cinza / Branca</option>
-                <option value="Cinza">Cinza</option>
-                <option value="Cinza/Preta">Cinza / Preta</option>
-                <option value="Amarela/Branca">Amarela / Branca</option>
-                <option value="Amarela">Amarela</option>
-                <option value="Amarela/Preta">Amarela / Preta</option>
-                <option value="Laranja/Branca">Laranja / Branca</option>
-                <option value="Laranja">Laranja</option>
-                <option value="Laranja/Preta">Laranja / Preta</option>
-                <option value="Verde/Branca">Verde / Branca</option>
-                <option value="Verde">Verde</option>
-                <option value="Verde/Preta">Verde / Preta</option>
-                <option value="Branca" selected>Branca</option>
-                <option value="Azul">Azul</option>
-                <option value="Roxa">Roxa</option>
-                <option value="Marrom">Marrom</option>
-                <option value="Preta">Preta</option>
-              </select>
+            <div id="superfight-fields" class="hidden">
+              <div class="field"><label for="fight-title">Nome / destaque do evento</label><input id="fight-title" value="Super Fight" placeholder="Ex.: Luta principal"></div>
+              <div class="field"><label for="fighter-a">Atleta do canto branco</label><input id="fighter-a" placeholder="Nome do atleta"></div>
+              <div class="field"><label for="fighter-b">Atleta do canto azul</label><input id="fighter-b" placeholder="Nome do atleta"></div>
             </div>
-
-            <div class="form-group">
-              <label>Peso</label>
-              <select id="b-weight">
-                <option value="Galo">Galo</option>
-                <option value="Pluma">Pluma</option>
-                <option value="Pena">Pena</option>
-                <option value="Leve">Leve</option>
-                <option value="Médio" selected>Médio</option>
-                <option value="Meio-Pesado">Meio-Pesado</option>
-                <option value="Pesado">Pesado</option>
-                <option value="Pesadíssimo">Pesadíssimo</option>
-                <option value="Absoluto">Absoluto</option>
-              </select>
+            <div class="field"><label for="bracket-time">Tempo de luta (minutos)</label><input id="bracket-time" type="number" min="1" max="30" value="5"></div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-green" id="create-event-btn">＋ Criar categoria</button>
+              <button type="button" class="btn btn-blue" id="print-btn">▤ Imprimir chaves</button>
+              <button type="button" class="btn btn-red" id="clear-all-btn">Apagar todas</button>
             </div>
-
-            <div class="form-group">
-              <label>Atletas (1 por linha):</label>
-              <textarea id="b-athletes" rows="5" placeholder="Cole os nomes aqui..."></textarea>
-            </div>
-
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;" id="shuffle-container">
-              <input type="checkbox" id="b-shuffle" checked style="width: 14px; height: 14px; accent-color: var(--accent-blue);">
-              <label for="b-shuffle" style="font-size:0.75rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-bottom:0;">🎲 Embaralhar Sorteio</label>
-            </div>
+            <p class="notice">Os dados ficam salvos localmente neste navegador.</p>
           </div>
-
-          <div id="casada-inputs-container" style="display:none;">
-            <div class="form-group">
-              <label>Nome do Evento / Destaque</label>
-              <input type="text" id="c-title" value="Super Fight / Luta Casada" placeholder="Ex: Main Event">
-            </div>
-            <div class="form-group">
-              <label>Atleta 1 (Canto Branco)</label>
-              <input type="text" id="c-athlete1" placeholder="Nome do Atleta 1">
-            </div>
-            <div class="form-group">
-              <label>Atleta 2 (Canto Azul)</label>
-              <input type="text" id="c-athlete2" placeholder="Nome do Atleta 2">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Tempo da Luta (Min)</label>
-            <input type="number" id="b-time" value="5" min="1" max="15">
-          </div>
-
-          <button class="btn-generate" onclick="generateBracket()">➕ Criar Chave / Luta</button>
-          <button class="btn-print" onclick="window.print()">🖨️ Imprimir Chaves</button>
-          <button class="btn-clear-all" onclick="clearAllBrackets()">⚠️ Apagar Tudo</button>
-        </div>
-
-        <div class="bracket-display">
-          <div id="matches-container"><p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p></div>
-        </div>
+        </aside>
+        <section class="panel"><div id="brackets"></div></section>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
+  <footer>TATAME PRO · Sistema Oficial de Controle de Combate</footer>
+</div>
 
-  <!-- MODAL DE PLACAR -->
-  <div class="modal-overlay" id="scoreModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title" id="modalMatchTitle">Detalhes da Luta</div>
-        <button class="modal-close" onclick="closeScoreModal()">✕</button>
-      </div>
-      <div class="modal-body" id="modalMatchBody"></div>
-    </div>
-  </div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-  <!-- MODAL CUSTOMIZADO CENTRALIZADO -->
-  <div id="custom-modal-overlay" class="custom-modal-overlay hidden">
-    <div class="custom-modal-box">
-      <div class="custom-modal-header">
-        <span id="custom-modal-title">TATAME PRO</span>
-      </div>
-      <div class="custom-modal-body">
-        <p id="custom-modal-message"></p>
-      </div>
-      <div class="custom-modal-footer" id="custom-modal-actions"></div>
-    </div>
-  </div>
+<div id="custom-modal-overlay" class="custom-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="custom-modal-title">
+ <div class="custom-modal-box">
+   <div class="custom-modal-header" id="custom-modal-title">TATAME PRO</div>
+   <div class="custom-modal-body"><p id="custom-modal-message"></p></div>
+   <div class="custom-modal-footer" id="custom-modal-actions"></div>
+ </div>
+</div>
 
-  <script>
-    // SISTEMA DO MODAL CUSTOMIZADO
-    function showCustomDialog({ title = "TATAME PRO", message, buttons = [] }) {
-      const overlay = document.getElementById("custom-modal-overlay");
-      const titleEl = document.getElementById("custom-modal-title");
-      const msgEl = document.getElementById("custom-modal-message");
-      const actionsEl = document.getElementById("custom-modal-actions");
-
-      titleEl.textContent = title;
-      msgEl.textContent = message;
-      actionsEl.innerHTML = "";
-
-      buttons.forEach(btnConfig => {
-        const btn = document.createElement("button");
-        btn.className = `custom-modal-btn ${btnConfig.class || 'secondary'}`;
-        btn.textContent = btnConfig.label;
-        btn.onclick = () => {
-          overlay.classList.add("hidden");
-          if (btnConfig.onClick) btnConfig.onClick();
-        };
-        actionsEl.appendChild(btn);
-      });
-
-      overlay.classList.remove("hidden");
-    }
-
-    window.alert = function (message) {
-      showCustomDialog({
-        message: message,
-        buttons: [
-          { label: "OK", class: "primary" }
-        ]
-      });
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const $ = id => document.getElementById(id);
+    const state = {
+      scores:{1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}},
+      duration:300, remaining:300, timerId:null, running:false, groups:{}, nextId:1, active:null, toastId:null
     };
 
-    window.customConfirm = function (message, onConfirm, onCancel) {
-      showCustomDialog({
-        message: message,
-        buttons: [
-          { label: "Cancelar", class: "secondary", onClick: onCancel },
-          { label: "Confirmar", class: "primary", onClick: onConfirm }
-        ]
-      });
-    };
-
-    function selectWinnerDialog(title, message, athlete1, athlete2, callback) {
-      showCustomDialog({
-        title: title,
-        message: message,
-        buttons: [
-          { label: athlete1, class: "choice-1", onClick: () => callback(1) },
-          { label: athlete2, class: "choice-2", onClick: () => callback(2) }
-        ]
-      });
+    function notify(message){
+      const el=$('toast'); if(!el)return;
+      el.textContent=message; el.classList.remove('hidden');
+      clearTimeout(state.toastId); state.toastId=setTimeout(()=>el.classList.add('hidden'),2600);
     }
+    function esc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-    // Relógio em Tempo Real
-    function updateLiveClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-
-      const clockEl = document.getElementById('live-clock');
-      if (clockEl) {
-        clockEl.innerHTML = `${hours}:${minutes}:${seconds}<span class="date-text">${day}/${month}/${year}</span>`;
-      }
-    }
-    setInterval(updateLiveClock, 1000);
-
-    // Variáveis do Tatame Pro
-    let scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-    let defaultSeconds = 300, remainingSeconds = defaultSeconds;
-    let timerInterval = null, isRunning = false;
-    let tournaments = {}; 
-    let globalGroupId = 1;
-    let activeMatchTracker = null; 
-
-    function initApp() {
+    async function toggleFullscreen(){
       try {
-        const savedTournaments = localStorage.getItem('tatame_tournaments');
-        const savedGroupId = localStorage.getItem('tatame_globalGroupId');
-
-        if (savedTournaments) tournaments = JSON.parse(savedTournaments);
-        if (savedGroupId) globalGroupId = parseInt(savedGroupId);
-      } catch(e) {
-        console.error("Erro ao carregar dados do LocalStorage", e);
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (error) {
+        notify('A tela cheia não está disponível neste navegador.');
       }
-      renderBrackets();
-      updateLiveClock();
+    }
+    const fsBtn = $('fullscreen-btn');
+    if(fsBtn) fsBtn.addEventListener('click', toggleFullscreen);
+
+    document.addEventListener('fullscreenchange',()=>{
+      const btn=$('fullscreen-btn');
+      if(btn) btn.textContent=document.fullscreenElement?'⛶ Sair da tela cheia':'⛶ Tela cheia (TV)';
+    });
+
+    function updateClock(){
+      const d=new Date();
+      const clockEl = $('clock');
+      if(clockEl) clockEl.innerHTML=d.toLocaleTimeString('pt-BR',{hour12:false})+`<small id="date">${d.toLocaleDateString('pt-BR')}</small>`;
     }
 
-    window.onload = function() {
-      initApp();
+    function showPage(id){
+      document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+      document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+    }
+    document.querySelectorAll('.nav button').forEach(b=>{
+      b.addEventListener('click',()=>showPage(b.dataset.page));
+    });
+
+    function renderScore(){
+      [1,2].forEach(n=>{ 
+        const p = $('points'+n), a = $('adv'+n), pe = $('pen'+n);
+        if(p) p.textContent=state.scores[n].points;
+        if(a) a.textContent=state.scores[n].adv;
+        if(pe) pe.textContent=state.scores[n].pen;
+      });
+    }
+
+    window.changePoints = function(n,v){state.scores[n].points=Math.max(0,state.scores[n].points+v);renderScore();};
+    window.changeAdv = function(n,v){state.scores[n].adv=Math.max(0,state.scores[n].adv+v);renderScore();};
+    window.changePen = function(n,v){
+      const opp=n===1?2:1;
+      if(v>0){
+        state.scores[n].pen++;
+        if(state.scores[n].pen===2) state.scores[opp].adv++;
+        else if(state.scores[n].pen===3) state.scores[opp].points+=2;
+        else if(state.scores[n].pen>=4){renderScore();disqualify(n);return;}
+      }else state.scores[n].pen=Math.max(0,state.scores[n].pen+v);
+      renderScore();
     };
 
-    function saveData() {
-      try {
-        localStorage.setItem('tatame_tournaments', JSON.stringify(tournaments));
-        localStorage.setItem('tatame_globalGroupId', globalGroupId);
-      } catch(e) {
-        console.error("Erro ao salvar dados no LocalStorage", e);
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if(!btn) return;
+      const action = btn.dataset.action;
+      const corner = parseInt(btn.dataset.corner, 10);
+      const val = parseInt(btn.dataset.val, 10);
+      if(action === 'point') changePoints(corner, val);
+      if(action === 'adv') changeAdv(corner, val);
+      if(action === 'pen') changePen(corner, val);
+    });
+
+    function fmt(sec){return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;}
+    function renderTimer(){
+      const timerEl = $('timer');
+      const stateEl = $('timer-state');
+      const statusEl = $('fight-status');
+      const startBtn = $('start-btn');
+      if(timerEl) {
+        timerEl.textContent=fmt(state.remaining);
+        timerEl.classList.toggle('urgent',state.remaining<=30);
       }
+      if(stateEl) stateEl.textContent=state.running?'EM ANDAMENTO':'PARADO';
+      if(statusEl) statusEl.textContent=state.running?'● LUTA EM ANDAMENTO':'● PRONTO PARA LUTAR';
+      if(startBtn) startBtn.textContent=state.running?'● Rodando':'▶ Iniciar';
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelectorAll('.nav-btn')[tabId === 'tab-scoreboard' ? 0 : 1].classList.add('active');
+    const durationInput = $('duration');
+    function syncDuration(){
+      if(!durationInput) return;
+      const mins=Math.max(1,Math.min(30,parseInt(durationInput.value,10)||5));
+      durationInput.value=mins; state.duration=mins*60;
+      if(!state.running){state.remaining=state.duration;renderTimer();}
+    }
+    if(durationInput) durationInput.addEventListener('change',syncDuration);
+
+    function startTimer(){
+      if(state.running)return;
+      if(state.remaining<=0)state.remaining=state.duration;
+      state.running=true;renderTimer();
+      state.timerId=setInterval(()=>{
+        if(state.remaining>0){state.remaining--;renderTimer();}
+        if(state.remaining<=0){pauseTimer();beep();finishFight(false,true);}
+      },1000);
+    }
+    function pauseTimer(){state.running=false;clearInterval(state.timerId);state.timerId=null;renderTimer();}
+    function resetTimer(){pauseTimer();state.remaining=state.duration;renderTimer();}
+    function resetFight(){
+      pauseTimer();state.scores={1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}};
+      if($('name1')) $('name1').value='ATLETA 1';
+      if($('name2')) $('name2').value='ATLETA 2';
+      if($('category')) $('category').value='';
+      state.active=null;
+      if($('active-match')) $('active-match').innerHTML='Nenhuma luta de chave carregada.';
+      syncDuration();renderScore();notify('Combate zerado.');
     }
 
-    function updateDisplay() {
-      document.getElementById('a1-points').innerText = scores[1].points;
-      document.getElementById('a1-advantages').innerText = scores[1].adv;
-      document.getElementById('a1-penalties').innerText = scores[1].pen;
-      document.getElementById('a2-points').innerText = scores[2].points;
-      document.getElementById('a2-advantages').innerText = scores[2].adv;
-      document.getElementById('a2-penalties').innerText = scores[2].pen;
+    if($('start-btn')) $('start-btn').addEventListener('click', startTimer);
+    if($('pause-btn')) $('pause-btn').addEventListener('click', pauseTimer);
+    if($('reset-timer-btn')) $('reset-timer-btn').addEventListener('click', resetTimer);
+    if($('reset-fight-btn')) $('reset-fight-btn').addEventListener('click', resetFight);
+
+    function beep(){
+      try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=880;gain.gain.value=.15;osc.start();osc.stop(ctx.currentTime+.45);}catch(e){}
     }
 
-    function addPoints(a, v) { scores[a].points = Math.max(0, scores[a].points + v); updateDisplay(); }
-    function addAdvantage(a, v) { scores[a].adv = Math.max(0, scores[a].adv + v); updateDisplay(); }
-    
-    // REGRAS DE PUNIÇÕES AUTOMÁTICAS (CBJJ)
-    function addPenalty(athleteNum, delta) {
-      let oppNum = athleteNum === 1 ? 2 : 1;
+    function showCustomDialog({title='TATAME PRO',message='',buttons=[{label:'OK',class:'primary'}]}){
+      const overlay=$('custom-modal-overlay'); if(!overlay) return;
+      $('custom-modal-title').textContent=title;
+      $('custom-modal-message').textContent=String(message);
+      const actions=$('custom-modal-actions'); actions.innerHTML='';
+      buttons.forEach(cfg=>{const b=document.createElement('button');b.type='button';b.className='custom-modal-btn '+(cfg.class||'secondary');b.textContent=cfg.label;b.onclick=()=>{overlay.classList.add('hidden');if(cfg.onClick)cfg.onClick();};actions.appendChild(b);});
+      overlay.classList.remove('hidden');
+    }
+    window.alert=function(message){showCustomDialog({message:String(message),buttons:[{label:'OK',class:'primary'}]});};
+    function customConfirm(message,onConfirm){showCustomDialog({message,buttons:[{label:'Cancelar',class:'secondary'},{label:'Confirmar',class:'primary',onClick:onConfirm}]});}
+    function selectWinnerDialog(message,athlete1,athlete2,callback){showCustomDialog({message,buttons:[{label:athlete1,class:'choice-1',onClick:()=>callback(1)},{label:athlete2,class:'choice-2',onClick:()=>callback(2)},{label:'Cancelar',class:'secondary'}]});}
 
-      if (delta > 0) {
-        scores[athleteNum].pen += 1;
-        let currentPen = scores[athleteNum].pen;
+    function disqualify(n){
+      pauseTimer();const winner=n===1?2:1;
+      const winnerName=$('name'+winner)?.value.trim()||`Atleta ${winner}`;
+      const loserName=$('name'+n)?.value.trim()||`Atleta ${n}`;
+      customConfirm(`Desclassificar ${loserName} e declarar ${winnerName} vencedor?`,()=>recordResult(winner,'Desclassificação (DQ)'));
+    }
+    if($('dq1')) $('dq1').addEventListener('click', ()=>disqualify(1));
+    if($('dq2')) $('dq2').addEventListener('click', ()=>disqualify(2));
 
-        if (currentPen === 2) {
-          scores[oppNum].adv += 1;
-        } else if (currentPen === 3) {
-          scores[oppNum].points += 2;
-        } else if (currentPen >= 4) {
-          disqualifyAthlete(athleteNum);
+    function finishFight(submission=false,byTime=false){
+      pauseTimer();
+      let method=submission?'Finalização / submissão':'Pontos';
+      const name1Val = $('name1')?.value || 'Atleta 1';
+      const name2Val = $('name2')?.value || 'Atleta 2';
+      if(submission){
+        selectWinnerDialog('Quem venceu por finalização?', name1Val, name2Val, n=>recordResult(n,method));
+      }else{
+        const a=state.scores[1],b=state.scores[2];
+        let winner=null;
+        if(a.points!==b.points)winner=a.points>b.points?1:2;
+        else if(a.adv!==b.adv)winner=a.adv>b.adv?1:2;
+        else if(a.pen!==b.pen)winner=a.pen<b.pen?1:2;
+        else{
+          selectWinnerDialog('Empate. Escolha o vencedor:', name1Val, name2Val, n=>recordResult(n,byTime?'Pontos / fim do tempo':method));
           return;
         }
-      } else {
-        scores[athleteNum].pen = Math.max(0, scores[athleteNum].pen + delta);
-      }
-      updateDisplay();
-    }
-
-    function formatTime(sec) {
-      return `${Math.floor(sec / 60).toString().padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
-    }
-    function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
-
-    function changeMatchTime(minutes) {
-      let mins = parseInt(minutes) || 5;
-      defaultSeconds = mins * 60;
-      if (!isRunning) {
-        remainingSeconds = defaultSeconds;
-        updateTimerDisplay();
+        if(byTime)method='Pontos / fim do tempo';
+        recordResult(winner,method);
       }
     }
+    if($('sub-btn')) $('sub-btn').addEventListener('click', ()=>finishFight(true));
+    if($('points-finish-btn')) $('points-finish-btn').addEventListener('click', ()=>finishFight(false));
 
-    function playBuzzer() {
+    function recordResult(winner,method){
+      const names=[$('name1')?.value.trim()||'Atleta 1',$('name2')?.value.trim()||'Atleta 2'];
+      const record={athlete1:names[0],athlete2:names[1],a1Score:{...state.scores[1]},a2Score:{...state.scores[2]},winner:names[winner-1],referee:$('referee')?.value.trim()||'Não informado',method};
+      if(state.active){
+        const {groupId,roundIdx,matchId}=state.active;
+        const group=state.groups[groupId];const match=group?.rounds[roundIdx]?.matches.find(m=>m.id===matchId);
+        if(match){match.winner=record.winner;match.record=record;advanceWinner(group,roundIdx,matchId,record.winner);save();renderBrackets();}
+      }
+      const am = $('active-match');
+      if(am) am.innerHTML=`<strong>Vencedor:</strong> ${esc(record.winner)}<br><strong>Método:</strong> ${esc(method)}<br><strong>Árbitro:</strong> ${esc(record.referee)}`;
+      state.active=null;notify(`Vitória registrada: ${record.winner}`);
+    }
+
+    const eventTypeSelect = $('event-type');
+    function toggleFormat(){
+      if(!eventTypeSelect) return;
+      const isSuper=eventTypeSelect.value==='superfight';
+      const bf = $('bracket-fields');
+      const sf = $('superfight-fields');
+      if(bf) bf.classList.toggle('hidden',isSuper);
+      if(sf) sf.classList.toggle('hidden',!isSuper);
+    }
+    if(eventTypeSelect) eventTypeSelect.addEventListener('change', toggleFormat);
+
+    function roundName(count){
+      if(count===2)return'Final';if(count===4)return'Semifinal';if(count===8)return'Quartas de final';if(count===16)return'Oitavas de final';return`Rodada (${count} atletas)`;
+    }
+
+    function makeMatch(a,b){return{id:'m'+Math.random().toString(36).slice(2,10),a,b,winner:null,record:null};}
+    function autoRecord(a,b,winner){return{athlete1:a,athlete2:b,a1Score:{points:0,adv:0,pen:0},a2Score:{points:0,adv:0,pen:0},winner,referee:'Automático',method:'W.O. / BYE'};}
+
+    function advanceWinner(group,roundIdx,matchId,winner){
+      const match=group.rounds[roundIdx].matches.find(m=>m.id===matchId);if(!match)return;
+      const matchIdx=group.rounds[roundIdx].matches.indexOf(match);
+      if(roundIdx<group.rounds.length-1){
+        const next=group.rounds[roundIdx+1].matches[Math.floor(matchIdx/2)];
+        if(matchIdx%2===0)next.a=winner;else next.b=winner;
+      }
+    }
+
+    function createEvent(){
       try {
-        const audioUrl = 'https://www.myinstants.com/media/sounds/boxing-bell.mp3';
-        const audio = new Audio(audioUrl);
-        audio.play().catch(e => {
-          console.log("O navegador impediu o som automático.", e);
-        });
-      } catch(e) {
-        console.log("Erro ao reproduzir o som:", e);
+        const timeInput = $('bracket-time');
+        const minutes=Math.max(1,Math.min(30,parseInt(timeInput?.value,10)||5));
+        let title, athletes=[], rounds=[];
+        
+        if(eventTypeSelect && eventTypeSelect.value==='superfight'){
+          const a=$('fighter-a')?.value.trim(), b=$('fighter-b')?.value.trim();
+          if(!a||!b){alert('Informe os nomes dos dois atletas para a luta casada.');return;}
+          title=`${$('fight-title')?.value.trim()||'Super Fight'} · Luta casada`; athletes=[a,b];
+          rounds=[{name:'Super Fight',matches:[makeMatch(a,b)]}];
+        } else {
+          const rawAthletes=$('athletes')?.value || '';
+          athletes=rawAthletes.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+          if(athletes.length<2){alert('Informe pelo menos dois atletas (um por linha) na caixa de texto.');return;}
+          
+          const shuffleEl = $('shuffle');
+          if(shuffleEl && shuffleEl.checked){
+            for(let i=athletes.length-1;i>0;i--){
+              const j=Math.floor(Math.random()*(i+1));
+              [athletes[i],athletes[j]]=[athletes[j],athletes[i]];
+            }
+          }
+          const gender = $('gender')?.value || 'Masculino';
+          const age = $('age')?.value || 'Adulto';
+          const belt = $('belt')?.value || 'Branca';
+          const weight = $('weight')?.value || 'Médio';
+          title=`${gender} · ${age} · Faixa ${belt} · ${weight}`;
+          
+          let size=1; while(size<athletes.length) size*=2;
+          const slots=[...athletes]; while(slots.length<size) slots.push('BYE');
+          
+          const first=[];
+          for(let i=0;i<size/2;i++) first.push([slots[i],slots[size-1-i]]);
+          let matches=first.map(([a,b])=>{
+            const m=makeMatch(a,b);
+            if(a==='BYE'&&b!=='BYE'){m.winner=b;m.record=autoRecord(a,b,b);}
+            else if(b==='BYE'&&a!=='BYE'){m.winner=a;m.record=autoRecord(a,b,a);}
+            else if(a==='BYE'&&b==='BYE'){m.winner='BYE';m.record=autoRecord(a,b,'BYE');}
+            return m;
+          });
+          rounds.push({name:roundName(size),matches});
+          let count=size/2;
+          while(count>=2){rounds.push({name:roundName(count),matches:Array.from({length:count/2},()=>makeMatch('A definir','A definir'))});count/=2;}
+          
+          rounds.forEach((r,ri)=>{
+            if(ri<rounds.length-1){
+              r.matches.forEach((m,mi)=>{
+                if(m.winner && m.winner !== 'BYE'){
+                  const nextMatch = rounds[ri+1].matches[Math.floor(mi/2)];
+                  if(mi%2===0) nextMatch.a = m.winner;
+                  else nextMatch.b = m.winner;
+                }
+              });
+            }
+          });
+        }
+        const id='g'+state.nextId++;
+        state.groups[id]={id,title,timeSec:minutes*60,rounds};
+        save();
+        renderBrackets();
+        if($('athletes')) $('athletes').value='';
+        if($('fighter-a')) $('fighter-a').value='';
+        if($('fighter-b')) $('fighter-b').value='';
+        alert('Categoria criada com sucesso!');
+      } catch (err) {
+        console.error('Erro ao criar categoria:', err);
+        alert('Erro ao criar categoria: ' + err.message);
       }
     }
 
-    function startTimer() {
-      if (isRunning) return;
-      isRunning = true;
-      timerInterval = setInterval(() => {
-        if (remainingSeconds > 0) {
-          remainingSeconds--; updateTimerDisplay();
-        } else {
-          pauseTimer(); playBuzzer(); autoResolveMatch();
-        }
-      }, 1000);
+    const createBtn = $('create-event-btn');
+    if(createBtn) {
+      createBtn.addEventListener('click', createEvent);
     }
-    function pauseTimer() { isRunning = false; clearInterval(timerInterval); }
+
+    window.loadMatch = function(groupId,roundIdx,matchId){
+      const group=state.groups[groupId],match=group.rounds[roundIdx].matches.find(m=>m.id===matchId);
+      if(!match||match.winner||match.a==='BYE'||match.b==='BYE'||match.a==='A definir'||match.b==='A definir')return;
+      pauseTimer();state.scores={1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}};
+      if($('name1')) $('name1').value=match.a;
+      if($('name2')) $('name2').value=match.b;
+      if($('category')) $('category').value=group.title;
+      if($('duration')) $('duration').value=group.timeSec/60;
+      state.duration=group.timeSec;state.remaining=state.duration;state.active={groupId,roundIdx,matchId};
+      if($('active-match')) $('active-match').innerHTML=`<strong>Categoria:</strong> ${esc(group.title)}<br><strong>Combate:</strong> ${esc(match.a)} × ${esc(match.b)}`;
+      renderScore();renderTimer();showPage('score-page');notify('Luta carregada no placar.');
+    };
+
+    window.redoMatch = function(groupId,roundIdx,matchId){
+      customConfirm('Refazer esta luta? O resultado será removido e as rodadas seguintes afetadas serão reiniciadas.',()=>{
+        const g=state.groups[groupId],m=g.rounds[roundIdx].matches.find(x=>x.id===matchId);if(!m)return;
+        m.winner=null;m.record=null;
+        for(let r=roundIdx+1;r<g.rounds.length;r++)g.rounds[r].matches.forEach(x=>{x.winner=null;x.record=null;x.a='A definir';x.b='A definir';});
+        g.rounds[roundIdx].matches.forEach((x,i)=>{if(x.winner&&roundIdx+1<g.rounds.length){const next=g.rounds[roundIdx+1].matches[Math.floor(i/2)];if(i%2===0)next.a=x.winner;else next.b=x.winner;}});
+        save();renderBrackets();notify('Luta liberada para ser refeita.');
+      });
+    };
+
+    window.deleteGroup = function(id){customConfirm('Apagar esta categoria e todos os seus resultados?',()=>{delete state.groups[id];save();renderBrackets();notify('Categoria apagada.');});};
     
-    function resetTimer() { 
-      pauseTimer(); 
-      remainingSeconds = defaultSeconds; 
-      updateTimerDisplay(); 
+    function clearAll(){
+      if(!Object.keys(state.groups).length)return notify('Não há categorias para apagar.');
+      customConfirm('Apagar todas as categorias e resultados salvos?',()=>{state.groups={};state.nextId=1;save();renderBrackets();notify('Todas as categorias foram apagadas.');});
+    }
+    const clearBtn = $('clear-all-btn');
+    if(clearBtn) clearBtn.addEventListener('click', clearAll);
+
+    const printBtn = $('print-btn');
+    if(printBtn) printBtn.addEventListener('click', () => window.print());
+
+    function renderBrackets(){
+      const root=$('brackets'),groups=Object.values(state.groups);
+      const gc = $('group-count');
+      if(gc) gc.textContent=`${groups.length} ${groups.length===1?'categoria':'categorias'}`;
+      if(!root) return;
+      if(!groups.length){root.innerHTML='<div class="bracket-empty"><div class="big">🥋</div><strong>Nenhuma chave criada ainda</strong><p>Use o formulário ao lado para montar a primeira categoria.</p></div>';return;}
+      root.innerHTML=groups.map(g=>{
+        const last=g.rounds[g.rounds.length-1],final=last?.matches?.[0],champ=final?.winner&&final.winner!=='BYE'&&final.winner!=='A definir'?final.winner:null;
+        return `<article class="group">
+          <div class="group-head"><h3>🏆 ${esc(g.title)}</h3><button type="button" onclick="deleteGroup('${g.id}')">Apagar</button></div>
+          ${champ?`<div class="champion">👑 CAMPEÃO: ${esc(champ)}</div>`:''}
+          <div class="rounds">${g.rounds.map((r,ri)=>`<div class="round"><div class="round-title">${esc(r.name)}</div>${r.matches.map((m,mi)=>{
+            const playable=!m.winner&&m.a!=='BYE'&&m.b!=='BYE'&&m.a!=='A definir'&&m.b!=='A definir';
+            const recordButton=m.winner&&m.record&&m.record.method!=='W.O. / BYE';
+            return `<div class="match">
+              <div class="match-meta"><span>LUTA ${mi+1}</span><span>${g.timeSec/60} MIN</span></div>
+              <div class="competitor white-corner ${m.winner===m.a?'winner':''}"><span>${esc(m.a)}</span>${m.winner===m.a?'<span class="winner-mark">✓ VENCEU</span>':''}</div>
+              <div class="competitor blue-corner ${m.winner===m.b?'winner':''}"><span>${esc(m.b)}</span>${m.winner===m.b?'<span class="winner-mark">✓ VENCEU</span>':''}</div>
+              ${playable?`<button type="button" class="btn btn-blue full" onclick="loadMatch('${g.id}',${ri},'${m.id}')">▶ Carregar no placar</button>`:recordButton?`<div class="match-actions"><button type="button" class="btn btn-ghost" onclick="viewRecord('${g.id}',${ri},'${m.id}')">Ver placar</button><button type="button" class="btn btn-amber" onclick="redoMatch('${g.id}',${ri},'${m.id}')">Refazer</button></div>`:''}
+              ${m.record&&m.record.method==='W.O. / BYE'?'<div class="notice" style="margin-top:6px">Avanço automático (BYE)</div>':''}
+            </div>`;
+          }).join('')}</div>`).join('')}</div>
+        </article>`;
+      }).join('');
     }
 
-    function resetFullMatch() {
-      resetTimer();
-      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-      document.getElementById('athlete1-name').value = 'Atleta Branco';
-      document.getElementById('athlete2-name').value = 'Atleta Azul';
-      updateDisplay();
+    window.viewRecord = function(groupId,ri,matchId){
+      const m=state.groups[groupId].rounds[ri].matches.find(x=>x.id===matchId);if(!m?.record)return;
+      const r=m.record;alert(`${r.athlete1}: ${r.a1Score.points} pts, ${r.a1Score.adv} vant., ${r.a1Score.pen} pun.\n${r.athlete2}: ${r.a2Score.points} pts, ${r.a2Score.adv} vant., ${r.a2Score.pen} pun.\n\nVencedor: ${r.winner}\nMétodo: ${r.method}\nÁrbitro: ${r.referee}`);
+    };
+
+    function save(){try{localStorage.setItem('tatame_pro_v2',JSON.stringify({groups:state.groups,nextId:state.nextId}));}catch(e){notify('Erro ao salvar no navegador.');}}
+    function loadSaved(){
+      try{const raw=localStorage.getItem('tatame_pro_v2');if(raw){const data=JSON.parse(raw);state.groups=data.groups||{};state.nextId=data.nextId||1;}}catch(e){console.warn(e);}
     }
 
-    function autoResolveMatch() {
-      if (!activeMatchTracker) {
-        alert("Tempo esgotado!"); return;
-      }
-      setTimeout(() => calculateAndAdvanceWinner(false), 500);
-    }
-
-    function manualFinishMatch() {
-      if (!activeMatchTracker) {
-        alert("Nenhuma luta ativa no momento."); return;
-      }
-      pauseTimer();
-      calculateAndAdvanceWinner(true);
-    }
-
-    function disqualifyAthlete(athleteNumber) {
-      let n1 = document.getElementById('athlete1-name').value;
-      let n2 = document.getElementById('athlete2-name').value;
-      let dqName = athleteNumber === 1 ? n1 : n2;
-      let winnerName = athleteNumber === 1 ? n2 : n1;
-      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
-
-      pauseTimer();
-      alert(`⚠️ DESCLASSIFICAÇÃO (DQ)\nO(a) atleta ${dqName} foi desclassificado(a).\n🏆 Vencedor: ${winnerName}\nÁrbitro: ${referee}`);
-      
-      if (activeMatchTracker) {
-        let matchDataRecord = {
-          athlete1: n1, athlete2: n2,
-          a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
-          a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
-          winner: winnerName, referee: referee, method: "Desclassificação (DQ)"
-        };
-        advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
-        activeMatchTracker = null;
-        document.getElementById('current-match-indicator').style.display = 'none';
-        switchTab('tab-bracket');
-      } else {
-        resetFullMatch();
-      }
-    }
-
-    function calculateAndAdvanceWinner(isManual = false) {
-      let n1 = document.getElementById('athlete1-name').value;
-      let n2 = document.getElementById('athlete2-name').value;
-      let referee = document.getElementById('referee-name').value.trim() || "Não informado";
-      let method = isManual ? "Finalização/Sub" : "Pontos";
-
-      function processWinner(winner) {
-        let winnerName = winner === 1 ? n1 : n2;
-        alert(`🏆 Vencedor: ${winnerName} (${method})!\nÁrbitro: ${referee}`);
-        
-        let matchDataRecord = {
-          athlete1: n1, athlete2: n2,
-          a1Score: { points: scores[1].points, adv: scores[1].adv, pen: scores[1].pen },
-          a2Score: { points: scores[2].points, adv: scores[2].adv, pen: scores[2].pen },
-          winner: winnerName, referee: referee, method: method
-        };
-
-        advanceAthleteWithRecord(activeMatchTracker.groupId, activeMatchTracker.matchId, matchDataRecord);
-        
-        activeMatchTracker = null;
-        document.getElementById('current-match-indicator').style.display = 'none';
-        switchTab('tab-bracket');
-      }
-
-      if (!isManual) {
-        if (scores[1].points > scores[2].points) processWinner(1);
-        else if (scores[2].points > scores[1].points) processWinner(2);
-        else if (scores[1].adv > scores[2].adv) processWinner(1);
-        else if (scores[2].adv > scores[1].adv) processWinner(2);
-        else if (scores[1].pen < scores[2].pen) processWinner(1);
-        else if (scores[2].pen < scores[1].pen) processWinner(2);
-        else {
-          selectWinnerDialog("EMPATE NO TEMPO!", "Escolha o vencedor da luta:", n1, n2, (winner) => {
-            processWinner(winner);
-          });
-        }
-      } else {
-        selectWinnerDialog("LUTA FINALIZADA!", "Quem aplicou a submissão?", n1, n2, (winner) => {
-          processWinner(winner);
-        });
-      }
-    }
-
-    function toggleEventTypeInputs() {
-      const type = document.getElementById('b-event-type').value;
-      if (type === 'casada') {
-        document.getElementById('bracket-inputs-container').style.display = 'none';
-        document.getElementById('casada-inputs-container').style.display = 'block';
-      } else {
-        document.getElementById('bracket-inputs-container').style.display = 'block';
-        document.getElementById('casada-inputs-container').style.display = 'none';
-      }
-    }
-
-    function generateBracket() {
-      const eventType = document.getElementById('b-event-type').value;
-      const timeMin = parseInt(document.getElementById('b-time').value) || 5;
-
-      if (eventType === 'casada') {
-        const eventTitle = document.getElementById('c-title').value.trim() || "Luta Casada";
-        const a1 = document.getElementById('c-athlete1').value.trim();
-        const a2 = document.getElementById('c-athlete2').value.trim();
-
-        if (!a1 || !a2) {
-          alert("Preencha o nome dos dois atletas para a luta casada."); return;
-        }
-
-        let rounds = [{
-          roundName: "Super Fight",
-          matches: [{
-            id: 'm_' + Math.random().toString(36).substring(2, 9),
-            athlete1: a1,
-            athlete2: a2,
-            winner: null,
-            matchRecord: null
-          }]
-        }];
-
-        const groupId = 'group_' + (globalGroupId++);
-        tournaments[groupId] = {
-          title: `⚔️ ${eventTitle} (Luta Casada)`,
-          timeSec: timeMin * 60,
-          rounds: rounds
-        };
-
-        saveData();
-        renderBrackets();
-        document.getElementById('c-athlete1').value = '';
-        document.getElementById('c-athlete2').value = '';
-        return;
-      }
-
-      const gender = document.getElementById('b-gender').value;
-      const age = document.getElementById('b-age').value;
-      const belt = document.getElementById('b-belt').value;
-      const weight = document.getElementById('b-weight').value;
-      const rawText = document.getElementById('b-athletes').value.trim();
-
-      if (!rawText) {
-        alert("Insira ao menos 2 atletas."); return;
-      }
-
-      let athletes = rawText.split('\n').map(a => a.trim()).filter(a => a.length > 0);
-      if (athletes.length < 2) {
-        alert("Insira pelo menos 2 atletas para gerar a chave."); return;
-      }
-
-      if (document.getElementById('b-shuffle').checked) {
-        for (let i = athletes.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [athletes[i], athletes[j]] = [athletes[j], athletes[i]];
-        }
-      }
-
-      let power = 1;
-      while (power < athletes.length) power *= 2;
-      
-      let byesCount = power - athletes.length;
-      let currentRoundAthletes = [];
-      
-      for (let i = 0; i < power / 2; i++) {
-        currentRoundAthletes.push(athletes.shift());
-        if (byesCount > 0) {
-          currentRoundAthletes.push("BYE");
-          byesCount--;
-        } else {
-          currentRoundAthletes.push(athletes.shift());
-        }
-      }
-
-      let rounds = [];
-
-      while (currentRoundAthletes.length >= 2) {
-        let matches = [];
-        for (let i = 0; i < currentRoundAthletes.length; i += 2) {
-          let a1 = currentRoundAthletes[i];
-          let a2 = currentRoundAthletes[i+1];
-          let winner = null;
-          let matchRecord = null;
-
-          if (a1 === "BYE" && a2 !== "BYE") {
-            winner = a2;
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a2, referee:"Automático", method:"W.O. / BYE" };
-          } else if (a2 === "BYE" && a1 !== "BYE") {
-            winner = a1;
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: a1, referee:"Automático", method:"W.O. / BYE" };
-          } else if (a1 === "BYE" && a2 === "BYE") {
-            winner = "BYE";
-            matchRecord = { athlete1: a1, athlete2: a2, a1Score:{points:0,adv:0,pen:0}, a2Score:{points:0,adv:0,pen:0}, winner: "BYE", referee:"Automático", method:"W.O. / BYE" };
-          }
-
-          matches.push({
-            id: 'm_' + Math.random().toString(36).substring(2, 9),
-            athlete1: a1,
-            athlete2: a2,
-            winner: winner,
-            matchRecord: matchRecord
-          });
-        }
-        rounds.push({ roundName: getRoundName(currentRoundAthletes.length), matches: matches });
-        currentRoundAthletes = new Array(currentRoundAthletes.length / 2).fill("A definir");
-      }
-
-      for (let r = 0; r < rounds.length - 1; r++) {
-        for (let m = 0; m < rounds[r].matches.length; m++) {
-          let match = rounds[r].matches[m];
-          if (match.winner) {
-            let nextMatchIdx = Math.floor(m / 2);
-            let isEven = (m % 2 === 0);
-            let nextMatch = rounds[r + 1].matches[nextMatchIdx];
-            if (isEven) {
-              nextMatch.athlete1 = match.winner;
-            } else {
-              nextMatch.athlete2 = match.winner;
-            }
-          }
-        }
-      }
-
-      const groupId = 'group_' + (globalGroupId++);
-      tournaments[groupId] = {
-        title: `${gender} • ${age} • Faixa ${belt} • ${weight}`,
-        timeSec: timeMin * 60,
-        rounds: rounds
-      };
-
-      saveData();
-      renderBrackets();
-      document.getElementById('b-athletes').value = '';
-    }
-
-    function getRoundName(num) {
-      if (num === 2) return "Final";
-      if (num === 4) return "Semifinal";
-      if (num === 8) return "Quartas de Final";
-      if (num === 16) return "Oitavas de Final";
-      return `Rodada de ${num}`;
-    }
-
-    function renderBrackets() {
-      const container = document.getElementById('matches-container');
-      const keys = Object.keys(tournaments);
-
-      if (keys.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px; font-weight: 500;">Nenhuma chave criada ainda.</p>';
-        return;
-      }
-
-      let html = '';
-      keys.forEach(groupId => {
-        let group = tournaments[groupId];
-
-        // Verificar se a chave tem um vencedor definido na última partida
-        let lastRound = group.rounds[group.rounds.length - 1];
-        let finalMatch = lastRound ? lastRound.matches[0] : null;
-        let bracketWinner = (finalMatch && finalMatch.winner && finalMatch.winner !== "A definir" && finalMatch.winner !== "BYE") ? finalMatch.winner : null;
-
-        html += `
-          <div class="bracket-group">
-            <div class="bracket-group-header">
-              <span>🏆 ${group.title}</span>
-              <button onclick="deleteGroup('${groupId}')" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:0.7rem; cursor:pointer; font-weight:bold;">Apagar Chave</button>
-            </div>
-        `;
-
-        if (bracketWinner) {
-          html += `
-            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: var(--accent-gold); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-weight: 800; font-size: 0.95rem; text-align: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);">
-              <span>👑 Vencedor da Chave: ${bracketWinner}</span>
-            </div>
-          `;
-        }
-
-        html += `<div class="bracket-rounds-container">`;
-
-        group.rounds.forEach((round, rIdx) => {
-          html += `<div class="bracket-round"><div class="round-title">${round.roundName}</div>`;
-          round.matches.forEach((match, mIdx) => {
-            html += `
-              <div class="match-card">
-                <div class="match-header-info">
-                  <span>Luta ${mIdx + 1}</span>
-                  <span>${group.timeSec / 60} min</span>
-                </div>
-            `;
-
-            if (match.matchRecord && match.matchRecord.referee && match.matchRecord.referee !== "Automático") {
-              html += `<div class="match-referee-text">Árbitro: ${match.matchRecord.referee}</div>`;
-            }
-
-            html += `<div class="match-athlete branco">
-                      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;" title="${match.athlete1}">${match.athlete1}</span>`;
-            if (match.winner && match.winner === match.athlete1) {
-              html += `<div class="winner-info-container">
-                        <span class="winner-badge">Venc</span>
-                        ${match.matchRecord && match.matchRecord.method ? `<span class="win-method-badge">${match.matchRecord.method}</span>` : ''}
-                      </div>`;
-            }
-            html += `</div>`;
-
-            html += `<div class="match-athlete azul">
-                      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;" title="${match.athlete2}">${match.athlete2}</span>`;
-            if (match.winner && match.winner === match.athlete2) {
-              html += `<div class="winner-info-container">
-                        <span class="winner-badge">Venc</span>
-                        ${match.matchRecord && match.matchRecord.method ? `<span class="win-method-badge">${match.matchRecord.method}</span>` : ''}
-                      </div>`;
-            }
-            html += `</div>`;
-
-            let isPlayable = !match.winner && 
-                             match.athlete1 !== "BYE" && match.athlete2 !== "BYE" && 
-                             match.athlete1 !== "A definir" && match.athlete2 !== "A definir";
-
-            if (isPlayable) {
-              html += `<button class="btn-load-match" onclick="loadMatchToScoreboard('${groupId}', ${rIdx}, ${mIdx})">▶️ Carregar no Placar</button>`;
-            } else if (match.winner && match.matchRecord && match.matchRecord.method !== "W.O. / BYE") {
-              let encodedData = encodeURIComponent(JSON.stringify(match.matchRecord));
-              html += `
-                <div class="match-action-row">
-                  <button class="btn-view-score" onclick="openScoreModal('${encodedData}')">📋 Placar</button>
-                  <button class="btn-redo-match" onclick="redoMatch('${groupId}', ${rIdx}, ${mIdx})">🔄 Refazer</button>
-                </div>
-              `;
-            }
-
-            html += `</div>`;
-          });
-          html += `</div>`;
-        });
-
-        html += `</div></div>`;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function loadMatchToScoreboard(groupId, roundIdx, matchIdx) {
-      let group = tournaments[groupId];
-      let match = group.rounds[roundIdx].matches[matchIdx];
-
-      document.getElementById('athlete1-name').value = match.athlete1;
-      document.getElementById('athlete2-name').value = match.athlete2;
-      document.getElementById('category-info').value = group.title;
-      document.getElementById('match-time-input').value = group.timeSec / 60;
-      
-      defaultSeconds = group.timeSec;
-      resetTimer();
-      scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
-      updateDisplay();
-
-      activeMatchTracker = { groupId: groupId, roundIdx: roundIdx, matchId: match.id };
-
-      let indicator = document.getElementById('current-match-indicator');
-      indicator.innerText = `Chave: ${group.title} (${group.rounds[roundIdx].roundName})`;
-      indicator.style.display = 'block';
-
-      switchTab('tab-scoreboard');
-    }
-
-    function redoMatch(groupId, roundIdx, matchIdx) {
-      customConfirm("Deseja refazer esta luta? O vencedor anterior será removido e a luta ficará disponível novamente.", () => {
-        let group = tournaments[groupId];
-        let match = group.rounds[roundIdx].matches[matchIdx];
-
-        match.winner = null;
-        match.matchRecord = null;
-
-        clearSubsequentRounds(groupId, roundIdx, matchIdx);
-
-        saveData();
-        renderBrackets();
-      });
-    }
-
-    function clearSubsequentRounds(groupId, rIdx, mIdx) {
-      let group = tournaments[groupId];
-      if (rIdx + 1 < group.rounds.length) {
-        let nextMatchIdx = Math.floor(mIdx / 2);
-        let isEven = (mIdx % 2 === 0);
-        let nextMatch = group.rounds[rIdx + 1].matches[nextMatchIdx];
-        
-        if (isEven) {
-          nextMatch.athlete1 = "A definir";
-        } else {
-          nextMatch.athlete2 = "A definir";
-        }
-        
-        if (nextMatch.winner) {
-          nextMatch.winner = null;
-          nextMatch.matchRecord = null;
-          clearSubsequentRounds(groupId, rIdx + 1, nextMatchIdx);
-        }
-      }
-    }
-
-    function advanceAthleteWithRecord(groupId, matchId, matchRecord) {
-      let group = tournaments[groupId];
-      let foundWinner = null;
-
-      for (let r = 0; r < group.rounds.length; r++) {
-        for (let m = 0; m < group.rounds[r].matches.length; m++) {
-          if (group.rounds[r].matches[m].id === matchId) {
-            group.rounds[r].matches[m].winner = matchRecord.winner;
-            group.rounds[r].matches[m].matchRecord = matchRecord;
-            foundWinner = matchRecord.winner;
-
-            if (r + 1 < group.rounds.length) {
-              let nextMatchIdx = Math.floor(m / 2);
-              let isEven = (m % 2 === 0);
-              let nextMatch = group.rounds[r + 1].matches[nextMatchIdx];
-              if (isEven) {
-                nextMatch.athlete1 = foundWinner;
-              } else {
-                nextMatch.athlete2 = foundWinner;
-              }
-            }
-            break;
-          }
-        }
-        if (foundWinner) break;
-      }
-
-      saveData();
-      renderBrackets();
-    }
-
-    function openScoreModal(encodedRecord) {
-      let record = JSON.parse(decodeURIComponent(encodedRecord));
-      document.getElementById('modalMatchTitle').innerText = `Placar: ${record.athlete1} vs ${record.athlete2}`;
-      
-      let bodyHtml = `
-        <div class="score-summary-grid">
-          <div class="summary-box">
-            <div class="summary-athlete-name">${record.athlete1}</div>
-            <div class="summary-stats">
-              Pontos: <strong>${record.a1Score.points}</strong>
-              Vantagens: <strong>${record.a1Score.adv}</strong>
-              Punições: <strong>${record.a1Score.pen}</strong>
-            </div>
-          </div>
-          <div class="summary-box">
-            <div class="summary-athlete-name">${record.athlete2}</div>
-            <div class="summary-stats">
-              Pontos: <strong>${record.a2Score.points}</strong>
-              Vantagens: <strong>${record.a2Score.adv}</strong>
-              Punições: <strong>${record.a2Score.pen}</strong>
-            </div>
-          </div>
-        </div>
-        <div class="match-meta-info">
-          <div>🏆 <strong>Vencedor:</strong> ${record.winner}</div>
-          <div>🛠️ <strong>Método:</strong> ${record.method}</div>
-          <div>⚖️ <strong>Árbitro:</strong> ${record.referee}</div>
-        </div>
-      `;
-
-      document.getElementById('modalMatchBody').innerHTML = bodyHtml;
-      document.getElementById('scoreModal').classList.add('active');
-    }
-
-    function closeScoreModal() {
-      document.getElementById('scoreModal').classList.remove('active');
-    }
-
-    function deleteGroup(groupId) {
-      customConfirm("Tem certeza que deseja apagar esta categoria/luta?", () => {
-        delete tournaments[groupId];
-        saveData();
-        renderBrackets();
-      });
-    }
-
-    function clearAllBrackets() {
-      customConfirm("ATENÇÃO: Deseja apagar todas as chaves e lutas salvas?", () => {
-        tournaments = {};
-        globalGroupId = 1;
-        localStorage.removeItem('tatame_tournaments');
-        localStorage.removeItem('tatame_globalGroupId');
-        renderBrackets();
-      });
-    }
-  </script>
+    loadSaved();
+    updateClock();
+    setInterval(updateClock,1000);
+    renderScore();
+    syncDuration();
+    renderBrackets();
+  } catch (err) {
+    console.error("Erro geral na aplicação:", err);
+  }
+});
+</script>
 </body>
 </html>
