@@ -37,7 +37,7 @@
     .tab-content.active { display: flex; }
 
     /* CABEÇALHO DO PLACAR */
-    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 15px; }
+    .scoreboard-header { background: var(--surface-dark); border-radius: 12px; padding: 10px 20px; display: grid; grid-template-columns: 1fr 110px auto 1fr; align-items: center; gap: 15px; border: 1px solid var(--border-color); flex-shrink: 0; margin-bottom: 15px; }
     .header-input-group { display: flex; flex-direction: column; gap: 4px; }
     .header-input-group label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
     .header-input-group input { background: var(--surface-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; width: 100%; }
@@ -299,6 +299,10 @@
     }
 
     @media print {
+      @page {
+        size: landscape;
+        margin: 10mm;
+      }
       body, html { height: auto !important; overflow: auto !important; background: white !important; color: black !important; }
       nav.top-nav, .form-card, .btn-load-match, .match-action-row, .btn-clear-all, .bracket-group-header button { display: none !important; }
       #tab-scoreboard { display: none !important; }
@@ -336,11 +340,15 @@
           <label>Árbitro</label>
           <input type="text" id="referee-name" placeholder="Nome do Árbitro">
         </div>
+        <div class="header-input-group">
+          <label>Tempo (Min)</label>
+          <input type="number" id="match-time-input" value="5" min="1" max="15" onchange="changeMatchTime(this.value)">
+        </div>
         <div class="timer-container">
           <div id="current-match-indicator" class="current-match-badge">Luta Livre</div>
           <div id="timer-display" class="timer-display">05:00</div>
           <div class="timer-controls">
-            <button class="timer-btn btn-start" onclick="startTimer()">Start</button>
+            <button class="timer-btn btn-start" onclick="startTimer()">Iniciar</button>
             <button class="timer-btn btn-pause" onclick="pauseTimer()">Pause</button>
             <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
           </div>
@@ -711,7 +719,7 @@
     function addPoints(a, v) { scores[a].points = Math.max(0, scores[a].points + v); updateDisplay(); }
     function addAdvantage(a, v) { scores[a].adv = Math.max(0, scores[a].adv + v); updateDisplay(); }
     
-    // REGRAS DE PUNIÇÕES AUTOMÁTICAS (CBJJ) - SEM POPUPS PARA 2ª E 3ª PUNIÇÃO
+    // REGRAS DE PUNIÇÕES AUTOMÁTICAS (CBJJ)
     function addPenalty(athleteNum, delta) {
       let oppNum = athleteNum === 1 ? 2 : 1;
 
@@ -738,12 +746,21 @@
     }
     function updateTimerDisplay() { document.getElementById('timer-display').innerText = formatTime(remainingSeconds); }
 
+    function changeMatchTime(minutes) {
+      let mins = parseInt(minutes) || 5;
+      defaultSeconds = mins * 60;
+      if (!isRunning) {
+        remainingSeconds = defaultSeconds;
+        updateTimerDisplay();
+      }
+    }
+
     function playBuzzer() {
       try {
         const audioUrl = 'https://www.myinstants.com/media/sounds/boxing-bell.mp3';
         const audio = new Audio(audioUrl);
         audio.play().catch(e => {
-          console.log("O navegador impediu o som automático. Interaja com a página primeiro.", e);
+          console.log("O navegador impediu o som automático.", e);
         });
       } catch(e) {
         console.log("Erro ao reproduzir o som:", e);
@@ -1029,14 +1046,29 @@
       let html = '';
       keys.forEach(groupId => {
         let group = tournaments[groupId];
+
+        // Verificar se a chave tem um vencedor definido na última partida
+        let lastRound = group.rounds[group.rounds.length - 1];
+        let finalMatch = lastRound ? lastRound.matches[0] : null;
+        let bracketWinner = (finalMatch && finalMatch.winner && finalMatch.winner !== "A definir" && finalMatch.winner !== "BYE") ? finalMatch.winner : null;
+
         html += `
           <div class="bracket-group">
             <div class="bracket-group-header">
               <span>🏆 ${group.title}</span>
               <button onclick="deleteGroup('${groupId}')" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:0.7rem; cursor:pointer; font-weight:bold;">Apagar Chave</button>
             </div>
-            <div class="bracket-rounds-container">
         `;
+
+        if (bracketWinner) {
+          html += `
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: var(--accent-gold); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-weight: 800; font-size: 0.95rem; text-align: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);">
+              <span>👑 Vencedor da Chave: ${bracketWinner}</span>
+            </div>
+          `;
+        }
+
+        html += `<div class="bracket-rounds-container">`;
 
         group.rounds.forEach((round, rIdx) => {
           html += `<div class="bracket-round"><div class="round-title">${round.roundName}</div>`;
@@ -1107,6 +1139,8 @@
       document.getElementById('athlete1-name').value = match.athlete1;
       document.getElementById('athlete2-name').value = match.athlete2;
       document.getElementById('category-info').value = group.title;
+      document.getElementById('match-time-input').value = group.timeSec / 60;
+      
       defaultSeconds = group.timeSec;
       resetTimer();
       scores = { 1: { points: 0, adv: 0, pen: 0 }, 2: { points: 0, adv: 0, pen: 0 } };
