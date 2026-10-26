@@ -45,7 +45,7 @@ h1{font-size:clamp(1.4rem,2.5vw,2rem);letter-spacing:-.8px;margin:0;font-weight:
 .field textarea{resize:vertical;min-height:100px}
 
 /* MODO TV / TELA CHEIA: PLACARES GIGANTES E IMERSIVOS */
-.score-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.85fr) minmax(0,1.2fr);gap:16px;flex:1;align-items:stretch}
+.score-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(340px,.85fr) minmax(0,1.2fr);gap:16px;flex:1;align-items:stretch}
 .fighter{position:relative;overflow:hidden;border-radius:22px;padding:clamp(16px,2vw,26px);display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
 .fighter:before{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--corner)}
 .fighter.white{--corner:#e5eaf2;background:linear-gradient(155deg,#eef2f7,#d2dceb);color:#121c30}
@@ -73,23 +73,28 @@ h1{font-size:clamp(1.4rem,2.5vw,2rem);letter-spacing:-.8px;margin:0;font-weight:
 .stat-actions button{width:36px;height:32px;border-radius:8px;border:1px solid #8996aa;background:rgba(255,255,255,.25);color:inherit;font-weight:950;font-size:1.1rem}
 .dq{width:100%;padding:10px;border:1px solid #e45d66;background:rgba(159,38,48,.25);color:inherit;border-radius:10px;font-size:.75rem;font-weight:900;letter-spacing:.4px}
 
-/* PAINEL CENTRAL / CRONÔMETRO TV */
-.center-panel{background:linear-gradient(160deg,#151d2c,#0e1420);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;box-shadow:var(--shadow)}
+/* PAINEL CENTRAL / CRONÔMETRO TV & HISTÓRICO */
+.center-panel{background:linear-gradient(160deg,#151d2c,#0e1420);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;box-shadow:var(--shadow)}
 .center-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .center-top strong{font-size:.8rem;letter-spacing:1px;text-transform:uppercase}
 .live-tag{color:#ffce68;background:#3b2b0d;border:1px solid #71551d;border-radius:99px;padding:5px 10px;font-size:.65rem;font-weight:900}
-.timer{font-size:clamp(4rem,7.5vw,7rem);font-weight:950;letter-spacing:-3px;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 35px rgba(245,185,66,.25);line-height:1}
+.timer{font-size:clamp(3.5rem,6.5vw,6rem);font-weight:950;letter-spacing:-3px;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 0 35px rgba(245,185,66,.25);line-height:1}
 .timer.urgent{color:#ff6565;animation:pulse 1s infinite}
 @keyframes pulse{50%{opacity:.5}}
 .timer-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{border:1px solid transparent;border-radius:10px;padding:12px 14px;font-size:.8rem;font-weight:900}
+.btn{border:1px solid transparent;border-radius:10px;padding:10px 12px;font-size:.78rem;font-weight:900}
 .btn-green{background:#147a4d;color:white}.btn-amber{background:#9b620e;color:white}.btn-red{background:#8f2930;color:white}.btn-blue{background:#245bd1;color:white}.btn-ghost{background:#202b3d;color:#dbe5f5;border-color:#34445d}.btn-purple{background:#6536bb;color:#fff}
 .full{width:100%}
 .divider{height:1px;background:var(--line)}
-.center-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:900}
-.match-result{background:#101a2b;border:1px solid #2b3d58;border-radius:12px;padding:12px;font-size:.8rem;color:#d7e2f5;line-height:1.5}
+.center-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:900}
+.match-result{background:#101a2b;border:1px solid #2b3d58;border-radius:10px;padding:10px;font-size:.76rem;color:#d7e2f5;line-height:1.4}
 .match-result strong{color:var(--gold)}
-.notice{color:var(--muted);font-size:.72rem;line-height:1.4;text-align:center}
+.notice{color:var(--muted);font-size:.68rem;line-height:1.35;text-align:center}
+
+/* HISTÓRICO / LINHA DO TEMPO */
+.history-box{background:#0a0f1a;border:1px solid #202d42;border-radius:10px;padding:8px 10px;max-height:110px;overflow-y:auto;font-size:.7rem;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:4px}
+.history-item{display:flex;justify-content:space-between;gap:8px;color:#9aa8bd;border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:2px}
+.history-item span:first-child{color:var(--gold);font-weight:700}
 
 /* CHAVES E OUTROS ELEMENTOS */
 .bracket-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;align-items:start}
@@ -121,8 +126,8 @@ h1{font-size:clamp(1.4rem,2.5vw,2rem);letter-spacing:-.8px;margin:0;font-weight:
 .hidden{display:none!important}
 footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:1px solid #182235}
 
-@media(max-width:1150px){.score-layout{grid-template-columns:1fr 1fr;min-height:auto}.center-panel{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:1fr 1fr;align-items:center}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice{display:none}.center-panel .timer{grid-column:1}.center-panel .timer-controls{grid-column:2}.center-panel .center-top{grid-column:1/-1}.bracket-layout{grid-template-columns:290px minmax(0,1fr)}}
-@media(max-width:760px){.topbar{flex-wrap:wrap;gap:12px;padding:12px 14px}.brand{flex:1}.clock{min-width:auto}.nav{order:3;width:100%;justify-content:stretch}.nav button{flex:1;padding:10px 7px;font-size:.72rem}.nav button.active:before{display:none}main{padding:12px}.page-heading{align-items:start;flex-direction:column}.setup-grid{grid-template-columns:1fr}.score-layout{grid-template-columns:1fr}.center-panel{display:flex}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice{display:block}.fighter{min-height:0}.bracket-layout{grid-template-columns:1fr}.round{flex-basis:230px}}
+@media(max-width:1150px){.score-layout{grid-template-columns:1fr 1fr;min-height:auto}.center-panel{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:1fr 1fr;align-items:center}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice,.center-panel .history-box{display:none}.center-panel .timer{grid-column:1}.center-panel .timer-controls{grid-column:2}.center-panel .center-top{grid-column:1/-1}.bracket-layout{grid-template-columns:290px minmax(0,1fr)}}
+@media(max-width:760px){.topbar{flex-wrap:wrap;gap:12px;padding:12px 14px}.brand{flex:1}.clock{min-width:auto}.nav{order:3;width:100%;justify-content:stretch}.nav button{flex:1;padding:10px 7px;font-size:.72rem}.nav button.active:before{display:none}main{padding:12px}.page-heading{align-items:start;flex-direction:column}.setup-grid{grid-template-columns:1fr}.score-layout{grid-template-columns:1fr}.center-panel{display:flex}.center-panel .divider,.center-panel .center-label,.center-panel .match-result,.center-panel .notice,.center-panel .history-box{display:block}.fighter{min-height:0}.bracket-layout{grid-template-columns:1fr}.round{flex-basis:230px}}
 @media print{
   @page { size: landscape; margin: 10mm; }
   body{background:#fff;color:#111}
@@ -183,7 +188,7 @@ footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:
         <!-- ATLETA BRANCO -->
         <section class="fighter white" aria-label="Atleta do canto branco">
           <div class="fighter-head"><span class="corner-label">Branco</span><span class="corner-dot"></span></div>
-          <input class="fighter-name" id="name1" value="ATLETA 1" aria-label="Nome do atleta branco">
+          <input class="fighter-name" id="name1" value="ATLETA 1" aria-label="Nome do atleta 1">
           <div class="score-wrap"><div class="score-label">Pontos</div><div class="score" id="points1">0</div></div>
           <div class="score-buttons">
             <button type="button" class="point-btn" data-action="point" data-corner="1" data-val="2">+2<span>Queda / raspagem</span></button>
@@ -198,7 +203,7 @@ footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:
           <button type="button" class="dq" id="dq1">⚠ Desclassificar atleta</button>
         </section>
 
-        <!-- PAINEL CENTRAL / CRONÔMETRO -->
+        <!-- PAINEL CENTRAL / CRONÔMETRO & HISTÓRICO -->
         <section class="center-panel" aria-label="Controles da luta">
           <div class="center-top"><strong>⏱ Tempo de combate</strong><span class="live-tag" id="timer-state">PARADO</span></div>
           <div class="timer" id="timer">05:00</div>
@@ -209,17 +214,25 @@ footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:
             <button type="button" class="btn btn-red" id="reset-fight-btn">Zerar luta</button>
           </div>
           <div class="divider"></div>
+          
+          <div class="center-label">Linha do tempo / Histórico</div>
+          <div class="history-box" id="history-log">
+            <div class="history-item"><span>00:00</span><span>Luta pronta para iniciar</span></div>
+          </div>
+
           <div class="center-label">Encerramento</div>
-          <button type="button" class="btn btn-purple full" id="sub-btn">🏁 Finalizar por submissão</button>
-          <button type="button" class="btn btn-blue full" id="points-finish-btn">Concluir por tempo / pontos</button>
-          <div class="match-result" id="active-match">Nenhuma luta de chave carregada.<br><strong>Dica:</strong> carregue uma luta na aba “Chaves e lutas” para registrar o vencedor automaticamente.</div>
-          <p class="notice">O cronômetro emite alerta ao zerar.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <button type="button" class="btn btn-purple" id="sub-btn">🏁 Submissão</button>
+            <button type="button" class="btn btn-blue" id="points-finish-btn">Concluir pontos</button>
+          </div>
+          <div class="match-result" id="active-match">Nenhuma luta de chave carregada.<br><strong>Dica:</strong> carregue uma luta na aba “Chaves e lutas”.</div>
+          <p class="notice">Atalhos: [Espaço] Iniciar/Pausar | Branco: [Q] +2, [W] +3, [E] +4 | Azul: [I] +2, [O] +3, [P] +4</p>
         </section>
 
         <!-- ATLETA AZUL -->
         <section class="fighter blue" aria-label="Atleta do canto azul">
           <div class="fighter-head"><span class="corner-label">Azul</span><span class="corner-dot"></span></div>
-          <input class="fighter-name" id="name2" value="ATLETA 2" aria-label="Nome do atleta azul">
+          <input class="fighter-name" id="name2" value="ATLETA 2" aria-label="Nome do atleta 2">
           <div class="score-wrap"><div class="score-label">Pontos</div><div class="score" id="points2">0</div></div>
           <div class="score-buttons">
             <button type="button" class="point-btn" data-action="point" data-corner="2" data-val="2">+2<span>Queda / raspagem</span></button>
@@ -239,7 +252,7 @@ footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:
     <!-- ABA CHAVES E LUTAS -->
     <section class="page" id="bracket-page">
       <div class="page-heading">
-        <div><div class="eyebrow">Organização do evento</div><h1>Chaves e lutas</h1><p class="subtitle">Monte categorias, acompanhe resultados e avance os vencedores.</p></div>
+        <div><div class="eyebrow">Organização do evento</div><h1>Chaves e lutas</h1><p class="subtitle">Monte categorias, acompanhe resultados e faça backup do evento.</p></div>
         <span class="pill" id="group-count">0 categorias</span>
       </div>
       <div class="bracket-layout">
@@ -263,16 +276,22 @@ footer{text-align:center;padding:14px;color:#65758e;font-size:.68rem;border-top:
             </div>
             <div id="superfight-fields" class="hidden">
               <div class="field"><label for="fight-title">Nome / destaque do evento</label><input id="fight-title" value="Super Fight" placeholder="Ex.: Luta principal"></div>
-              <div class="field"><label for="fighter-a">Atleta do canto branco</label><input id="fighter-a" placeholder="Nome do atleta"></div>
-              <div class="field"><label for="fighter-b">Atleta do canto azul</label><input id="fighter-b" placeholder="Nome do atleta"></div>
+              <div class="field"><label for="fighter-a">Atleta 1</label><input id="fighter-a" placeholder="Nome do atleta"></div>
+              <div class="field"><label for="fighter-b">Atleta 2</label><input id="fighter-b" placeholder="Nome do atleta"></div>
             </div>
             <div class="field"><label for="bracket-time">Tempo de luta (minutos)</label><input id="bracket-time" type="number" min="1" max="30" value="5"></div>
+            
             <div class="form-actions">
               <button type="button" class="btn btn-green" id="create-event-btn">＋ Criar categoria</button>
               <button type="button" class="btn btn-blue" id="print-btn">▤ Imprimir chaves</button>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button type="button" class="btn btn-ghost" id="export-json-btn">💾 Exportar JSON</button>
+                <button type="button" class="btn btn-ghost" id="import-json-btn">📂 Importar JSON</button>
+                <input type="file" id="import-file-input" accept=".json" class="hidden">
+              </div>
               <button type="button" class="btn btn-red" id="clear-all-btn">Apagar todas</button>
             </div>
-            <p class="notice">Os dados ficam salvos localmente neste navegador.</p>
+            <p class="notice">Faça o backup em JSON para garantir a segurança dos dados do evento.</p>
           </div>
         </aside>
         <section class="panel"><div id="brackets"></div></section>
@@ -298,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
     const state = {
       scores:{1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}},
-      duration:300, remaining:300, timerId:null, running:false, groups:{}, nextId:1, active:null, toastId:null
+      duration:300, remaining:300, timerId:null, running:false, groups:{}, nextId:1, active:null, toastId:null,
+      matchLog: []
     };
 
     function notify(message){
@@ -307,6 +327,23 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(state.toastId); state.toastId=setTimeout(()=>el.classList.add('hidden'),2600);
     }
     function esc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+    function addLog(text) {
+      const timeStr = fmt(state.remaining);
+      state.matchLog.unshift({time: timeStr, text});
+      if(state.matchLog.length > 25) state.matchLog.pop();
+      renderLog();
+    }
+
+    function renderLog() {
+      const box = $('history-log');
+      if(!box) return;
+      if(state.matchLog.length === 0) {
+        box.innerHTML = '<div class="history-item"><span>--:--</span><span>Nenhum evento registrado</span></div>';
+        return;
+      }
+      box.innerHTML = state.matchLog.map(item => `<div class="history-item"><span>${item.time}</span><span>${esc(item.text)}</span></div>`).join('');
+    }
 
     async function toggleFullscreen(){
       try {
@@ -350,16 +387,33 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    window.changePoints = function(n,v){state.scores[n].points=Math.max(0,state.scores[n].points+v);renderScore();};
-    window.changeAdv = function(n,v){state.scores[n].adv=Math.max(0,state.scores[n].adv+v);renderScore();};
+    window.changePoints = function(n,v){
+      const name = $('name'+n)?.value.trim() || (n===1?'Atleta 1':'Atleta 2');
+      state.scores[n].points=Math.max(0,state.scores[n].points+v);
+      renderScore();
+      if(v !== 0) addLog(`${name}: ${v>0?'+'+v:v} pts`);
+    };
+
+    window.changeAdv = function(n,v){
+      const name = $('name'+n)?.value.trim() || (n===1?'Atleta 1':'Atleta 2');
+      state.scores[n].adv=Math.max(0,state.scores[n].adv+v);
+      renderScore();
+      if(v !== 0) addLog(`${name}: ${v>0?'+'+v:v} vantagem`);
+    };
+
     window.changePen = function(n,v){
+      const name = $('name'+n)?.value.trim() || (n===1?'Atleta 1':'Atleta 2');
       const opp=n===1?2:1;
       if(v>0){
         state.scores[n].pen++;
-        if(state.scores[n].pen===2) state.scores[opp].adv++;
-        else if(state.scores[n].pen===3) state.scores[opp].points+=2;
+        addLog(`${name}: +1 punição`);
+        if(state.scores[n].pen===2) { state.scores[opp].adv++; addLog(`Oponente ganhou 1 vantagem por punição`); }
+        else if(state.scores[n].pen===3) { state.scores[opp].points+=2; addLog(`Oponente ganhou 2 pontos por punição`); }
         else if(state.scores[n].pen>=4){renderScore();disqualify(n);return;}
-      }else state.scores[n].pen=Math.max(0,state.scores[n].pen+v);
+      } else {
+        state.scores[n].pen=Math.max(0,state.scores[n].pen+v);
+        addLog(`${name}: -1 punição`);
+      }
       renderScore();
     };
 
@@ -372,6 +426,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if(action === 'point') changePoints(corner, val);
       if(action === 'adv') changeAdv(corner, val);
       if(action === 'pen') changePen(corner, val);
+    });
+
+    // ATALHOS DE TECLADO (HOTKEYS)
+    document.addEventListener('keydown', e => {
+      if(['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      if(e.code === 'Space') {
+        e.preventDefault();
+        if(state.running) pauseTimer(); else startTimer();
+      }
+      // Branco (Atleta 1): Q (+2), W (+3), E (+4)
+      if(e.key === 'q' || e.key === 'Q') changePoints(1, 2);
+      if(e.key === 'w' || e.key === 'W') changePoints(1, 3);
+      if(e.key === 'e' || e.key === 'E') changePoints(1, 4);
+      // Azul (Atleta 2): I (+2), O (+3), P (+4)
+      if(e.key === 'i' || e.key === 'I') changePoints(2, 2);
+      if(e.key === 'o' || e.key === 'O') changePoints(2, 3);
+      if(e.key === 'p' || e.key === 'P') changePoints(2, 4);
     });
 
     function fmt(sec){return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;}
@@ -402,21 +473,26 @@ document.addEventListener('DOMContentLoaded', () => {
       if(state.running)return;
       if(state.remaining<=0)state.remaining=state.duration;
       state.running=true;renderTimer();
+      addLog('Luta iniciada');
       state.timerId=setInterval(()=>{
         if(state.remaining>0){state.remaining--;renderTimer();}
-        if(state.remaining<=0){pauseTimer();beep();finishFight(false,true);}
+        if(state.remaining<=0){pauseTimer();beep();addLog('Fim do tempo regulamentar');finishFight(false,true);}
       },1000);
     }
-    function pauseTimer(){state.running=false;clearInterval(state.timerId);state.timerId=null;renderTimer();}
-    function resetTimer(){pauseTimer();state.remaining=state.duration;renderTimer();}
+    function pauseTimer(){
+      if(state.running) addLog('Luta pausada');
+      state.running=false;clearInterval(state.timerId);state.timerId=null;renderTimer();
+    }
+    function resetTimer(){pauseTimer();state.remaining=state.duration;renderTimer();addLog('Cronômetro resetado');}
     function resetFight(){
       pauseTimer();state.scores={1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}};
       if($('name1')) $('name1').value='ATLETA 1';
       if($('name2')) $('name2').value='ATLETA 2';
       if($('category')) $('category').value='';
       state.active=null;
+      state.matchLog = [];
       if($('active-match')) $('active-match').innerHTML='Nenhuma luta de chave carregada.';
-      syncDuration();renderScore();notify('Combate zerado.');
+      syncDuration();renderScore();renderLog();notify('Combate zerado.');
     }
 
     if($('start-btn')) $('start-btn').addEventListener('click', startTimer);
@@ -476,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function recordResult(winner,method){
       const names=[$('name1')?.value.trim()||'Atleta 1',$('name2')?.value.trim()||'Atleta 2'];
       const record={athlete1:names[0],athlete2:names[1],a1Score:{...state.scores[1]},a2Score:{...state.scores[2]},winner:names[winner-1],referee:$('referee')?.value.trim()||'Não informado',method};
+      addLog(`Vencedor: ${record.winner} (${method})`);
       if(state.active){
         const {groupId,roundIdx,matchId}=state.active;
         const group=state.groups[groupId];const match=group?.rounds[roundIdx]?.matches.find(m=>m.id===matchId);
@@ -593,13 +670,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const group=state.groups[groupId],match=group.rounds[roundIdx].matches.find(m=>m.id===matchId);
       if(!match||match.winner||match.a==='BYE'||match.b==='BYE'||match.a==='A definir'||match.b==='A definir')return;
       pauseTimer();state.scores={1:{points:0,adv:0,pen:0},2:{points:0,adv:0,pen:0}};
+      state.matchLog = [];
       if($('name1')) $('name1').value=match.a;
       if($('name2')) $('name2').value=match.b;
       if($('category')) $('category').value=group.title;
       if($('duration')) $('duration').value=group.timeSec/60;
       state.duration=group.timeSec;state.remaining=state.duration;state.active={groupId,roundIdx,matchId};
       if($('active-match')) $('active-match').innerHTML=`<strong>Categoria:</strong> ${esc(group.title)}<br><strong>Combate:</strong> ${esc(match.a)} × ${esc(match.b)}`;
-      renderScore();renderTimer();showPage('score-page');notify('Luta carregada no placar.');
+      renderScore();renderTimer();renderLog();showPage('score-page');notify('Luta carregada no placar.');
     };
 
     window.redoMatch = function(groupId,roundIdx,matchId){
@@ -623,6 +701,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const printBtn = $('print-btn');
     if(printBtn) printBtn.addEventListener('click', () => window.print());
+
+    // EXPORTAR E IMPORTAR BACKUP JSON
+    const exportBtn = $('export-json-btn');
+    if(exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({groups: state.groups, nextId: state.nextId}, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "tatame_pro_backup_" + new Date().toISOString().slice(0,10) + ".json");
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
+        notify('Backup exportado com sucesso!');
+      });
+    }
+
+    const importBtn = $('import-json-btn');
+    const fileInput = $('import-file-input');
+    if(importBtn && fileInput) {
+      importBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const data = JSON.parse(evt.target.result);
+            if(data.groups) {
+              state.groups = data.groups;
+              state.nextId = data.nextId || 1;
+              save();
+              renderBrackets();
+              alert('Chaves importadas com sucesso!');
+            } else {
+              alert('Ficheiro de backup inválido.');
+            }
+          } catch(err) {
+            alert('Erro ao ler ficheiro JSON: ' + err.message);
+          }
+          fileInput.value = '';
+        };
+        reader.readAsText(file);
+      });
+    }
 
     function renderBrackets(){
       const root=$('brackets'),groups=Object.values(state.groups);
